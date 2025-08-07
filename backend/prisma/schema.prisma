@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Issue_Status {
+  status_id    Int          @id @default(autoincrement())
+  status_name  String
+  authority_id Int?
+
+  // Relations
+  Authority Authorities? @relation(fields: [authority_id], references: [authority_id], map: "fk_issue_status_authority")
+  Issue       Issue[]
+
+  @@map("ISSUE_STATUS")
+}
+
+model Categories {
+  category_id Int          @id @default(autoincrement())
+  category_name String
+  description   String?
+
+  // Relations
+  Authorities Authorities? @relation(name: "CategoriesToAuthorities")
+  Issue       Issue[]
+
+  @@map("CATEGORIES")
+}
+
+model Authorities {
+  authority_id Int          @id @default(autoincrement())
+  name         String
+  ministry     String?
+  hq_location  String?
+  location     String?
+  description  String?
+  category_id  Int?         @unique
+
+  // Relations
+  Category     Categories?    @relation("CategoriesToAuthorities", fields: [category_id], references: [category_id], map: "fk_authorities_category")
+  Issue        Issue[]
+  Issue_Status Issue_Status[]
+  Free_Times   Free_Times[]
+  Appointment  Appointment[]
+
+  @@map("AUTHORITIES")
+}
+
+model User {
+  user_id    Int      @id @default(autoincrement())
+  first_name String?
+  last_name  String?
+  name       String?
+  email      String   @unique
+  nic        String?
+  role       String?  @db.VarChar(50)
+  land_name  String?
+  profile_image_url String?
+
+  // Relations
+  Issue       Issue[]
+  Upvote      Upvote[]
+  Appointment Appointment[]
+
+  @@map("USER")
+}
+
+model Issue {
+  issue_id     Int       @id @default(autoincrement())
+  user_id      Int
+  title        String
+  description  String?
+  district     String?
+  gs_division  String?
+  ds_division  String?
+  urgency_score Int?
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  status_id    Int?
+  authority_id Int?
+  category_id  Int?
+  image_urls   String?
+  approved_for_appointment_placing Boolean? @default(false)
+
+  // Relations
+  User          User?         @relation(fields: [user_id], references: [user_id], map: "fk_issue_user")
+  Issue_Status  Issue_Status? @relation(fields: [status_id], references: [status_id], map: "fk_issue_status")
+  Authority     Authorities?  @relation(fields: [authority_id], references: [authority_id], map: "fk_issue_authority")
+  Category      Categories?   @relation(fields: [category_id], references: [category_id], map: "fk_issue_category")
+  Embedding     Embedding[]
+  Upvote        Upvote[]
+  Appointment   Appointment[]
+
+  @@map("ISSUE")
+}
+
+model Embedding {
+  embedding_id Int      @id @default(autoincrement())
+  issue_id     Int
+  vector       String?
+  description  String?
+  title        String?
+
+  // Relations
+  Issue        Issue    @relation(fields: [issue_id], references: [issue_id], map: "fk_embedding_issue")
+
+  @@map("EMBEDDING")
+}
+
+model Upvote {
+  user_id   Int
+  issue_id  Int
+  comment   String?
+  time_stamp DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  User      User   @relation(fields: [user_id], references: [user_id], map: "fk_upvote_user")
+  Issue     Issue  @relation(fields: [issue_id], references: [issue_id], map: "fk_upvote_issue")
+
+  @@id([user_id, issue_id])
+  @@map("UPVOTE")
+}
+
+model Appointment {
+  appointment_id Int      @id @default(autoincrement())
+  user_id      Int
+  authority_id   Int
+  issue_id     Int
+  date         DateTime @db.Date
+  time_slot    String?
+
+  // Relations
+  User                User?                 @relation(fields: [user_id], references: [user_id], map: "fk_appointment_user")
+  Authority           Authorities?          @relation(fields: [authority_id], references: [authority_id], map: "fk_appointment_authority")
+  Issue               Issue?                @relation(fields: [issue_id], references: [issue_id], map: "fk_appointment_issue")
+  Appointment_Attendees Appointment_Attendees[]
+
+  @@map("APPOINTMENT")
+}
+
+model Attendees {
+  attendee_id  Int      @id @default(autoincrement())
+  nic          String?
+  name         String?
+  phone_no     String? @db.VarChar(20)
+
+  // Relations
+  Appointment_Attendees Appointment_Attendees[]
+
+  @@map("ATTENDEES")
+}
+
+model Appointment_Attendees {
+  appointment_id Int
+  attendee_id    Int
+
+  // Relations
+  Appointment Appointment @relation(fields: [appointment_id], references: [appointment_id], map: "fk_appointment_attendees_appointment")
+  Attendee    Attendees   @relation(fields: [attendee_id], references: [attendee_id], map: "fk_appointment_attendees_attendee")
+
+  @@id([appointment_id, attendee_id])
+  @@map("APPOINTMENT_ATTENDEES")
+}
+
+model Free_Times {
+  authority_id Int
+  date         DateTime @db.Date
+  time_slots   String[]
+
+  // Relations
+  Authority Authorities @relation(fields: [authority_id], references: [authority_id], map: "fk_free_times_authority")
+
+  @@id([authority_id, date])
+  @@map("FREE_TIMES")
+}
