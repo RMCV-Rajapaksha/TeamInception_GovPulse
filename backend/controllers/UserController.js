@@ -93,7 +93,50 @@ const login = async (req, res) => {
   }
 };
 
+const removeAccount = async (req, res) => {
+  // Extract the userId from the request body.
+  // It's important to convert it to a number as req.body values are strings.
+  const userId = parseInt(req.body.userId, 10);
+
+  // Check if userId is a valid number
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid user ID provided." });
+  }
+
+  try {
+    // We only need to delete the user record.
+    // The foreign key constraints with ON DELETE CASCADE in the database
+    // will automatically handle the deletion of all linked records
+    // in the ISSUE, UPVOTE, and APPOINTMENT tables.
+    const deletedUser = await prisma.user.delete({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    console.log(
+      `User with ID ${userId} and all related data have been successfully deleted.`
+    );
+    return res.status(200).json({
+      message: `User with ID ${userId} was successfully deleted.`,
+      deletedUser,
+    });
+  } catch (error) {
+    // Prisma error code for "record not found" (P2025)
+    if (error.code === "P2025") {
+      return res
+        .status(404)
+        .json({ error: `User with ID ${userId} not found.` });
+    }
+    console.error("An error occurred during account deletion:", error);
+    return res.status(500).json({
+      error: "Failed to delete user account due to a database error.",
+    });
+  }
+};
+
 module.exports = {
   signup,
   login,
+  removeAccount,
 };
