@@ -62,7 +62,6 @@ CREATE TABLE "USER" (
     "password" TEXT NOT NULL,
     "nic" VARCHAR(255),
     "role" VARCHAR(50),
-    "land_name" VARCHAR(255),
     "profile_image_url" TEXT
 );
 
