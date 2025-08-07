@@ -63,6 +63,7 @@ model User {
   last_name  String?
   name       String?
   email      String   @unique
+  password   String   @db.Text
   nic        String?
   role       String?  @db.VarChar(50)
   land_name  String?

@@ -59,6 +59,7 @@ CREATE TABLE "USER" (
     "last_name" VARCHAR(255),
     "name" VARCHAR(255),
     "email" VARCHAR(255) UNIQUE NOT NULL,
+    "password" TEXT NOT NULL,
     "nic" VARCHAR(255),
     "role" VARCHAR(50),
     "land_name" VARCHAR(255),
