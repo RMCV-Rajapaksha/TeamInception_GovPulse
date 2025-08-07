@@ -68,10 +68,10 @@ model User {
   role       String?  @db.VarChar(50)
   profile_image_url String?
 
-  // Relations
-  Issue       Issue[]
-  Upvote      Upvote[]
-  Appointment Appointment[]
+  // Relations with onDelete: Cascade
+  Issue       Issue[]       @relation(onDelete: Cascade)
+  Upvote      Upvote[]      @relation(onDelete: Cascade)
+  Appointment Appointment[] @relation(onDelete: Cascade)
 
   @@map("USER")
 }
@@ -97,9 +97,9 @@ model Issue {
   Issue_Status  Issue_Status? @relation(fields: [status_id], references: [status_id], map: "fk_issue_status")
   Authority     Authorities?  @relation(fields: [authority_id], references: [authority_id], map: "fk_issue_authority")
   Category      Categories?   @relation(fields: [category_id], references: [category_id], map: "fk_issue_category")
-  Embedding     Embedding[]
-  Upvote        Upvote[]
-  Appointment   Appointment[]
+  Embedding     Embedding[]   @relation(onDelete: Cascade)
+  Upvote        Upvote[]      @relation(onDelete: Cascade)
+  Appointment   Appointment[] @relation(onDelete: Cascade)
 
   @@map("ISSUE")
 }
@@ -124,8 +124,8 @@ model Upvote {
   time_stamp DateTime @default(now()) @db.Timestamptz(6)
 
   // Relations
-  User      User   @relation(fields: [user_id], references: [user_id], map: "fk_upvote_user")
-  Issue     Issue  @relation(fields: [issue_id], references: [issue_id], map: "fk_upvote_issue")
+  User      User   @relation(fields: [user_id], references: [user_id], map: "fk_upvote_user", onDelete: Cascade)
+  Issue     Issue  @relation(fields: [issue_id], references: [issue_id], map: "fk_upvote_issue", onDelete: Cascade)
 
   @@id([user_id, issue_id])
   @@map("UPVOTE")
