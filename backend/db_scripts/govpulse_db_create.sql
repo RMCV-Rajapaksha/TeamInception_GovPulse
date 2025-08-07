@@ -10,6 +10,7 @@ CREATE DATABASE govpulse;
 \c govpulse
 
 -- Drop tables if they exist to allow for a clean creation
+-- Using CASCADE ensures that foreign key constraints are dropped along with the tables.
 DROP TABLE IF EXISTS "FREE_TIMES" CASCADE;
 DROP TABLE IF EXISTS "APPOINTMENT_ATTENDEES" CASCADE;
 DROP TABLE IF EXISTS "ATTENDEES" CASCADE;
@@ -59,9 +60,9 @@ CREATE TABLE "USER" (
     "last_name" VARCHAR(255),
     "name" VARCHAR(255),
     "email" VARCHAR(255) UNIQUE NOT NULL,
+    "password" TEXT NOT NULL,
     "nic" VARCHAR(255),
     "role" VARCHAR(50),
-    "land_name" VARCHAR(255),
     "profile_image_url" TEXT
 );
 
@@ -145,7 +146,7 @@ CREATE TABLE "FREE_TIMES" (
     PRIMARY KEY ("authority_id", "date")
 );
 
--- Add Foreign Key Constraints
+-- Add Foreign Key Constraints with ON DELETE CASCADE
 --------------------------------------------------
 
 -- ISSUE_STATUS foreign key
@@ -155,22 +156,22 @@ ALTER TABLE "ISSUE_STATUS" ADD CONSTRAINT "fk_issue_status_authority" FOREIGN KE
 ALTER TABLE "AUTHORITIES" ADD CONSTRAINT "fk_authorities_category" FOREIGN KEY ("category_id") REFERENCES "CATEGORIES"("category_id");
 
 -- ISSUE foreign keys
-ALTER TABLE "ISSUE" ADD CONSTRAINT "fk_issue_user" FOREIGN KEY ("user_id") REFERENCES "USER"("user_id");
+ALTER TABLE "ISSUE" ADD CONSTRAINT "fk_issue_user" FOREIGN KEY ("user_id") REFERENCES "USER"("user_id") ON DELETE CASCADE;
 ALTER TABLE "ISSUE" ADD CONSTRAINT "fk_issue_status" FOREIGN KEY ("status_id") REFERENCES "ISSUE_STATUS"("status_id");
 ALTER TABLE "ISSUE" ADD CONSTRAINT "fk_issue_authority" FOREIGN KEY ("authority_id") REFERENCES "AUTHORITIES"("authority_id");
 ALTER TABLE "ISSUE" ADD CONSTRAINT "fk_issue_category" FOREIGN KEY ("category_id") REFERENCES "CATEGORIES"("category_id");
 
 -- EMBEDDING foreign key
-ALTER TABLE "EMBEDDING" ADD CONSTRAINT "fk_embedding_issue" FOREIGN KEY ("issue_id") REFERENCES "ISSUE"("issue_id");
+ALTER TABLE "EMBEDDING" ADD CONSTRAINT "fk_embedding_issue" FOREIGN KEY ("issue_id") REFERENCES "ISSUE"("issue_id") ON DELETE CASCADE;
 
 -- UPVOTE foreign keys
-ALTER TABLE "UPVOTE" ADD CONSTRAINT "fk_upvote_user" FOREIGN KEY ("user_id") REFERENCES "USER"("user_id");
-ALTER TABLE "UPVOTE" ADD CONSTRAINT "fk_upvote_issue" FOREIGN KEY ("issue_id") REFERENCES "ISSUE"("issue_id");
+ALTER TABLE "UPVOTE" ADD CONSTRAINT "fk_upvote_user" FOREIGN KEY ("user_id") REFERENCES "USER"("user_id") ON DELETE CASCADE;
+ALTER TABLE "UPVOTE" ADD CONSTRAINT "fk_upvote_issue" FOREIGN KEY ("issue_id") REFERENCES "ISSUE"("issue_id") ON DELETE CASCADE;
 
 -- APPOINTMENT foreign keys
-ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_user" FOREIGN KEY ("user_id") REFERENCES "USER"("user_id");
+ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_user" FOREIGN KEY ("user_id") REFERENCES "USER"("user_id") ON DELETE CASCADE;
 ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_authority" FOREIGN KEY ("authority_id") REFERENCES "AUTHORITIES"("authority_id");
-ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_issue" FOREIGN KEY ("issue_id") REFERENCES "ISSUE"("issue_id");
+ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_issue" FOREIGN KEY ("issue_id") REFERENCES "ISSUE"("issue_id") ON DELETE CASCADE;
 
 -- APPOINTMENT_ATTENDEES foreign keys
 ALTER TABLE "APPOINTMENT_ATTENDEES" ADD CONSTRAINT "fk_appointment_attendees_appointment" FOREIGN KEY ("appointment_id") REFERENCES "APPOINTMENT"("appointment_id");

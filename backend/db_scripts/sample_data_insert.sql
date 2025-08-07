@@ -14,10 +14,10 @@ INSERT INTO "CATEGORIES" ("category_name", "description") VALUES
 ('Waste Management', 'Issues related to garbage collection and disposal.');
 
 -- 2. Insert sample data into USER
-INSERT INTO "USER" ("first_name", "last_name", "name", "email", "nic", "role") VALUES
-('John', 'Doe', 'John Doe', 'john.doe@email.com', '123456789V', 'Citizen'),
-('Jane', 'Smith', 'Jane Smith', 'jane.smith@email.com', '987654321V', 'Citizen'),
-('Alice', 'Johnson', 'Alice Johnson', 'alice.j@government.lk', '112233445V', 'Authority Representative');
+INSERT INTO "USER" ("first_name", "last_name", "name", "email","password", "nic", "role") VALUES
+('John', 'Doe', 'John Doe', 'john.doe@email.com','jkehashedpassword', '123456789V', 'Citizen'),
+('Jane', 'Smith', 'Jane Smith', 'jane.smith@email.com','jkehashedpassword2', '987654321V', 'Citizen'),
+('Alice', 'Johnson', 'Alice Johnson', 'alice.j@government.lk','jkehashedpassword3', '112233445V', 'Authority Representative');
 
 -- 3. Insert sample data into AUTHORITIES
 -- This table depends on CATEGORIES, so we select the category_id from the CATEGORIES table.
