@@ -68,10 +68,10 @@ model User {
   role       String?  @db.VarChar(50)
   profile_image_url String?
 
-  // Relations with onDelete: Cascade
-  Issue       Issue[]       @relation(onDelete: Cascade)
-  Upvote      Upvote[]      @relation(onDelete: Cascade)
-  Appointment Appointment[] @relation(onDelete: Cascade)
+  // Relations
+  Issue       Issue[]
+  Upvote      Upvote[]
+  Appointment Appointment[]
 
   @@map("USER")
 }
@@ -93,13 +93,13 @@ model Issue {
   approved_for_appointment_placing Boolean? @default(false)
 
   // Relations
-  User          User?         @relation(fields: [user_id], references: [user_id], map: "fk_issue_user")
+  User          User?         @relation(fields: [user_id], references: [user_id], map: "fk_issue_user", onDelete: Cascade)
   Issue_Status  Issue_Status? @relation(fields: [status_id], references: [status_id], map: "fk_issue_status")
   Authority     Authorities?  @relation(fields: [authority_id], references: [authority_id], map: "fk_issue_authority")
   Category      Categories?   @relation(fields: [category_id], references: [category_id], map: "fk_issue_category")
-  Embedding     Embedding[]   @relation(onDelete: Cascade)
-  Upvote        Upvote[]      @relation(onDelete: Cascade)
-  Appointment   Appointment[] @relation(onDelete: Cascade)
+  Embedding     Embedding[]
+  Upvote        Upvote[]
+  Appointment   Appointment[]
 
   @@map("ISSUE")
 }
@@ -112,7 +112,7 @@ model Embedding {
   title        String?
 
   // Relations
-  Issue        Issue    @relation(fields: [issue_id], references: [issue_id], map: "fk_embedding_issue")
+  Issue        Issue    @relation(fields: [issue_id], references: [issue_id], map: "fk_embedding_issue", onDelete: Cascade)
 
   @@map("EMBEDDING")
 }
@@ -140,9 +140,9 @@ model Appointment {
   time_slot    String?
 
   // Relations
-  User                User?                 @relation(fields: [user_id], references: [user_id], map: "fk_appointment_user")
+  User                User?                 @relation(fields: [user_id], references: [user_id], map: "fk_appointment_user", onDelete: Cascade)
   Authority           Authorities?          @relation(fields: [authority_id], references: [authority_id], map: "fk_appointment_authority")
-  Issue               Issue?                @relation(fields: [issue_id], references: [issue_id], map: "fk_appointment_issue")
+  Issue               Issue?                @relation(fields: [issue_id], references: [issue_id], map: "fk_appointment_issue", onDelete: Cascade)
   Appointment_Attendees Appointment_Attendees[]
 
   @@map("APPOINTMENT")
