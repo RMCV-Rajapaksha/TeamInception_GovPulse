@@ -58,34 +58,29 @@ const login = async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const passwordHashed = await bcrypt.hash(password, saltRounds);
-    const storedHashedPassword = await prisma.user.findUnique({
-      where: {
-        email: email,
-      },
-      select: {
-        password: true,
-      },
-    });
-
-    if (!storedHashedPassword) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      storedHashedPassword.password
-    );
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid password" });
-    }
+    // Find the user by email to retrieve their stored password hash
     const user = await prisma.user.findUnique({
       where: {
         email: email,
       },
     });
 
+    // If no user is found, return an error
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Compare the plain-text password from the request with the stored hashed password
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user.password // Use the password hash from the retrieved user object
+    );
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+
+    // Login successful, send back user details (without the password)
     res.status(200).json({
       user: {
         user_id: user.user_id,
