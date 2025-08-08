@@ -17,7 +17,13 @@ export type Post = {
   imageUrl: string;
 };
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({
+  post,
+  onVote,
+}: {
+  post: Post;
+  onVote?: (post: Post) => void;
+}) {
   const { title, description, date, location, votes, status, imageUrl } = post;
 
   return (
@@ -58,7 +64,10 @@ export default function PostCard({ post }: { post: Post }) {
 
           {/* Actions */}
           <div className="flex">
-            <button className="flex items-center gap-2 h-10 lg:h-11 px-3 lg:px-4 rounded-2xl ring-1 ring-gray-300 bg-gray-50 text-gray-900 font-bold">
+            <button
+              onClick={() => onVote?.(post)}
+              className="flex items-center gap-2 h-10 lg:h-11 px-3 lg:px-4 rounded-2xl ring-1 ring-gray-300 bg-gray-50 text-gray-900 font-bold"
+            >
               <FiArrowUp className="h-5 w-5" /> Vote
             </button>
           </div>
@@ -69,7 +78,7 @@ export default function PostCard({ post }: { post: Post }) {
           <img
             src={imageUrl}
             alt="Post media"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover hover:scale-125 transition-all duration-500"
           />
           <div className="absolute top-2 right-2">
             <span className="px-3 lg:px-4 py-1.5 lg:py-2 bg-yellow-200 rounded-lg inline-flex items-center gap-2 text-xs text-gray-900">
@@ -131,7 +140,10 @@ export default function PostCard({ post }: { post: Post }) {
 
           {/* Actions */}
           <div className="py-2">
-            <button className="flex items-center gap-2 h-10 lg:h-11 px-4 rounded-2xl ring-1 ring-gray-300 bg-gray-50 text-gray-900 font-bold w-full justify-center">
+            <button
+              onClick={() => onVote?.(post)}
+              className="flex items-center gap-2 h-10 lg:h-11 px-4 rounded-2xl ring-1 ring-gray-300 bg-gray-50 text-gray-900 font-bold w-full justify-center"
+            >
               <FiArrowUp className="h-5 w-5" /> Vote
             </button>
           </div>
