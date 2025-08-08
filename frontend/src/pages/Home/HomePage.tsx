@@ -1,8 +1,19 @@
 import Trending from "../../components/sections/Trending";
 import PostCard from "../../components/posts/PostCard";
 import type { Post } from "../../components/posts/PostCard";
+import { useState } from "react";
+import PostDetailsModal from "../../components/posts/PostDetailsModal";
 
 export default function HomePage() {
+  const [selected, setSelected] = useState<Post | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const handleVote = (post: Post) => {
+    setSelected(post);
+    setOpen(true);
+  };
+  const handleClose = () => setOpen(false);
+
   const trendingItems = [
     {
       id: "1",
@@ -77,10 +88,12 @@ export default function HomePage() {
       <div className="mt-6 divide-y divide-gray-200">
         {posts.map((post) => (
           <div key={post.id} className="py-4">
-            <PostCard post={post} />
+            <PostCard post={post} onVote={handleVote} />
           </div>
         ))}
       </div>
+
+      <PostDetailsModal post={selected} isOpen={open} onClose={handleClose} />
     </div>
   );
 }
