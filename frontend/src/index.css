@@ -17,11 +17,12 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #111827; /* black */
   text-decoration: inherit;
 }
+
 a:hover {
-  color: #535bf2;
+  color: #111827; /* black */
 }
 
 body {
@@ -44,12 +45,12 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: transparent; /* changed from dark bg */
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: transparent; /* remove hover border color */
 }
 button:focus,
 button:focus-visible {
@@ -62,9 +63,9 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
+    color: #111827; /* black */
   }
   button {
-    background-color: #f9f9f9;
+    background-color: transparent; /* keep transparent in light mode */
   }
 }
