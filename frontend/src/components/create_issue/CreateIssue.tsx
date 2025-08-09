@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import IssueSuccessModal from "./IssueSuccessModal";
 import { FiX, FiChevronDown, FiUploadCloud } from "react-icons/fi";
 import ReactModal from "react-modal";
 
@@ -39,6 +40,7 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
     description?: string;
     sector?: string;
   }>({});
+  const [showSuccess, setShowSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -75,8 +77,9 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
     if (!description.trim() || description.length < 30) newErrors.description = "Description must be at least 30 characters.";
     if (!sector) newErrors.sector = "Please select a department to continue.";
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
-    // Submit logic here
+  if (Object.keys(newErrors).length > 0) return;
+  // Simulate successful submit
+  setShowSuccess(true);
   };
 
   // Close dropdowns on outside click
@@ -95,7 +98,8 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
   }, [showGramaDropdown, showCityDropdown, showDistrictDropdown, showSectorDropdown]);
 
   return (
-    <ReactModal
+  <>
+  <ReactModal
       isOpen={isReportedClicked}
       onRequestClose={() => setIsReportedClicked(false)}
       overlayClassName="fixed inset-0 bg-black/60 z-[1000]"
@@ -116,7 +120,7 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
         <div className="w-8" />
       </div>
 
-      <form className="overflow-y-auto flex-1 px-6 pb-6" onSubmit={handleSubmit}>
+  <form className="overflow-y-auto flex-1 px-6 pb-6" onSubmit={handleSubmit}>
         {/* Location Section */}
         <div className="mt-6">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Where is the issue happening?</h3>
@@ -341,5 +345,15 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
         </button>
       </form>
     </ReactModal>
+    <IssueSuccessModal
+      isOpen={showSuccess}
+      onClose={() => setShowSuccess(false)}
+      onGoToReports={() => {
+        setShowSuccess(false);
+        setIsReportedClicked(false);
+        // Add navigation logic here if needed
+      }}
+    />
+    </>
   );
 }
