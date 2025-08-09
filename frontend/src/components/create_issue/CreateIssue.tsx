@@ -18,6 +18,7 @@ const sectorOptions = [
   "Other",
 ];
 
+
 export default function CreateIssue({ isReportedClicked, setIsReportedClicked }: CreateIssueProps) {
   const [grama, setGrama] = useState(gramaOptions[0]);
   const [city, setCity] = useState(cityOptions[0]);
@@ -29,6 +30,14 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
   const [showGramaDropdown, setShowGramaDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
+  const [errors, setErrors] = useState<{
+    grama?: string;
+    city?: string;
+    district?: string;
+    title?: string;
+    description?: string;
+    sector?: string;
+  }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -50,6 +59,22 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: {
+      grama?: string;
+      city?: string;
+      district?: string;
+      title?: string;
+      description?: string;
+      sector?: string;
+    } = {};
+    if (!grama) newErrors.grama = "Please enter a valid Grama Niladhari Division.";
+    if (!city) newErrors.city = "Please enter a valid city / town.";
+    if (!district) newErrors.district = "Please enter a valid district.";
+    if (!title.trim()) newErrors.title = "A short title is required.";
+    if (!description.trim() || description.length < 30) newErrors.description = "Description must be at least 30 characters.";
+    if (!sector) newErrors.sector = "Please select a department to continue.";
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
     // Submit logic here
   };
 
@@ -98,12 +123,13 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
             <label className="block text-sm text-gray-600 mb-1">Grama Niladhari Division</label>
             <button
               type="button"
-              className="border border-gray-300 rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black"
+              className={`border ${errors.grama ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black`}
               onClick={() => setShowGramaDropdown((v) => !v)}
             >
               <span className="text-black">{grama}</span>
               <span>{showGramaDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}</span>
             </button>
+            {errors.grama && <div className="text-red-500 text-xs mt-1">{errors.grama}</div>}
             {showGramaDropdown && (
               <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-48 overflow-auto">
                 {gramaOptions.map((option) => (
@@ -124,12 +150,13 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
               <label className="block text-sm text-gray-600 mb-1">City / Town</label>
               <button
                 type="button"
-                className="border border-gray-300 rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black"
+                className={`border ${errors.city ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black`}
                 onClick={() => setShowCityDropdown((v) => !v)}
               >
                 <span className="text-black">{city}</span>
                 <span>{showCityDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}</span>
               </button>
+              {errors.city && <div className="text-red-500 text-xs mt-1">{errors.city}</div>}
               {showCityDropdown && (
                 <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-48 overflow-auto">
                   {cityOptions.map((option) => (
@@ -149,12 +176,13 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
               <label className="block text-sm text-gray-600 mb-1">District</label>
               <button
                 type="button"
-                className="border border-gray-300 rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black"
+                className={`border ${errors.district ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black`}
                 onClick={() => setShowDistrictDropdown((v) => !v)}
               >
                 <span className="text-black">{district}</span>
                 <span>{showDistrictDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}</span>
               </button>
+              {errors.district && <div className="text-red-500 text-xs mt-1">{errors.district}</div>}
               {showDistrictDropdown && (
                 <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-48 overflow-auto">
                   {districtOptions.map((option) => (
@@ -180,28 +208,29 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
           <div className="mb-4">
             <label className="block text-sm text-gray-600 mb-1">Title</label>
             <input
-              className="border border-gray-300 rounded-lg p-3 w-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+              className={`border ${errors.title ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black`}
               type="text"
               placeholder="e.g., “Broken main road near hospital”"
               maxLength={300}
               value={title}
               onChange={e => setTitle(e.target.value)}
-              required
+              
             />
+            {errors.title && <div className="text-red-500 text-xs mt-1">{errors.title}</div>}
             <div className="text-xs text-gray-400 text-right mt-1">{title.length}/300</div>
           </div>
           <div className="mb-2">
             <label className="block text-sm text-gray-600 mb-1">Description</label>
             <textarea
-              className="border border-gray-300 rounded-lg p-3 w-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black min-h-[80px]"
+              className={`border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black min-h-[80px]`}
               placeholder="Provide as much detail as possible (what’s wrong, how long it's been happening, who is affected, etc.)"
               minLength={30}
               maxLength={300}
               value={description}
               onChange={e => setDescription(e.target.value)}
-              required
+              
             />
-            <div className="text-xs text-gray-400 mt-1">Description must be at least 30 characters.</div>
+            {errors.description && <div className="text-red-500 text-xs mt-1">{errors.description}</div>}
           </div>
         </div>
 
@@ -242,10 +271,10 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
           <label className="block text-sm text-gray-600 mb-2">Which government sector does this issue relate to?</label>
           <div className="relative">
             <select
-              className="border border-gray-300 rounded-lg p-3 w-full text-gray-900 bg-gray-100 pr-10 focus:outline-none appearance-none"
+              className={`border ${errors.sector ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full text-gray-900 bg-gray-100 pr-10 focus:outline-none appearance-none`}
               value={sector}
               onChange={e => setSector(e.target.value)}
-              required
+              
             >
               <option value="" disabled>Choose the most relevant one</option>
               {sectorOptions.map(opt => (
@@ -255,6 +284,7 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
             <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <FiChevronDown className="text-gray-400" />
             </span>
+            {errors.sector && <div className="text-red-500 text-xs mt-1">{errors.sector}</div>}
           </div>
         </div>
 
