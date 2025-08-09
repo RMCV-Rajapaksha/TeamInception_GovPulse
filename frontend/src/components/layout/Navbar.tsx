@@ -44,9 +44,9 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="ml-auto flex items-center gap-2 md:gap-4 shrink-0">
-            <div className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center cursor-pointer hover:bg-yellow-300 transition-colors duration-200 ease-in-out">
+            <div onClick={() => setIsReportedClicked(true)} className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center cursor-pointer hover:bg-yellow-300 transition-colors duration-200 ease-in-out">
               <FiPlus className="h-5 w-5" aria-hidden />
-              <span onClick={() => setIsReportedClicked(true)}>Report</span>
+              <span>Report</span>
             </div>
 
             <button
