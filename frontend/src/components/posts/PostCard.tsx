@@ -6,6 +6,8 @@ import {
   FiArrowUp,
 } from "react-icons/fi";
 
+import { PiShareFatThin } from "react-icons/pi";
+
 export type Post = {
   id: string;
   title: string;
@@ -29,9 +31,9 @@ export default function PostCard({
   return (
     <article className="w-full">
       {/* Desktop layout */}
-      <div className="hidden md:flex w-full  py-6 lg:py-8 gap-6 lg:gap-8">
+      <div className="hidden md:flex md:flex-wrap  w-full  py-6 lg:py-8 gap-6 lg:gap-8">
         {/* Left content */}
-        <div className="flex-1 flex flex-col gap-3 lg:gap-4 ">
+        <div className="flex-3 flex flex-col gap-3 lg:gap-4 ">
           {/* Meta row */}
           <div className="flex items-center gap-3 lg:gap-4 ">
             <div className="flex-1 flex items-center gap-2 text-xs text-gray-500 ">
@@ -48,7 +50,7 @@ export default function PostCard({
               <span>{votes}</span>
             </div>
             <button className="rounded-2xl hover:bg-gray-100" aria-label="More">
-              <FiMoreHorizontal className="h-6 w-6 text-gray-500" />
+              <PiShareFatThin className="h-6 w-6 text-gray-500" />
             </button>
           </div>
 
@@ -74,7 +76,7 @@ export default function PostCard({
         </div>
 
         {/* Right image + status */}
-        <div className="flex-1 relative rounded-2xl overflow-hidden">
+        <div className="flex-2 md:min-w-[200px] relative rounded-2xl overflow-hidden">
           <img
             src={imageUrl}
             alt="Post media"

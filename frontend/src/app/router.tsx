@@ -5,12 +5,14 @@ import HomePage from "../pages/Home/HomePage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
 import SignInPage from "../pages/Auth/SignInPage";
 import SignUpPage from "../pages/Auth/SignUpPage";
+import StatisticsPage from "../pages/Statistics/StatisticsPage";
 
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
       { path: "/", element: <HomePage /> },
+      { path: "/stats", element: <StatisticsPage /> },
       { path: "/sign-in", element: <SignInPage /> },
       { path: "/sign-up", element: <SignUpPage /> },
       {
