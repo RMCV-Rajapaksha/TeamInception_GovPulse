@@ -3,8 +3,8 @@ import { FiCompass, FiBarChart2 } from "react-icons/fi";
 
 export default function DesktopSidebar() {
   return (
-    <aside className="hidden md:block px-8 py-12">
-      <div className="w-40 p-2 rounded-2xl ring-1 ring-gray-200 inline-flex flex-col justify-center items-start gap-2 bg-white/80 backdrop-blur-sm">
+    <aside className="hidden md:block fixed left-0 top-[80px] h-screen px-8 py-12">
+      <div className="w-[10rem] p-2 rounded-2xl ring-1 ring-gray-200 inline-flex flex-col justify-center items-start gap-2 bg-white/80 backdrop-blur-sm">
         <NavLink
           to="/"
           end
