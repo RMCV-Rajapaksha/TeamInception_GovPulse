@@ -11,6 +11,7 @@ import {
   Cell,
 } from "recharts";
 import CountUp from "../../components/ui/CountUp";
+import { useEffect, useState } from "react";
 
 const monthlyData = [
   { month: "Jan", raised: 3200, resolved: 1800 },
@@ -24,11 +25,11 @@ const monthlyData = [
 ];
 
 const departments = [
-  { name: "Local Government", pct: 27.94, bar: "w-28 bg-yellow-200" },
-  { name: "Roads & Infrastructure", pct: 25.69, bar: "w-32 bg-amber-500" },
-  { name: "Education", pct: 20.24, bar: "w-24 bg-amber-500" },
-  { name: "Utilities & Power", pct: 13.94, bar: "w-16 bg-yellow-400" },
-  { name: "Healthcare", pct: 12.21, bar: "w-10 bg-orange-300" },
+  { name: "Local Government", pct: 27.94, barColor: "#FDE68A" },
+  { name: "Roads & Infrastructure", pct: 25.69, barColor: "#F59E0B" },
+  { name: "Education", pct: 20.24, barColor: "#F59E0B" },
+  { name: "Utilities & Power", pct: 13.94, barColor: "#FACC15" },
+  { name: "Healthcare", pct: 12.21, barColor: "#FDBA74" },
 ];
 
 const pieColors = ["#F97316", "#FB923C", "#FDE68A", "#F59E0B", "#FDBA74"]; // orange/yellow hues
@@ -73,6 +74,12 @@ function TrendingStatCard({
 }
 
 export default function StatisticsPage() {
+  const [animateBars, setAnimateBars] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setAnimateBars(true), 150);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="pb-24 md:ml-[14rem] px-10 md:px-0 md:pl-[5rem] md:pr-[15rem]">
       {/* Header */}
@@ -99,11 +106,7 @@ export default function StatisticsPage() {
                 },
                 { label: "Resolved:", value: 1278, dot: "bg-green-300" },
                 { label: "In progress:", value: 865, dot: "bg-blue-500" },
-                {
-                  label: "Pending review:",
-                  value: 1309,
-                  dot: "bg-yellow-400",
-                },
+                { label: "Pending review:", value: 1309, dot: "bg-yellow-400" },
               ].map((row, idx) => (
                 <div className="flex items-center gap-2" key={row.label}>
                   <div className="flex-1 flex items-center">
@@ -156,18 +159,30 @@ export default function StatisticsPage() {
               </div>
 
               <div className="w-full p-4 flex flex-col gap-4">
-                {departments.map((d) => (
+                {departments.map((d, i) => (
                   <div key={d.name} className="flex flex-col gap-2">
                     <div className="flex items-center">
                       <div className="flex-1 text-base text-gray-900">
                         {d.name}
                       </div>
                       <div className="text-base font-bold text-gray-600">
-                        {d.pct}%
+                        <CountUp
+                          end={d.pct}
+                          decimals={2}
+                          suffix="%"
+                          delayMs={150 + i * 80}
+                        />
                       </div>
                     </div>
                     <div className="h-1 w-full bg-gray-200 rounded-lg overflow-hidden">
-                      <div className={`${d.bar} h-full rounded-lg`} />
+                      <div
+                        className="h-full rounded-lg"
+                        style={{
+                          width: animateBars ? `${d.pct}%` : "0%",
+                          backgroundColor: d.barColor,
+                          transition: "width 800ms ease-out",
+                        }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -274,8 +289,12 @@ export default function StatisticsPage() {
               </div>
               <div className="text-xs font-bold text-gray-900">Last month</div>
               <div className="flex gap-2 text-base text-gray-900">
-                <div className="flex-1">Resolved: 37%</div>
-                <div className="flex-1">Unresolved: 63%</div>
+                <div className="flex-1">
+                  Resolved: <CountUp end={37} suffix="%" />
+                </div>
+                <div className="flex-1">
+                  Unresolved: <CountUp end={63} suffix="%" />
+                </div>
               </div>
               <div className="text-xs text-gray-600">
                 A steady rise in resolved issues since last month.
