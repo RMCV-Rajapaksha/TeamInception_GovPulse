@@ -46,11 +46,11 @@ function TrendingStatCard({
   votes: number;
 }) {
   return (
-    <div className="relative h-72 rounded-2xl overflow-hidden">
+    <div className="relative h-72 rounded-2xl overflow-hidden group">
       <img
         src={imageUrl}
         alt="Trending item"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover md:group-hover:scale-125 md:duration-500"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black/80" />
 
@@ -75,9 +75,14 @@ function TrendingStatCard({
 
 export default function StatisticsPage() {
   const [animateBars, setAnimateBars] = useState(false);
+  const [showChart, setShowChart] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setAnimateBars(true), 150);
-    return () => clearTimeout(t);
+    const c = setTimeout(() => setShowChart(true), 80);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(c);
+    };
   }, []);
 
   return (
@@ -200,65 +205,83 @@ export default function StatisticsPage() {
             </h2>
             <div className="px-8 pt-4 pb-8 rounded-2xl ring-1 ring-gray-200 flex flex-col gap-4">
               <div className="w-full h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={monthlyData}
-                    margin={{ left: 0, right: 0, top: 10, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient id="raised" x1="0" y1="0" x2="0" y2="1">
-                        <stop
-                          offset="5%"
-                          stopColor="#f59e0b"
-                          stopOpacity={0.4}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#f59e0b"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                      <linearGradient id="resolved" x1="0" y1="0" x2="0" y2="1">
-                        <stop
-                          offset="5%"
-                          stopColor="#059669"
-                          stopOpacity={0.4}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#059669"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid stroke="#e5e7eb" vertical={false} />
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fontSize: 12, fill: "#6b7280" }}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 12, fill: "#6b7280" }}
-                      tickLine={false}
-                      axisLine={false}
-                      width={28}
-                    />
-                    <Tooltip contentStyle={{ fontSize: 12 }} />
-                    <Area
-                      type="monotone"
-                      dataKey="raised"
-                      stroke="#f59e0b"
-                      fill="url(#raised)"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="resolved"
-                      stroke="#059669"
-                      fill="url(#resolved)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {showChart ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={monthlyData}
+                      margin={{ left: 0, right: 0, top: 10, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient id="raised" x1="0" y1="0" x2="0" y2="1">
+                          <stop
+                            offset="5%"
+                            stopColor="#f59e0b"
+                            stopOpacity={0.4}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#f59e0b"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="resolved"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#059669"
+                            stopOpacity={0.4}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#059669"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid stroke="#e5e7eb" vertical={false} />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                        tickLine={false}
+                        axisLine={false}
+                        width={28}
+                      />
+                      <Tooltip contentStyle={{ fontSize: 12 }} />
+                      <Area
+                        type="monotone"
+                        dataKey="raised"
+                        stroke="#f59e0b"
+                        fill="url(#raised)"
+                        isAnimationActive
+                        animationBegin={150}
+                        animationDuration={900}
+                        animationEasing="ease-out"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="resolved"
+                        stroke="#059669"
+                        fill="url(#resolved)"
+                        isAnimationActive
+                        animationBegin={200}
+                        animationDuration={900}
+                        animationEasing="ease-out"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="w-full h-full rounded-xl bg-gradient-to-b from-gray-50 to-gray-100" />
+                )}
               </div>
               <div className="flex items-center gap-8">
                 <div className="flex items-center gap-2">
@@ -311,13 +334,13 @@ export default function StatisticsPage() {
             </div>
             <div className="flex flex-col gap-3">
               <TrendingStatCard
-                imageUrl="/trending/img1.png"
+                imageUrl="/post/post1.jpg"
                 title="Trains delayed on several lines"
                 description="The main access road leading into Matugama town from the southern expressway has been severely damaged for over six months. Multiple large potholes, broken tarmac, and poor drainage have made the road nearly unusable during heavy rains. Local residents and daily commuters report frequent accidents and vehicle breakdowns."
                 votes={386}
               />
               <TrendingStatCard
-                imageUrl="/trending/img2.png"
+                imageUrl="/post/post2.jpg"
                 title="A drinking water crisis in Welikanda"
                 description="The main access road leading into Matugama town from the southern expressway has been severely damaged for over six months. Multiple large potholes, broken tarmac, and poor drainage have made the road nearly unusable during heavy rains. Local residents and daily commuters report frequent accidents and vehicle breakdowns."
                 votes={386}
