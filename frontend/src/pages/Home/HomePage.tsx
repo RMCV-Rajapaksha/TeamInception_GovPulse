@@ -80,7 +80,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="pb-24 md:ml-[14rem] px-10 md:px-0 md:pl-[2rem] md:pr-[10rem]">
+    <div className="pb-24 md:ml-[14rem] px-10 md:px-0 md:pl-[5rem] md:pr-[15rem]">
       <Trending items={trendingItems} />
       <div className=" w-full mt-10 h-1">
         <div className="border-t border-gray-200" />
