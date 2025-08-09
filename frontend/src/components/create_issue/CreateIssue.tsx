@@ -30,6 +30,7 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
   const [showGramaDropdown, setShowGramaDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
+  const [showSectorDropdown, setShowSectorDropdown] = useState(false);
   const [errors, setErrors] = useState<{
     grama?: string;
     city?: string;
@@ -85,19 +86,20 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
       if (!target.closest('.dropdown-grama')) setShowGramaDropdown(false);
       if (!target.closest('.dropdown-city')) setShowCityDropdown(false);
       if (!target.closest('.dropdown-district')) setShowDistrictDropdown(false);
+      if (!target.closest('.dropdown-sector')) setShowSectorDropdown(false);
     };
-    if (showGramaDropdown || showCityDropdown || showDistrictDropdown) {
+    if (showGramaDropdown || showCityDropdown || showDistrictDropdown || showSectorDropdown) {
       document.addEventListener('mousedown', handleClick);
     }
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [showGramaDropdown, showCityDropdown, showDistrictDropdown]);
+  }, [showGramaDropdown, showCityDropdown, showDistrictDropdown, showSectorDropdown]);
 
   return (
     <ReactModal
       isOpen={isReportedClicked}
       onRequestClose={() => setIsReportedClicked(false)}
       overlayClassName="fixed inset-0 bg-black/60 z-[1000]"
-      className="fixed inset-0 w-screen h-screen bg-white rounded-none shadow-xl outline-none flex flex-col md:absolute md:left-1/2 md:top-6 md:-translate-x-1/2 md:inset-auto md:w-[min(92vw,32rem)] md:h-auto md:max-h-[90vh] md:rounded-2xl"
+      className="fixed inset-0 w-screen h-screen bg-white rounded-none shadow-xl outline-none flex flex-col md:absolute md:left-1/2 md:top-6 md:-translate-x-1/2 md:inset-auto md:w-[min(92vw,600px)] md:h-auto md:max-h-[90vh] md:rounded-2xl"
       bodyOpenClassName="overflow-hidden"
       ariaHideApp={false}
     >
@@ -121,14 +123,23 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
           {/* Grama Niladhari Division Dropdown */}
           <div className="mb-4 dropdown-grama relative">
             <label className="block text-sm text-gray-600 mb-1">Grama Niladhari Division</label>
-            <button
-              type="button"
-              className={`border ${errors.grama ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black`}
-              onClick={() => setShowGramaDropdown((v) => !v)}
-            >
-              <span className="text-black">{grama}</span>
-              <span>{showGramaDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}</span>
-            </button>
+            <div className="flex w-full gap-2">
+              <input
+                type="text"
+                className={`border ${errors.grama ? 'border-red-500' : 'border-gray-300'} rounded-l-lg p-3 flex-1 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black`}
+                value={grama}
+                readOnly
+                tabIndex={-1}
+              />
+              <button
+                type="button"
+                className={`border-t ${errors.grama ? 'border-red-500' : 'border-gray-300'} border-b border-r rounded-r-lg px-3 flex items-center bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black`}
+                onClick={() => setShowGramaDropdown((v) => !v)}
+                tabIndex={0}
+              >
+                {showGramaDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}
+              </button>
+            </div>
             {errors.grama && <div className="text-red-500 text-xs mt-1">{errors.grama}</div>}
             {showGramaDropdown && (
               <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-48 overflow-auto">
@@ -144,18 +155,27 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
               </ul>
             )}
           </div>
-          <div className="flex gap-3 mb-2">
+          <div className="flex flex-col md:flex-row gap-3 mb-2">
             {/* City / Town Dropdown */}
             <div className="flex-1 dropdown-city relative">
               <label className="block text-sm text-gray-600 mb-1">City / Town</label>
-              <button
-                type="button"
-                className={`border ${errors.city ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black`}
-                onClick={() => setShowCityDropdown((v) => !v)}
-              >
-                <span className="text-black">{city}</span>
-                <span>{showCityDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}</span>
-              </button>
+              <div className="flex w-full gap-2">
+                <input
+                  type="text"
+                  className={`border ${errors.city ? 'border-red-500' : 'border-gray-300'} rounded-l-lg p-3 flex-1 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black`}
+                  value={city}
+                  readOnly
+                  tabIndex={-1}
+                />
+                <button
+                  type="button"
+                  className={`border-t ${errors.city ? 'border-red-500' : 'border-gray-300'} border-b border-r rounded-r-lg px-3 flex items-center bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black`}
+                  onClick={() => setShowCityDropdown((v) => !v)}
+                  tabIndex={0}
+                >
+                  {showCityDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}
+                </button>
+              </div>
               {errors.city && <div className="text-red-500 text-xs mt-1">{errors.city}</div>}
               {showCityDropdown && (
                 <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-48 overflow-auto">
@@ -174,14 +194,23 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
             {/* District Dropdown */}
             <div className="flex-1 dropdown-district relative">
               <label className="block text-sm text-gray-600 mb-1">District</label>
-              <button
-                type="button"
-                className={`border ${errors.district ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full bg-gray-100 text-black flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-black`}
-                onClick={() => setShowDistrictDropdown((v) => !v)}
-              >
-                <span className="text-black">{district}</span>
-                <span>{showDistrictDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}</span>
-              </button>
+              <div className="flex w-full gap-2">
+                <input
+                  type="text"
+                  className={`border ${errors.district ? 'border-red-500' : 'border-gray-300'} rounded-l-lg p-3 flex-1 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black`}
+                  value={district}
+                  readOnly
+                  tabIndex={-1}
+                />
+                <button
+                  type="button"
+                  className={`border-t ${errors.district ? 'border-red-500' : 'border-gray-300'} border-b border-r rounded-r-lg px-3 flex items-center bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black`}
+                  onClick={() => setShowDistrictDropdown((v) => !v)}
+                  tabIndex={0}
+                >
+                  {showDistrictDropdown ? <FiChevronDown className="rotate-180 text-gray-400" /> : <FiChevronDown className="text-gray-400" />}
+                </button>
+              </div>
               {errors.district && <div className="text-red-500 text-xs mt-1">{errors.district}</div>}
               {showDistrictDropdown && (
                 <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-48 overflow-auto">
@@ -267,25 +296,40 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
         <hr className="my-6 border-gray-200" />
 
         {/* Government Sector Section */}
-        <div className="mb-8">
+        <div className="mb-8 dropdown-sector relative">
           <label className="block text-sm text-gray-600 mb-2">Which government sector does this issue relate to?</label>
-          <div className="relative">
-            <select
-              className={`border ${errors.sector ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 w-full text-gray-900 bg-gray-100 pr-10 focus:outline-none appearance-none`}
+          <div className="flex w-full gap-2">
+            <input
+              type="text"
+              className={`border ${errors.sector ? 'border-red-500' : 'border-gray-300'} rounded-l-lg p-3 flex-1 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black`}
               value={sector}
-              onChange={e => setSector(e.target.value)}
-              
+              placeholder="Choose the most relevant one"
+              readOnly
+              tabIndex={-1}
+            />
+            <button
+              type="button"
+              className={`border-t ${errors.sector ? 'border-red-500' : 'border-gray-300'} border-b border-r rounded-r-lg px-3 flex items-center bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black`}
+              onClick={() => setShowSectorDropdown((v) => !v)}
+              tabIndex={0}
             >
-              <option value="" disabled>Choose the most relevant one</option>
-              {sectorOptions.map(opt => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <FiChevronDown className="text-gray-400" />
-            </span>
-            {errors.sector && <div className="text-red-500 text-xs mt-1">{errors.sector}</div>}
+            </button>
           </div>
+          {showSectorDropdown && (
+            <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-48 overflow-auto">
+              {sectorOptions.map((option) => (
+                <li
+                  key={option}
+                  className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-black ${option === sector ? 'bg-gray-100 font-semibold' : ''}`}
+                  onClick={() => { setSector(option); setShowSectorDropdown(false); }}
+                >
+                  {option}
+                </li>
+              ))}
+            </ul>
+          )}
+          {errors.sector && <div className="text-red-500 text-xs mt-1">{errors.sector}</div>}
         </div>
 
         {/* Submit Button */}
