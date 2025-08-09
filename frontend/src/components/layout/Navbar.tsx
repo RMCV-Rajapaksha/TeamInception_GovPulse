@@ -8,6 +8,7 @@ import {
 } from "@clerk/clerk-react";
 import React, { useId } from "react";
 import { FiSearch, FiBell, FiPlus } from "react-icons/fi";
+import CreateIssue from "../create_issue/CreateIssue";
 
 export default function Navbar() {
   const searchId = useId();
@@ -69,26 +70,7 @@ export default function Navbar() {
         </div>
       </div>
       {isReportedClicked && user && (
-        <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-4 max-w-sm mx-auto">
-            <h2 className="text-lg font-semibold mb-2">Report an Issue</h2>
-            <p className="mb-4">Please describe the issue you encountered:</p>
-            <textarea
-              className="w-full border border-gray-300 rounded-lg p-2 mb-4"
-              rows={4}
-              placeholder="Type your message here..."
-            />
-            <div className="flex justify-end">
-              <button
-                type="button"
-                className="px-4 py-2 bg-blue-600 text-black rounded-lg"
-                onClick={() => setIsReportedClicked(false)}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
+        <CreateIssue isReportedClicked={isReportedClicked} setIsReportedClicked={setIsReportedClicked} />
       )}
     </>
   );
