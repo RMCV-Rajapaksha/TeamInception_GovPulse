@@ -14,16 +14,17 @@ export default function Navbar() {
   const [isReportedClicked, setIsReportedClicked] = React.useState(false);
   const { user } = useUser();
   return (
-    <div className="sticky md:py-3 top-0 z-50 w-full bg-white/80 border-b border-gray-200 backdrop-blur-sm flex justify-center ">
-      <div className="w-full  px-4 md:px-8 py-2 flex items-center gap-4 md:gap-16 min-w-0">
-        {/* Logo */}
-        <Link to="/" className="shrink-0 flex items-center" aria-label="Home">
-          <img
-            src="/Logo.svg"
-            alt="GovPulse"
-            className="h-8 w-40 object-contain"
-          />
-        </Link>
+    <>
+      <div className="sticky md:py-3 top-0 z-50 w-full bg-white/80 border-b border-gray-200 backdrop-blur-sm flex justify-center ">
+        <div className="w-full  px-4 md:px-8 py-2 flex items-center gap-4 md:gap-16 min-w-0">
+          {/* Logo */}
+          <Link to="/" className="shrink-0 flex items-center" aria-label="Home">
+            <img
+              src="/Logo.svg"
+              alt="GovPulse"
+              className="h-8 w-40 object-contain"
+            />
+          </Link>
 
           {/* Search */}
           <div className="flex-1 max-w-[916px] hidden sm:flex min-w-0">
