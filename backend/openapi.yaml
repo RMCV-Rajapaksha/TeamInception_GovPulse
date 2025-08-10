@@ -1,0 +1,206 @@
+openapi: 3.1.0
+info:
+  title: Bio SDK Service
+  version: 1.0.0
+tags:
+  - name: user-related
+    description: endpoints related to user
+  - name: isssues-related
+    description: endpoints related to issues
+paths:
+  # /api/gallery/get-images-dir:
+  #   get:
+  #     summary: get the current configured images directory
+  #     operationId: getImagesDir
+  #     description: images directory property within the SDKCore is returned
+  #     tags:
+  #       - images-dir
+  #     responses:
+  #       "200":
+  #         description: Successful response
+  #         content:
+  #           text/plain:
+  #             schema:
+  #               type: string
+  #     deprecated: false
+  #     security: []
+  /api/users/signup:
+    post:
+      summary: User signup
+      operationId: userSignup
+      description: Allows a new user to sign up
+      tags:
+        - user-related
+      requestBody:
+        description: Contains the information of new user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.userSignupReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+      deprecated: false
+      security: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    models.userSignUpReqObj:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: strongpassword123
+        nic:
+          type: string
+          example: 123456789V
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        role:
+          type: string
+          enum: ["citizen", "gov_official", "admin"]
+          example: citizen
+    models.userSignupResObj:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User registered successfully
+        userId:
+          type: integer
+          format: int64
+          example: 12345
+    models.userLoginReqObj:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: strongpassword123
+    models.updateImagesDirReqObj:
+      type: object
+      properties:
+        pathstring:
+          type: string
+          example: /app/imagesdir/
+    models.updateCborDirReqObj:
+      type: object
+      properties:
+        pathstring:
+          type: string
+          example: /app/cbordir/
+    models.matchTemplatesReqObj:
+      type: object
+      properties:
+        probecbor:
+          type: string
+          format: byte
+          example: pGVXaWR0aBkBLGZIZWlnaHQZASxoTWludXRpYWWYGaRhWBiMYVkY6GlEaXJlY3Rpb277PMLbXlqTahhVAGkYVgYf2FZGPFpRGlyZWN0aW9u+z/=
+        candidatecbor:
+          type: string
+          format: byte
+          example: pGVXaWR0aBkBLGZIZWlnaHQZASxoTWludXRpYWWYGaRhWBiMYVkY6GlEaXJlY3Rpb277PMLbXlqTahhVAGkYVgYf2FZGPFpRGlyZWN0aW9u+z/=
+    models.identifyTemplateReqObj:
+      type: object
+      properties:
+        probecbor:
+          type: string
+          format: byte
+          example: pGVXaWR0aBkBLGZIZWlnaHQZASxoTWludXRpYWWYGaRhWBiMYVkY6GlEaXJlY3Rpb277PMLbXlqTahhVAGkYVgYf2FZGPFpRGlyZWN0aW9u+z/=
+    models.enrollTemplateReqObj:
+      type: object
+      properties:
+        data:
+          type: string
+          format: byte
+          example: pGVXaWR0aBkBLGZIZWlnaHQZASxoTWludXRpYWWYGaRhWBiMYVkY6GlEaXJlY3Rpb277PMLbXlqTahhVAGkYVgYf2FZGPFpRGlyZWN0aW9u+z/=
+        id:
+          type: string
+          example: testuser1
+    models.authorizeReqObj:
+      type: object
+      properties:
+        actionType:
+          type: string
+          example: AUTHENTICATION
+        flowId:
+          type: string
+          example: 22598aab-b038-41db-9ef7-68bacd243947
+        event:
+          type: object
+          properties:
+            request:
+              type: object
+              properties:
+                additionalParams:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: biometric-template
+                      value:
+                        type: array
+                        items:
+                          type: string
+                          example: 1234556777
+            tenant:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "-1234"
+                name:
+                  type: string
+                  example: carbon.super
+            application:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 874ecef7-4d29-45b9-b04d-988c043d2de4
+                name:
+                  type: string
+                  example: fingerprint-client
+            currentStepIndex:
+              type: integer
+              format: int32
+              example: 1
+        allowedOperations:
+          type: array
+          items:
+            type: object
+            properties:
+              op:
+                type: string
+                example: redirect
