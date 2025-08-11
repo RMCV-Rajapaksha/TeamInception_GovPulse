@@ -206,6 +206,95 @@ paths:
       deprecated: false
       security: 
         - BearerAuth: []
+  /api/issues/user-issues:
+    get:
+      summary: Get issues created by the user
+      operationId: getUserIssues
+      description: Retrieves all issues created by the authenticated user
+      tags:
+        - issues-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/models.issuedata"
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: 
+        - BearerAuth: []
+  /api/issues/issues:
+    get:
+      summary: Get all issues
+      operationId: getIssues
+      description: Retrieves all issues in the system
+      tags:
+        - issues-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: "#/components/schemas/models.issuedata"
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: []
+  /api/issues/issues/{issue_id}:
+    get:
+      summary: Get issue by ID
+      operationId: getIssueById
+      description: Retrieves a specific issue by its ID
+      tags:
+        - issues-related
+      parameters:
+        - name: issue_id
+          in: path
+          required: true
+          description: The ID of the issue to retrieve
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.issuedata"
+        "404":
+          description: Not Found - Issue not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Issue not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: []
 components:
   securitySchemes:
     BearerAuth:
@@ -297,3 +386,114 @@ components:
           type: integer
           format: int64
           example: 12345
+    models.issuedata:
+      type: object
+      properties:
+        issue_id:
+          type: integer
+          format: int64
+          example: 6
+        user_id:
+          type: integer
+          format: int64
+          example: 6
+        title:
+          type: string
+          example: "test issue3"
+        description:
+          type: string
+          example: "something happened."
+        district:
+          type: string
+          nullable: true
+          example: null
+        gs_division:
+          type: string
+          nullable: true
+          example: null
+        ds_division:
+          type: string
+          nullable: true
+          example: null
+        urgency_score:
+          type: number
+          format: float
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-08-11T06:19:58.757Z"
+        status_id:
+          type: integer
+          format: int64
+          example: 1
+        authority_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        category_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+          nullable: true
+          example: null
+        approved_for_appointment_placing:
+          type: boolean
+          example: false
+        User:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              format: int64
+              example: 6
+            first_name:
+              type: string
+              example: "test"
+            last_name:
+              type: string
+              example: "user"
+            name:
+              type: string
+              nullable: true
+              example: null
+            email:
+              type: string
+              format: email
+              example: "testuser1@gmail.com"
+            password:
+              type: string
+              example: "$2b$10$/X9VWOEwy1.e6M8CwMr7EuG/9j.cI6ku2H978Gea3p4dfsGzuWk7O"
+            nic:
+              type: string
+              example: "199902400427"
+            role:
+              type: string
+              example: "citizen"
+            profile_image_url:
+              type: string
+              format: uri
+              nullable: true
+              example: null
+        Issue_Status:
+          type: object
+          properties:
+            status_id:
+              type: integer
+              format: int64
+              example: 1
+            status_name:
+              type: string
+              example: "Pending Review"
+            authority_id:
+              type: integer
+              format: int64
+              example: 1

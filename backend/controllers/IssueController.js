@@ -100,6 +100,7 @@ const getUserIssues = async (req, res) => {
     const issues = await prisma.issue.findMany({
       where: { user_id: parseInt(user.user_id) },
       include: {
+        User: true,
         Issue_Status: true, // Include related status information
       },
     });
@@ -115,9 +116,65 @@ const getUserIssues = async (req, res) => {
   }
 }
 
+const getIssues = async (req, res) => { 
+  try {
+    // Fetch all issues from the database
+    const issues = await prisma.issue.findMany({
+      include: {
+        User: true, // Include user information
+        Issue_Status: true, // Include status information
+      },
+    });
+
+    // Send a 200 OK response with the fetched issues
+    res.status(200).json(issues);
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Failed to fetch issues:", error);
+
+    // Send a 500 Internal Server Error response
+    res.status(500).json({ message: "An error occurred while fetching issues." });
+  }
+}
+
+const getIssueById = async (req, res) => {
+  try {
+    const { issue_id } = req.params;
+
+    // Validate input data
+    if (!issue_id) {
+      return res.status(400).json({ error: "Issue ID is required" });
+    }
+
+    // Fetch the issue by ID from the database
+    const issue = await prisma.issue.findUnique({
+      where: { issue_id: parseInt(issue_id) },
+      include: {
+        User: true, // Include user information
+        Issue_Status: true, // Include status information
+      },
+    });
+
+    if (!issue) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    // Send a 200 OK response with the fetched issue
+    res.status(200).json(issue);
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Failed to fetch issue:", error);
+
+    // Send a 500 Internal Server Error response
+    res.status(500).json({ message: "An error occurred while fetching the issue." });
+  }
+}
+
 module.exports = {
   test,
   createIssue,
   deleteIssue,
   getUserIssues,
+  getIssueById,
+  getIssues
 };
