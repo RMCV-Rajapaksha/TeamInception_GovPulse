@@ -1,0 +1,531 @@
+openapi: 3.1.0
+info:
+  title: Govpulse Backend Service
+  version: 1.0.0
+tags:
+  - name: user-related
+    description: endpoints related to user
+  - name: issues-related
+    description: endpoints related to issues
+
+paths:
+  /api/users/signup:
+    post:
+      summary: User signup
+      operationId: userSignup
+      description: Allows a new user to sign up
+      tags:
+        - user-related
+      requestBody:
+        description: Contains the information of new user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.userSignupReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+      deprecated: false
+      security: []
+  
+  /api/users/login:
+    post:
+      summary: User login
+      operationId: userLogin
+      description: Allows an existing user to log in
+      tags:
+        - user-related
+      requestBody:
+        description: Contains the login credentials of the user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.userLoginReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/models.userLoginResObj"
+        "401":
+          description: Unauthorized - Invalid credentials
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":      
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+      deprecated: false
+      security: []
+
+  /api/users/remove-account:
+    delete:
+      summary: Remove user account
+      operationId: removeUserAccount
+      description: Allows a user to remove their account
+      tags:
+        - user-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User account removed successfully
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security: 
+        - BearerAuth: []
+  /api/issues/create:
+    post:
+      summary: Create a new issue
+      operationId: createIssue
+      description: Allows a user to create a new issue
+      tags:
+        - issues-related
+      requestBody:
+        description: Contains the details of the issue to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.issueCreateReqObj"
+      responses:  
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.issueCreateResObj"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: 
+        - BearerAuth: []
+
+  /api/issues/delete-issue/{issue_id}:
+    delete:
+      summary: Delete an issue
+      operationId: deleteIssue
+      description: Allows a user to delete an issue by its ID
+      tags:
+        - issues-related
+      parameters:
+        - name: issue_id
+          in: path
+          required: true
+          description: The ID of the issue to be deleted
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:  
+                    type: string
+                    example: Issue deleted successfully
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token
+        "404":
+          description: Not Found - Issue not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Issue not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: 
+        - BearerAuth: []
+  /api/issues/user-issues:
+    get:
+      summary: Get issues created by the user
+      operationId: getUserIssues
+      description: Retrieves all issues created by the authenticated user
+      tags:
+        - issues-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/models.issuedata"
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: 
+        - BearerAuth: []
+  /api/issues/issues:
+    get:
+      summary: Get all issues
+      operationId: getIssues
+      description: Retrieves all issues in the system
+      tags:
+        - issues-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: "#/components/schemas/models.issuedata"
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: []
+  /api/issues/issues/{issue_id}:
+    get:
+      summary: Get issue by ID
+      operationId: getIssueById
+      description: Retrieves a specific issue by its ID
+      tags:
+        - issues-related
+      parameters:
+        - name: issue_id
+          in: path
+          required: true
+          description: The ID of the issue to retrieve
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.issuedata"
+        "404":
+          description: Not Found - Issue not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Issue not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    models.userSignupReqObj:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: strongpassword123
+        nic:
+          type: string
+          example: 123456789V
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        role:
+          type: string
+          enum: ["citizen", "gov_official", "admin"]
+          example: citizen
+    models.userSignupResObj:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User registered successfully
+        userId:
+          type: integer
+          format: int64
+          example: 12345
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    models.userLoginReqObj:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: strongpassword123
+    models.userLoginResObj:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User logged in successfully
+        user_id:
+          type: integer
+          format: int64
+          example: 12345
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    models.issueCreateReqObj:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Issue Title"
+        description:
+          type: string
+          example: "Detailed description of the issue."
+        gs_division:
+          type: string
+          example: "Colombo North"
+        ds_division:
+          type: string
+          example: "Colombo"
+        urgency_score:
+          type: number
+          format: float
+          example: 7.5
+        status_id:
+          type: integer
+          format: int64
+          example: 1
+        authority_id:
+          type: integer
+          format: int64
+          example: 2
+        category_id:
+          type: integer
+          format: int64
+          example: 3
+        image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+            example:
+            - "https://example.com/image1.jpg"
+            - "https://example.com/image2.jpg"
+      required:
+        - title
+        - description
+        - urgency_score
+        - authority_id
+        - category_id
+    models.issueCreateResObj:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Issue created successfully"
+        issueId:
+          type: integer
+          format: int64
+          example: 12345
+    models.issuedata:
+      type: object
+      properties:
+        issue_id:
+          type: integer
+          format: int64
+          example: 6
+        user_id:
+          type: integer
+          format: int64
+          example: 6
+        title:
+          type: string
+          example: "test issue3"
+        description:
+          type: string
+          example: "something happened."
+        district:
+          type: string
+          nullable: true
+          example: null
+        gs_division:
+          type: string
+          nullable: true
+          example: null
+        ds_division:
+          type: string
+          nullable: true
+          example: null
+        urgency_score:
+          type: number
+          format: float
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-08-11T06:19:58.757Z"
+        status_id:
+          type: integer
+          format: int64
+          example: 1
+        authority_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        category_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+          nullable: true
+          example: null
+        approved_for_appointment_placing:
+          type: boolean
+          example: false
+        User:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              format: int64
+              example: 6
+            first_name:
+              type: string
+              example: "test"
+            last_name:
+              type: string
+              example: "user"
+            name:
+              type: string
+              nullable: true
+              example: null
+            email:
+              type: string
+              format: email
+              example: "testuser1@gmail.com"
+            password:
+              type: string
+              example: "$2b$10$/X9VWOEwy1.e6M8CwMr7EuG/9j.cI6ku2H978Gea3p4dfsGzuWk7O"
+            nic:
+              type: string
+              example: "199902400427"
+            role:
+              type: string
+              example: "citizen"
+            profile_image_url:
+              type: string
+              format: uri
+              nullable: true
+              example: null
+        Issue_Status:
+          type: object
+          properties:
+            status_id:
+              type: integer
+              format: int64
+              example: 1
+            status_name:
+              type: string
+              example: "Pending Review"
+            authority_id:
+              type: integer
+              format: int64
+              example: 1
