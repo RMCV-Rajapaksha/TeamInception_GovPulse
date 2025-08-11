@@ -62,7 +62,35 @@ const createIssue = async (req, res) => {
   }
 };
 
+const deleteIssue = async (req, res) => {
+  try {
+    const { issue_id } = req.params;
+    
+    // Validate input data
+    if (!issue_id) {
+      return res.status(400).json({ error: "Issue ID is required" });
+    }
+
+    // Delete the issue from the database
+    await prisma.issue.delete({
+      where: { issue_id: parseInt(issue_id) },
+    });
+
+    res.status(200).json({ message: "Issue deleted successfully." });
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Failed to delete issue:", error);
+    if(error.code === 'P2025') {
+      // If the issue was not found, send a 404 Not Found response
+      return res.status(404).json({ error: "Issue not found." });
+    }
+    // Send a 500 Internal Server Error response
+    res.status(500).json({ message: "An error occurred while deleting the issue." });
+  }
+};
+
 module.exports = {
   test,
   createIssue,
+  deleteIssue,
 };
