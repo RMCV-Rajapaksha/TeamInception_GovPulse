@@ -30,11 +30,21 @@ const createIssue = async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { title, description, status_id } = req.body;
+    const { 
+      title, 
+      description,
+      gs_division,
+      ds_division,
+      urgency_score, 
+      status_id,
+      authority_id,
+      category_id,
+      image_urls,
+    } = req.body;
 
     // Validate input data
-    if (!title || !description || !status_id) {
-      return res.status(400).json({ error: "All fields are required" });
+    if (!title || !description || !authority_id || !category_id ) {
+      return res.status(400).json({ error: "title, description, authority_id and category_id are required" });
     }
 
     // Create a new issue in the database
@@ -45,9 +55,19 @@ const createIssue = async (req, res) => {
         },
         title,
         description,
+        gs_division,
+        ds_division,
+        urgency_score: parseInt(urgency_score) || 0, // Default to 0 if not provided
         Issue_Status:{
-          connect: { status_id: parseInt(status_id) } // Connect to the existing status
-        }
+          connect: { status_id: parseInt(status_id) || 1 } // Connect to the existing status
+        },
+        Authority: {
+          connect: { authority_id: parseInt(authority_id) || null } // Allow null if not provided
+        },
+        Category: {
+          connect: { category_id: parseInt(category_id) } // Allow null if not provided
+        },
+        image_urls: image_urls || "", // Default to empty string if not provided
       },
     });
 

@@ -372,10 +372,42 @@ components:
         description:
           type: string
           example: "Detailed description of the issue."
+        gs_division:
+          type: string
+          example: "Colombo North"
+        ds_division:
+          type: string
+          example: "Colombo"
+        urgency_score:
+          type: number
+          format: float
+          example: 7.5
         status_id:
           type: integer
           format: int64
           example: 1
+        authority_id:
+          type: integer
+          format: int64
+          example: 2
+        category_id:
+          type: integer
+          format: int64
+          example: 3
+        image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+            example:
+            - "https://example.com/image1.jpg"
+            - "https://example.com/image2.jpg"
+      required:
+        - title
+        - description
+        - urgency_score
+        - authority_id
+        - category_id
     models.issueCreateResObj:
       type: object
       properties:
