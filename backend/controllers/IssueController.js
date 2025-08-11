@@ -89,8 +89,35 @@ const deleteIssue = async (req, res) => {
   }
 };
 
+const getUserIssues = async (req, res) => {
+  try {
+    const { user } = req; // Extract user info from the request object
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Fetch issues created by the authenticated user
+    const issues = await prisma.issue.findMany({
+      where: { user_id: parseInt(user.user_id) },
+      include: {
+        Issue_Status: true, // Include related status information
+      },
+    });
+
+    // Send a 200 OK response with the fetched issues
+    res.status(200).json(issues);
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Failed to fetch user issues:", error);
+
+    // Send a 500 Internal Server Error response
+    res.status(500).json({ message: "An error occurred while fetching user issues." });
+  }
+}
+
 module.exports = {
   test,
   createIssue,
   deleteIssue,
+  getUserIssues,
 };
