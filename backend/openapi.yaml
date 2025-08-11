@@ -53,6 +53,77 @@ paths:
                 type: string
       deprecated: false
       security: []
+  
+  /api/users/login:
+    post:
+      summary: User login
+      operationId: userLogin
+      description: Allows an existing user to log in
+      tags:
+        - user-related
+      requestBody:
+        description: Contains the login credentials of the user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.userLoginReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/models.userLoginResObj"
+        "401":
+          description: Unauthorized - Invalid credentials
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":      
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+      deprecated: false
+      security: []
+
+  /api/users/remove-account:
+    delete:
+      summary: Remove user account
+      operationId: removeUserAccount
+      description: Allows a user to remove their account
+      tags:
+        - user-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User account removed successfully
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      security: 
+        - BearerAuth: []
 
 components:
   securitySchemes:
@@ -95,6 +166,9 @@ components:
           type: integer
           format: int64
           example: 12345
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
     models.userLoginReqObj:
       type: object
       properties:
@@ -106,101 +180,17 @@ components:
           type: string
           format: password
           example: strongpassword123
-    models.updateImagesDirReqObj:
+    models.userLoginResObj:
       type: object
       properties:
-        pathstring:
+        message:
           type: string
-          example: /app/imagesdir/
-    models.updateCborDirReqObj:
-      type: object
-      properties:
-        pathstring:
+          example: User logged in successfully
+        user_id:
+          type: integer
+          format: int64
+          example: 12345
+        token:
           type: string
-          example: /app/cbordir/
-    models.matchTemplatesReqObj:
-      type: object
-      properties:
-        probecbor:
-          type: string
-          format: byte
-          example: pGVXaWR0aBkBLGZIZWlnaHQZASxoTWludXRpYWWYGaRhWBiMYVkY6GlEaXJlY3Rpb277PMLbXlqTahhVAGkYVgYf2FZGPFpRGlyZWN0aW9u+z/=
-        candidatecbor:
-          type: string
-          format: byte
-          example: pGVXaWR0aBkBLGZIZWlnaHQZASxoTWludXRpYWWYGaRhWBiMYVkY6GlEaXJlY3Rpb277PMLbXlqTahhVAGkYVgYf2FZGPFpRGlyZWN0aW9u+z/=
-    models.identifyTemplateReqObj:
-      type: object
-      properties:
-        probecbor:
-          type: string
-          format: byte
-          example: pGVXaWR0aBkBLGZIZWlnaHQZASxoTWludXRpYWWYGaRhWBiMYVkY6GlEaXJlY3Rpb277PMLbXlqTahhVAGkYVgYf2FZGPFpRGlyZWN0aW9u+z/=
-    models.enrollTemplateReqObj:
-      type: object
-      properties:
-        data:
-          type: string
-          format: byte
-          example: pGVXaWR0aBkBLGZIZWlnaHQZASxoTWludXRpYWWYGaRhWBiMYVkY6GlEaXJlY3Rpb277PMLbXlqTahhVAGkYVgYf2FZGPFpRGlyZWN0aW9u+z/=
-        id:
-          type: string
-          example: testuser1
-    models.authorizeReqObj:
-      type: object
-      properties:
-        actionType:
-          type: string
-          example: AUTHENTICATION
-        flowId:
-          type: string
-          example: 22598aab-b038-41db-9ef7-68bacd243947
-        event:
-          type: object
-          properties:
-            request:
-              type: object
-              properties:
-                additionalParams:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                        example: biometric-template
-                      value:
-                        type: array
-                        items:
-                          type: string
-                          example: 1234556777
-            tenant:
-              type: object
-              properties:
-                id:
-                  type: string
-                  example: "-1234"
-                name:
-                  type: string
-                  example: carbon.super
-            application:
-              type: object
-              properties:
-                id:
-                  type: string
-                  example: 874ecef7-4d29-45b9-b04d-988c043d2de4
-                name:
-                  type: string
-                  example: fingerprint-client
-            currentStepIndex:
-              type: integer
-              format: int32
-              example: 1
-        allowedOperations:
-          type: array
-          items:
-            type: object
-            properties:
-              op:
-                type: string
-                example: redirect
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+

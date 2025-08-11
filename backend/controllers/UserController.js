@@ -1,4 +1,5 @@
 const { PrismaClient } = require("../generated/prisma");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const prisma = new PrismaClient();
 
@@ -43,8 +44,14 @@ const signup = async (req, res) => {
         profile_image_url,
       },
     });
+    // Generate a JWT token for the user
+    const token = jwt.sign(
+      { user_id: user.user_id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" } // Token expires in 1 day
+    );
 
-    res.status(201).json(user);
+    res.status(201).json({ message : "User registered successfully", user_id: user.user_id, token });
   } catch (error) {
     console.error("Error signing up user:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -80,12 +87,18 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid password" });
     }
 
+        // Generate a JWT token for the user
+    const token = jwt.sign(
+      { user_id: user.user_id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" } // Token expires in 1 day
+    );
+
     // Login successful, send back user details (without the password)
     res.status(200).json({
-      user: {
-        user_id: user.user_id,
-        email: user.email,
-      },
+      message: "Login successful",
+      user_id: user.user_id,
+      token: token
     });
   } catch (error) {
     console.error("Error logging in user:", error);
@@ -119,7 +132,6 @@ const removeAccount = async (req, res) => {
     );
     return res.status(200).json({
       message: `User with ID ${userId} was successfully deleted.`,
-      deletedUser,
     });
   } catch (error) {
     // Prisma error code for "record not found" (P2025)
