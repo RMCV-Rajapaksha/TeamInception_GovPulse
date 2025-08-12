@@ -1,11 +1,5 @@
 import { Link } from "react-router-dom";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-  useUser,
-} from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import React, { useId } from "react";
 import { FiSearch, FiBell, FiPlus } from "react-icons/fi";
 import CreateIssue from "../create_issue/CreateIssue";
@@ -44,10 +38,23 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="ml-auto flex items-center gap-2 md:gap-4 shrink-0">
-            <div onClick={() => setIsReportedClicked(true)} className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center cursor-pointer hover:bg-yellow-300 transition-colors duration-200 ease-in-out">
-              <FiPlus className="h-5 w-5" aria-hidden />
-              <span>Report</span>
-            </div>
+            {user != null ? (
+              <div
+                onClick={() => setIsReportedClicked(true)}
+                className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center cursor-pointer hover:bg-yellow-300 transition-colors duration-200 ease-in-out"
+              >
+                <FiPlus className="h-5 w-5" aria-hidden />
+                <span>Report</span>
+              </div>
+            ) : (
+              <Link
+                to="/sign-in"
+                className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center cursor-pointer hover:bg-yellow-300 transition-colors duration-200 ease-in-out"
+              >
+                <FiPlus className="h-5 w-5" aria-hidden />
+                <span>Report</span>
+              </Link>
+            )}
 
             <button
               type="button"
@@ -60,7 +67,7 @@ export default function Navbar() {
             {/* Auth/Profile - hidden on mobile, visible from sm and up */}
             <div className="pl-2  hidden sm:block">
               <SignedOut>
-                <SignInButton />
+                <Link to="/sign-in">Sign In</Link>
               </SignedOut>
               <SignedIn>
                 <UserButton />
@@ -70,7 +77,10 @@ export default function Navbar() {
         </div>
       </div>
       {isReportedClicked && user && (
-        <CreateIssue isReportedClicked={isReportedClicked} setIsReportedClicked={setIsReportedClicked} />
+        <CreateIssue
+          isReportedClicked={isReportedClicked}
+          setIsReportedClicked={setIsReportedClicked}
+        />
       )}
     </>
   );
