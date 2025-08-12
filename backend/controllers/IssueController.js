@@ -1,4 +1,6 @@
+const { parse } = require("dotenv");
 const { PrismaClient } = require("../generated/prisma");
+const { getUrgencyScore } = require("../utils/GeminiFunctions");
 
 const prisma = new PrismaClient();
 
@@ -30,12 +32,12 @@ const createIssue = async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { 
-      title, 
+    const {
+      title,
       description,
       gs_division,
       ds_division,
-      urgency_score, 
+      urgency_score,
       status_id,
       authority_id,
       category_id,
@@ -43,29 +45,44 @@ const createIssue = async (req, res) => {
     } = req.body;
 
     // Validate input data
-    if (!title || !description || !authority_id || !category_id ) {
-      return res.status(400).json({ error: "title, description, authority_id and category_id are required" });
+    if (!title || !description || !authority_id || !category_id) {
+      return res
+        .status(400)
+        .json({
+          error:
+            "title, description, authority_id and category_id are required",
+        });
     }
+    urgency_score_generated = await getUrgencyScore(
+      title,
+      description,
+      gs_division,
+      ds_division,
+      status_id,
+      authority_id,
+      category_id,
+      image_urls
+    );
 
     // Create a new issue in the database
     const newIssue = await prisma.issue.create({
       data: {
-        User:{
-          connect: { user_id: parseInt(user.user_id) } // Connect to the authenticated user
+        User: {
+          connect: { user_id: parseInt(user.user_id) }, // Connect to the authenticated user
         },
         title,
         description,
         gs_division,
         ds_division,
-        urgency_score: parseInt(urgency_score) || 0, // Default to 0 if not provided
-        Issue_Status:{
-          connect: { status_id: parseInt(status_id) || 1 } // Connect to the existing status
+        urgency_score: parseFloat(urgency_score_generated) || 0, // Default to 0 if not provided
+        Issue_Status: {
+          connect: { status_id: parseInt(status_id) || 1 }, // Connect to the existing status
         },
         Authority: {
-          connect: { authority_id: parseInt(authority_id) || null } // Allow null if not provided
+          connect: { authority_id: parseInt(authority_id) || null }, // Allow null if not provided
         },
         Category: {
-          connect: { category_id: parseInt(category_id) } // Allow null if not provided
+          connect: { category_id: parseInt(category_id) }, // Allow null if not provided
         },
         image_urls: image_urls || "", // Default to empty string if not provided
       },
@@ -78,14 +95,16 @@ const createIssue = async (req, res) => {
     console.error("Failed to create issue:", error);
 
     // Send a 500 Internal Server Error response
-    res.status(500).json({ message: "An error occurred while creating the issue." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while creating the issue." });
   }
 };
 
 const deleteIssue = async (req, res) => {
   try {
     const { issue_id } = req.params;
-    
+
     // Validate input data
     if (!issue_id) {
       return res.status(400).json({ error: "Issue ID is required" });
@@ -100,12 +119,14 @@ const deleteIssue = async (req, res) => {
   } catch (error) {
     // Log the error for debugging
     console.error("Failed to delete issue:", error);
-    if(error.code === 'P2025') {
+    if (error.code === "P2025") {
       // If the issue was not found, send a 404 Not Found response
       return res.status(404).json({ error: "Issue not found." });
     }
     // Send a 500 Internal Server Error response
-    res.status(500).json({ message: "An error occurred while deleting the issue." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while deleting the issue." });
   }
 };
 
@@ -132,11 +153,13 @@ const getUserIssues = async (req, res) => {
     console.error("Failed to fetch user issues:", error);
 
     // Send a 500 Internal Server Error response
-    res.status(500).json({ message: "An error occurred while fetching user issues." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching user issues." });
   }
-}
+};
 
-const getIssues = async (req, res) => { 
+const getIssues = async (req, res) => {
   try {
     // Fetch all issues from the database
     const issues = await prisma.issue.findMany({
@@ -153,9 +176,11 @@ const getIssues = async (req, res) => {
     console.error("Failed to fetch issues:", error);
 
     // Send a 500 Internal Server Error response
-    res.status(500).json({ message: "An error occurred while fetching issues." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching issues." });
   }
-}
+};
 
 const getIssueById = async (req, res) => {
   try {
@@ -186,9 +211,11 @@ const getIssueById = async (req, res) => {
     console.error("Failed to fetch issue:", error);
 
     // Send a 500 Internal Server Error response
-    res.status(500).json({ message: "An error occurred while fetching the issue." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the issue." });
   }
-}
+};
 
 module.exports = {
   test,
@@ -196,5 +223,5 @@ module.exports = {
   deleteIssue,
   getUserIssues,
   getIssueById,
-  getIssues
+  getIssues,
 };

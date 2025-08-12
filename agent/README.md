@@ -129,10 +129,8 @@ Create a `.env` file in the project root:
 # AI/ML API Keys
 OPEN_API_KEY=your_openai_api_key
 GOOGLE_API_KEY=your_google_api_key
-PERPLEXITY_API_KEY=your_perplexity_api_key
 
 # Optional: Advanced Features
-DEEPSEEK_API_KEY=your_deepseek_key
 LANGSMITH_API_KEY=your_langsmith_key
 LANGCHAIN_TRACING_V2=false
 LANGSMITH_PROJECT=GovPulse
