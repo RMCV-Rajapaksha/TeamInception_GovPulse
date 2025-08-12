@@ -52,20 +52,22 @@ model Authorities {
   Issue_Status Issue_Status[]
   Free_Times   Free_Times[]
   Appointment  Appointment[]
+  Official     Official[]
 
   @@map("AUTHORITIES")
 }
 
 model User {
-  user_id           Int     @id @default(autoincrement())
+  user_id           Int       @id @default(autoincrement())
   first_name        String?
   last_name         String?
   name              String?
-  email             String  @unique
-  password          String  @db.Text
+  email             String    @unique
+  password          String    @db.Text
   nic               String?
-  role              String? @db.VarChar(50)
   profile_image_url String?
+  home_address      String?
+  dob               DateTime? @db.Date
 
   // Relations
   Issue       Issue[]
@@ -131,13 +133,12 @@ model Upvote {
 }
 
 model Appointment {
-  appointment_id Int      @id @default(autoincrement())
-  user_id        Int
-  authority_id   Int
-  issue_id       Int
-  date           DateTime @db.Date
-  time_slot      String?
-
+  appointment_id   Int      @id @default(autoincrement())
+  user_id          Int
+  authority_id     Int
+  issue_id         Int
+  date             DateTime @db.Date
+  time_slot        String?
   official_comment String?
 
   // Relations
@@ -187,7 +188,6 @@ model Free_Times {
   @@map("FREE_TIMES")
 }
 
-// New model to store attachments for an appointment (1:1 relationship)
 model Attachment {
   attachment_id  Int      @id @default(autoincrement())
   file_urls      String[]
@@ -199,7 +199,6 @@ model Attachment {
   @@map("ATTACHMENT")
 }
 
-// New model to store feedback for an appointment (1:1 relationship)
 model Feedback {
   feedback_id    Int     @id @default(autoincrement())
   rating         Int?
@@ -210,4 +209,18 @@ model Feedback {
   Appointment Appointment @relation(fields: [appointment_id], references: [appointment_id], map: "fk_feedback_appointment", onDelete: Cascade)
 
   @@map("FEEDBACK")
+}
+
+// This new model holds information about government officials.
+model Official {
+  official_id  Int     @id @default(autoincrement())
+  username     String
+  password     String  @db.Text
+  position     String?
+  authority_id Int?
+
+  // Relations
+  Authority Authorities? @relation(fields: [authority_id], references: [authority_id], map: "fk_official_authority")
+
+  @@map("OFFICIAL")
 }

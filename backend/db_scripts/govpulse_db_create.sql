@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS "AUTHORITIES" CASCADE;
 DROP TABLE IF EXISTS "ISSUE_STATUS" CASCADE;
 DROP TABLE IF EXISTS "ATTACHMENT" CASCADE;
 DROP TABLE IF EXISTS "FEEDBACK" CASCADE;
+DROP TABLE IF EXISTS "OFFICIAL" CASCADE;
 
 
 -- Create the ISSUE_STATUS table
@@ -56,7 +57,8 @@ CREATE TABLE "AUTHORITIES" (
 );
 
 -- Create the USER table
--- This table holds user information.
+-- This table holds user information. The 'role' attribute has been removed.
+-- New attributes 'home_address' and 'dob' have been added.
 CREATE TABLE "USER" (
     "user_id" SERIAL PRIMARY KEY,
     "first_name" VARCHAR(255),
@@ -65,8 +67,9 @@ CREATE TABLE "USER" (
     "email" VARCHAR(255) UNIQUE NOT NULL,
     "password" TEXT NOT NULL,
     "nic" VARCHAR(255),
-    "role" VARCHAR(50),
-    "profile_image_url" TEXT
+    "profile_image_url" TEXT,
+    "home_address" TEXT,
+    "dob" DATE
 );
 
 -- Create the ISSUE table
@@ -168,6 +171,16 @@ CREATE TABLE "FEEDBACK" (
     "appointment_id" INTEGER UNIQUE NOT NULL
 );
 
+-- Create the OFFICIAL table
+-- This new table holds information about government officials and is linked to authorities.
+CREATE TABLE "OFFICIAL" (
+    "official_id" SERIAL PRIMARY KEY,
+    "username" VARCHAR(255) NOT NULL,
+    "password" TEXT NOT NULL,
+    "position" VARCHAR(255),
+    "authority_id" INTEGER
+);
+
 -- Add Foreign Key Constraints with ON DELETE CASCADE
 --------------------------------------------------
 
@@ -207,3 +220,6 @@ ALTER TABLE "ATTACHMENT" ADD CONSTRAINT "fk_attachment_appointment" FOREIGN KEY 
 
 -- FEEDBACK foreign key for 1:1 relationship with APPOINTMENT
 ALTER TABLE "FEEDBACK" ADD CONSTRAINT "fk_feedback_appointment" FOREIGN KEY ("appointment_id") REFERENCES "APPOINTMENT"("appointment_id") ON DELETE CASCADE;
+
+-- OFFICIAL foreign key
+ALTER TABLE "OFFICIAL" ADD CONSTRAINT "fk_official_authority" FOREIGN KEY ("authority_id") REFERENCES "AUTHORITIES"("authority_id");
