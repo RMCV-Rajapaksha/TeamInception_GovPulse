@@ -154,13 +154,41 @@ If there’s already an active agent, send the update using update_task.
       )
     return remote_agent_info
 
-  async def create_issue(self, Name: str, Description: str):
-    """Create a issue in the database."""
-
+  async def create_issue(
+    self, 
+    title: str, 
+    description: str, 
+    gs_division: str, 
+    ds_division: str, 
+    urgency_score: float, 
+    status_id: int, 
+    authority_id: int, 
+    category_id: int, 
+    image_urls: Optional[List[List[str]]] = None
+):
+    """Create an issue in the database."""
+    
+    if image_urls is None:
+        image_urls = []
+    
+    issue_data = {
+        "title": title,
+        "description": description,
+        "gs_division": gs_division,
+        "ds_division": ds_division,
+        "urgency_score": urgency_score,
+        "status_id": status_id,
+        "authority_id": authority_id,
+        "category_id": category_id,
+        "image_urls": image_urls
+    }
+    
+    # Print the issue data as JSON
+    print(json.dumps(issue_data, indent=2))
+    
     # This is a placeholder for the actual implementation.
     # In a real application, this would interact with a database or an API.
-    print(f"Issue created: Name={Name}, Description={Description}")
-   
+    print(f"Issue created successfully with title: {title}")
 
   async def send_task(
       self,
