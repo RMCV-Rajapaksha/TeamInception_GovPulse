@@ -41,6 +41,7 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
     sector?: string;
   }>({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -60,8 +61,58 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const uploadImageToCloudinary = async (file: File): Promise<string> => {
+    try {
+      // Get signature from backend
+      const signatureResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/generate-image-signature`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJlbWFpbCI6InRlc3R1c2VyMUBnbWFpbC5jb20iLCJpYXQiOjE3NTQ5OTQ0MzEsImV4cCI6NDkxMDc1NDQzMX0.PQCLSfMVOJ2yc9D9EutI1HVEc2xJLivr4UjCz_TR-tM`, // Adjust token retrieval as needed
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!signatureResponse.ok) {
+        throw new Error('Failed to get signature');
+      }
+
+      const { signature, timestamp } = await signatureResponse.json();
+
+      // Prepare form data for Cloudinary upload
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('signature', signature);
+      formData.append('timestamp', timestamp.toString());
+      formData.append('api_key', import.meta.env.VITE_CLOUDINARY_API_KEY || '');
+      formData.append('folder', 'govpulse-issues'); // Optional: organize uploads in folders
+
+      console.log( import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
+
+      // Upload to Cloudinary
+      const cloudinaryResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      if (!cloudinaryResponse.ok) {
+        throw new Error('Failed to upload image to Cloudinary');
+      }
+
+      const result = await cloudinaryResponse.json();
+      return result.secure_url;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    
     const newErrors: {
       grama?: string;
       city?: string;
@@ -77,9 +128,44 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
     if (!description.trim() || description.length < 30) newErrors.description = "Description must be at least 30 characters.";
     if (!sector) newErrors.sector = "Please select a department to continue.";
     setErrors(newErrors);
-  if (Object.keys(newErrors).length > 0) return;
-  // Simulate successful submit
-  setShowSuccess(true);
+    
+    if (Object.keys(newErrors).length > 0) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // Upload images to Cloudinary if any
+      let imageUrls: string[] = [];
+      if (photos.length > 0) {
+        console.log('Uploading images to Cloudinary...');
+        const uploadPromises = photos.map(photo => uploadImageToCloudinary(photo));
+        imageUrls = await Promise.all(uploadPromises);
+        console.log('Uploaded image URLs:', imageUrls);
+      }
+
+      // Console log all form values
+      const formData = {
+        grama,
+        city,
+        district,
+        title,
+        description,
+        sector,
+        imageUrls,
+      };
+      
+      console.log('Form submission data:', formData);
+
+      // Show success modal
+      setShowSuccess(true);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      // You might want to show an error message to the user here
+      alert('Failed to upload images. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Close dropdowns on outside click
@@ -339,9 +425,10 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-3 rounded-full bg-gradient-to-b from-gray-900 to-black text-white text-lg font-semibold shadow-md hover:from-black hover:to-gray-800 transition"
+          disabled={isSubmitting}
+          className="w-full py-3 rounded-full bg-gradient-to-b from-gray-900 to-black text-white text-lg font-semibold shadow-md hover:from-black hover:to-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Submit issue
+          {isSubmitting ? 'Uploading images...' : 'Submit issue'}
         </button>
       </form>
     </ReactModal>
