@@ -33,10 +33,10 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
     try {
-        const { username, password, authority_id } = req.body;
+        const { username, password, authority_id, position } = req.body;
 
-        if (!username || !password || !authority_id) {
-            return res.status(400).json({ message: "Username, password, and authority_id are required" });
+        if (!username || !password || !authority_id || !position) {
+            return res.status(400).json({ message: "Username, password, authority_id, and position are required" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
