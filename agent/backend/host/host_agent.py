@@ -7,6 +7,7 @@ import threading
 from typing import List, Optional, Callable
 import os
 import sys
+import aiohttp
 import logging  # added logging
 backend_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if backend_root not in sys.path:
@@ -173,7 +174,7 @@ If there’s already an active agent, send the update using update_task.
     authority_id: int, 
     category_id: int, 
     image_urls: Optional[List[List[str]]] = None
-  ):
+):
     """Create an issue in the database with the provided details."""
     
     if image_urls is None:
@@ -185,17 +186,42 @@ If there’s already an active agent, send the update using update_task.
         "gs_division": gs_division,
         "ds_division": ds_division,
         "urgency_score": urgency_score,
-        "status_id": status_id,
-        "authority_id": authority_id,
-        "category_id": category_id,
+        "status_id": str(status_id),
+        "authority_id": str(authority_id),
+        "category_id": str(category_id),
         "image_urls": image_urls
     }
     
     logger.info("Issue data to be created:\n%s", json.dumps(issue_data, indent=2))
     
-    # Placeholder for real implementation that would save or send issue data.
-    logger.info("Issue created successfully with title: %s", title)
+    # API endpoint configuration
+    api_url = "http://localhost:4000/api/issues/create"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": os.getenv("API_AUTHORIZATION_TOKEN", "")  # Get from environment variable
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(api_url, json=issue_data, headers=headers) as response:
+                if response.status == 200 or response.status == 201:
+                    result = await response.json()
+                    logger.info("Issue created successfully with title: %s", title)
+                    logger.info("API response: %s", json.dumps(result, indent=2))
+                    return result
+                else:
+                    error_text = await response.text()
+                    logger.error("Failed to create issue. Status: %d, Response: %s", response.status, error_text)
+                    raise Exception(f"API request failed with status {response.status}: {error_text}")
+                    
+    except aiohttp.ClientError as e:
+        logger.error("Network error while creating issue: %s", str(e))
+        raise Exception(f"Network error: {str(e)}")
+    except Exception as e:
+        logger.error("Unexpected error while creating issue: %s", str(e))
+        raise Exception(f"Failed to create issue: {str(e)}")
 
+  
   async def send_task(
       self,
       agent_name: str,
