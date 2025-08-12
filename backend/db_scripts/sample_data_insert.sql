@@ -20,10 +20,10 @@ INSERT INTO "USER" ("first_name", "last_name", "name", "email","password", "nic"
 ('Alice', 'Johnson', 'Alice Johnson', 'alice.j@government.lk','jkehashedpassword3', '112233445V', 'Authority Representative');
 
 -- 3. Insert sample data into AUTHORITIES
--- This table depends on CATEGORIES, so we select the category_id from the CATEGORIES table.
-INSERT INTO "AUTHORITIES" ("name", "ministry", "hq_location", "location", "description", "category_id") VALUES
-('Road Development Authority', 'Ministry of Transport', 'Colombo', 'Western Province', 'Responsible for road infrastructure maintenance.', (SELECT "category_id" FROM "CATEGORIES" WHERE "category_name" = 'Road Infrastructure')),
-('National Water Supply & Drainage Board', 'Ministry of Water Resources', 'Kandy', 'Central Province', 'Manages water supply and drainage systems.', (SELECT "category_id" FROM "CATEGORIES" WHERE "category_name" = 'Water Supply'));
+-- This table depends on CATEGORIES. The hq_location column has been removed.
+INSERT INTO "AUTHORITIES" ("name", "ministry", "location", "description", "category_id") VALUES
+('Road Development Authority', 'Ministry of Transport', 'Western Province', 'Responsible for road infrastructure maintenance.', (SELECT "category_id" FROM "CATEGORIES" WHERE "category_name" = 'Road Infrastructure')),
+('National Water Supply & Drainage Board', 'Ministry of Water Resources', 'Central Province', 'Manages water supply and drainage systems.', (SELECT "category_id" FROM "CATEGORIES" WHERE "category_name" = 'Water Supply'));
 
 -- 4. Insert sample data into ISSUE_STATUS
 -- This table depends on AUTHORITIES.
@@ -44,9 +44,9 @@ INSERT INTO "ATTENDEES" ("nic", "name", "phone_no") VALUES
 ('667788990V', 'Emily White', '0719876543');
 
 -- 7. Insert sample data into APPOINTMENT
--- This table depends on USER, AUTHORITIES, and ISSUE.
-INSERT INTO "APPOINTMENT" ("user_id", "authority_id", "issue_id", "date", "time_slot") VALUES
-((SELECT "user_id" FROM "USER" WHERE "email" = 'john.doe@email.com'), (SELECT "authority_id" FROM "AUTHORITIES" WHERE "name" = 'Road Development Authority'), (SELECT "issue_id" FROM "ISSUE" WHERE "title" = 'Pothole on Main Street'), '2025-08-15', '10:00 - 11:00');
+-- This table depends on USER, AUTHORITIES, and ISSUE, and now includes a new official_comment.
+INSERT INTO "APPOINTMENT" ("user_id", "authority_id", "issue_id", "date", "time_slot", "official_comment") VALUES
+((SELECT "user_id" FROM "USER" WHERE "email" = 'john.doe@email.com'), (SELECT "authority_id" FROM "AUTHORITIES" WHERE "name" = 'Road Development Authority'), (SELECT "issue_id" FROM "ISSUE" WHERE "title" = 'Pothole on Main Street'), '2025-08-15', '10:00 - 11:00', 'The issue has been reviewed and an appointment scheduled.');
 
 -- 8. Insert sample data into APPOINTMENT_ATTENDEES (Junction table)
 -- This links the APPOINTMENT and ATTENDEES tables.
@@ -70,3 +70,13 @@ INSERT INTO "UPVOTE" ("user_id", "issue_id", "comment") VALUES
 -- This table depends on ISSUE.
 INSERT INTO "EMBEDDING" ("issue_id", "vector", "description", "title") VALUES
 ((SELECT "issue_id" FROM "ISSUE" WHERE "title" = 'Pothole on Main Street'), 'some_vector_data_for_pothole', 'Description for pothole embedding.', 'Pothole Embedding Title');
+
+-- 12. Insert sample data into ATTACHMENT
+-- This new table depends on APPOINTMENT.
+INSERT INTO "ATTACHMENT" ("appointment_id", "file_urls") VALUES
+((SELECT "appointment_id" FROM "APPOINTMENT" WHERE "date" = '2025-08-15'), ARRAY['http://example.com/file1.jpg', 'http://example.com/file2.pdf']);
+
+-- 13. Insert sample data into FEEDBACK
+-- This new table depends on APPOINTMENT.
+INSERT INTO "FEEDBACK" ("appointment_id", "rating", "comment") VALUES
+((SELECT "appointment_id" FROM "APPOINTMENT" WHERE "date" = '2025-08-15'), 4, 'The meeting was productive and the authority was responsive.');
