@@ -22,6 +22,9 @@ DROP TABLE IF EXISTS "USER" CASCADE;
 DROP TABLE IF EXISTS "CATEGORIES" CASCADE;
 DROP TABLE IF EXISTS "AUTHORITIES" CASCADE;
 DROP TABLE IF EXISTS "ISSUE_STATUS" CASCADE;
+DROP TABLE IF EXISTS "ATTACHMENT" CASCADE;
+DROP TABLE IF EXISTS "FEEDBACK" CASCADE;
+
 
 -- Create the ISSUE_STATUS table
 -- This table holds different statuses for issues and is linked to authorities.
@@ -41,12 +44,12 @@ CREATE TABLE "CATEGORIES" (
 
 -- Create the AUTHORITIES table
 -- This table stores information about government authorities.
+-- The hq_location column has been removed.
 -- A new category_id is added to establish a 1:1 relationship with the CATEGORIES table.
 CREATE TABLE "AUTHORITIES" (
     "authority_id" SERIAL PRIMARY KEY,
     "name" VARCHAR(255) NOT NULL,
     "ministry" VARCHAR(255),
-    "hq_location" VARCHAR(255),
     "location" VARCHAR(255),
     "description" TEXT,
     "category_id" INTEGER UNIQUE
@@ -110,13 +113,15 @@ CREATE TABLE "UPVOTE" (
 -- Create the APPOINTMENT table
 -- This table stores information about appointments related to issues.
 -- The attendee tracking is now handled by the APPOINTMENT_ATTENDEES junction table.
+-- A new official_comment column has been added.
 CREATE TABLE "APPOINTMENT" (
     "appointment_id" SERIAL PRIMARY KEY,
     "user_id" INTEGER NOT NULL,
     "authority_id" INTEGER NOT NULL,
     "issue_id" INTEGER NOT NULL,
     "date" DATE,
-    "time_slot" VARCHAR(255)
+    "time_slot" VARCHAR(255),
+    "official_comment" TEXT
 );
 
 -- Create the ATTENDEES table
@@ -144,6 +149,23 @@ CREATE TABLE "FREE_TIMES" (
     "date" DATE NOT NULL,
     "time_slots" TEXT[],
     PRIMARY KEY ("authority_id", "date")
+);
+
+-- Create the ATTACHMENT table
+-- This table stores file URLs for attachments and has a 1:1 relationship with APPOINTMENT.
+CREATE TABLE "ATTACHMENT" (
+    "attachment_id" SERIAL PRIMARY KEY,
+    "file_urls" TEXT[],
+    "appointment_id" INTEGER UNIQUE NOT NULL
+);
+
+-- Create the FEEDBACK table
+-- This table stores feedback for an appointment and has a 1:1 relationship with APPOINTMENT.
+CREATE TABLE "FEEDBACK" (
+    "feedback_id" SERIAL PRIMARY KEY,
+    "rating" INTEGER,
+    "comment" TEXT,
+    "appointment_id" INTEGER UNIQUE NOT NULL
 );
 
 -- Add Foreign Key Constraints with ON DELETE CASCADE
@@ -179,3 +201,9 @@ ALTER TABLE "APPOINTMENT_ATTENDEES" ADD CONSTRAINT "fk_appointment_attendees_att
 
 -- FREE_TIMES foreign key
 ALTER TABLE "FREE_TIMES" ADD CONSTRAINT "fk_free_times_authority" FOREIGN KEY ("authority_id") REFERENCES "AUTHORITIES"("authority_id");
+
+-- ATTACHMENT foreign key for 1:1 relationship with APPOINTMENT
+ALTER TABLE "ATTACHMENT" ADD CONSTRAINT "fk_attachment_appointment" FOREIGN KEY ("appointment_id") REFERENCES "APPOINTMENT"("appointment_id") ON DELETE CASCADE;
+
+-- FEEDBACK foreign key for 1:1 relationship with APPOINTMENT
+ALTER TABLE "FEEDBACK" ADD CONSTRAINT "fk_feedback_appointment" FOREIGN KEY ("appointment_id") REFERENCES "APPOINTMENT"("appointment_id") ON DELETE CASCADE;
