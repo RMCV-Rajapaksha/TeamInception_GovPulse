@@ -84,7 +84,7 @@ CREATE TABLE "ISSUE" (
     "district" VARCHAR(255),
     "gs_division" VARCHAR(255),
     "ds_division" VARCHAR(255),
-    "urgency_score" INTEGER,
+    "urgency_score" REAL,
     "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     "status_id" INTEGER,
     "authority_id" INTEGER,
@@ -175,7 +175,7 @@ CREATE TABLE "FEEDBACK" (
 -- This new table holds information about government officials and is linked to authorities.
 CREATE TABLE "OFFICIAL" (
     "official_id" SERIAL PRIMARY KEY,
-    "username" VARCHAR(255) NOT NULL,
+    "username" VARCHAR(255) UNIQUE NOT NULL,
     "password" TEXT NOT NULL,
     "position" VARCHAR(255),
     "authority_id" INTEGER
