@@ -1,4 +1,5 @@
 const { PrismaClient } = require("../generated/prisma");
+const { get } = require("../routes/OfficialRouter");
 
 const prisma = new PrismaClient();
 
@@ -171,9 +172,34 @@ const removeFreeTimeSlot = async (req, res) => {
     }
 }
 
+const getFreeTimeSlotsOfAnAuthority = async (req, res) => {
+    try {
+        const { authority_id } = req.params;
+        
+        if (!authority_id) {
+            return res.status(400).json({ error: "Authority ID is required" });
+        }   
+        const freeTimeSlots = await prisma.Free_Times.findMany({
+            where: {
+                authority_id: parseInt(authority_id),
+            },
+        });
+
+        if (freeTimeSlots.length === 0) {
+            return res.status(404).json({ message: "No free time slots found for the specified authority" });
+        }
+
+        res.status(200).json(freeTimeSlots);
+    } catch (error) {
+        console.error("Error fetching free time slots:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 
 module.exports = {
     viewFreeTimeSlots,
     addFreeTimeSlot,
     removeFreeTimeSlot,
+    getFreeTimeSlotsOfAnAuthority,
 };
