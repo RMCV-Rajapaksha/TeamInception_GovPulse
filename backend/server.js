@@ -14,4 +14,5 @@ app.use("/api/officials", officialRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+  console.log(process.env.DATABASE_URL);
 });
