@@ -7,8 +7,47 @@ tags:
     description: endpoints related to user
   - name: issues-related
     description: endpoints related to issues
+  - name: images-related
+    description: endpoints related to image generation and signatures
 
 paths:
+  /api/generate-image-signature:
+    get:
+      summary: Generate image signature
+      operationId: generateImageSignature
+      description: Generates a signature for image upload
+      tags:
+        - images-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    example: "cd82f46dc8197fe3f6f1b7090dd90faf56abf5a4"
+                  timestamp:
+                    type: integer
+                    format: int64
+                    example: 1754998209
+                required:
+                  - signature
+                  - timestamp
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal Server Error"
+      deprecated: false
+      security: 
+        - BearerAuth: []
+
+
   /api/users/signup:
     post:
       summary: User signup
