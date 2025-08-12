@@ -15,58 +15,59 @@ datasource db {
 }
 
 model Issue_Status {
-  status_id    Int          @id @default(autoincrement())
+  status_id    Int    @id @default(autoincrement())
   status_name  String
   authority_id Int?
 
   // Relations
   Authority Authorities? @relation(fields: [authority_id], references: [authority_id], map: "fk_issue_status_authority")
-  Issue       Issue[]
+  Issue     Issue[]
 
   @@map("ISSUE_STATUS")
 }
 
 model Categories {
-  category_id Int          @id @default(autoincrement())
+  category_id   Int     @id @default(autoincrement())
   category_name String
   description   String?
 
   // Relations
-  Authorities Authorities? @relation(name: "CategoriesToAuthorities")
+  Authorities Authorities[]
   Issue       Issue[]
 
   @@map("CATEGORIES")
 }
 
 model Authorities {
-  authority_id Int          @id @default(autoincrement())
+  authority_id Int     @id @default(autoincrement())
   name         String
   ministry     String?
-  hq_location  String?
   location     String?
   description  String?
-  category_id  Int?         @unique
+  category_id  Int?    @unique
 
   // Relations
-  Category     Categories?    @relation("CategoriesToAuthorities", fields: [category_id], references: [category_id], map: "fk_authorities_category")
+  Category     Categories?    @relation(fields: [category_id], references: [category_id], map: "fk_authorities_category")
   Issue        Issue[]
   Issue_Status Issue_Status[]
   Free_Times   Free_Times[]
   Appointment  Appointment[]
+  Official     Official[]
 
   @@map("AUTHORITIES")
 }
 
 model User {
-  user_id    Int      @id @default(autoincrement())
-  first_name String?
-  last_name  String?
-  name       String?
-  email      String   @unique
-  password   String   @db.Text
-  nic        String?
-  role       String?  @db.VarChar(50)
+  user_id           Int       @id @default(autoincrement())
+  first_name        String?
+  last_name         String?
+  name              String?
+  email             String    @unique
+  password          String    @db.Text
+  nic               String?
   profile_image_url String?
+  home_address      String?
+  dob               DateTime? @db.Date
 
   // Relations
   Issue       Issue[]
@@ -77,82 +78,85 @@ model User {
 }
 
 model Issue {
-  issue_id     Int       @id @default(autoincrement())
-  user_id      Int
-  title        String
-  description  String?
-  district     String?
-  gs_division  String?
-  ds_division  String?
-  urgency_score Int?
-  created_at   DateTime  @default(now()) @db.Timestamptz(6)
-  status_id    Int?
-  authority_id Int?
-  category_id  Int?
-  image_urls   String?
+  issue_id                         Int      @id @default(autoincrement())
+  user_id                          Int
+  title                            String
+  description                      String?
+  district                         String?
+  gs_division                      String?
+  ds_division                      String?
+  urgency_score                    Float?
+  created_at                       DateTime @default(now()) @db.Timestamptz(6)
+  status_id                        Int?
+  authority_id                     Int?
+  category_id                      Int?
+  image_urls                       String?
   approved_for_appointment_placing Boolean? @default(false)
 
   // Relations
-  User          User?         @relation(fields: [user_id], references: [user_id], map: "fk_issue_user", onDelete: Cascade)
-  Issue_Status  Issue_Status? @relation(fields: [status_id], references: [status_id], map: "fk_issue_status")
-  Authority     Authorities?  @relation(fields: [authority_id], references: [authority_id], map: "fk_issue_authority")
-  Category      Categories?   @relation(fields: [category_id], references: [category_id], map: "fk_issue_category")
-  Embedding     Embedding[]
-  Upvote        Upvote[]
-  Appointment   Appointment[]
+  User         User?         @relation(fields: [user_id], references: [user_id], map: "fk_issue_user", onDelete: Cascade)
+  Issue_Status Issue_Status? @relation(fields: [status_id], references: [status_id], map: "fk_issue_status")
+  Authority    Authorities?  @relation(fields: [authority_id], references: [authority_id], map: "fk_issue_authority")
+  Category     Categories?   @relation(fields: [category_id], references: [category_id], map: "fk_issue_category")
+  Embedding    Embedding[]
+  Upvote       Upvote[]
+  Appointment  Appointment[]
 
   @@map("ISSUE")
 }
 
 model Embedding {
-  embedding_id Int      @id @default(autoincrement())
+  embedding_id Int     @id @default(autoincrement())
   issue_id     Int
   vector       String?
   description  String?
   title        String?
 
   // Relations
-  Issue        Issue    @relation(fields: [issue_id], references: [issue_id], map: "fk_embedding_issue", onDelete: Cascade)
+  Issue Issue @relation(fields: [issue_id], references: [issue_id], map: "fk_embedding_issue", onDelete: Cascade)
 
   @@map("EMBEDDING")
 }
 
 model Upvote {
-  user_id   Int
-  issue_id  Int
-  comment   String?
+  user_id    Int
+  issue_id   Int
+  comment    String?
   time_stamp DateTime @default(now()) @db.Timestamptz(6)
 
   // Relations
-  User      User   @relation(fields: [user_id], references: [user_id], map: "fk_upvote_user", onDelete: Cascade)
-  Issue     Issue  @relation(fields: [issue_id], references: [issue_id], map: "fk_upvote_issue", onDelete: Cascade)
+  User  User  @relation(fields: [user_id], references: [user_id], map: "fk_upvote_user", onDelete: Cascade)
+  Issue Issue @relation(fields: [issue_id], references: [issue_id], map: "fk_upvote_issue", onDelete: Cascade)
 
   @@id([user_id, issue_id])
   @@map("UPVOTE")
 }
 
 model Appointment {
-  appointment_id Int      @id @default(autoincrement())
-  user_id      Int
-  authority_id   Int
-  issue_id     Int
-  date         DateTime @db.Date
-  time_slot    String?
+  appointment_id   Int      @id @default(autoincrement())
+  user_id          Int
+  authority_id     Int
+  issue_id         Int
+  date             DateTime @db.Date
+  time_slot        String?
+  official_comment String?
 
   // Relations
-  User                User?                 @relation(fields: [user_id], references: [user_id], map: "fk_appointment_user", onDelete: Cascade)
-  Authority           Authorities?          @relation(fields: [authority_id], references: [authority_id], map: "fk_appointment_authority")
-  Issue               Issue?                @relation(fields: [issue_id], references: [issue_id], map: "fk_appointment_issue", onDelete: Cascade)
+  User                  User?                   @relation(fields: [user_id], references: [user_id], map: "fk_appointment_user", onDelete: Cascade)
+  Authority             Authorities?            @relation(fields: [authority_id], references: [authority_id], map: "fk_appointment_authority")
+  Issue                 Issue?                  @relation(fields: [issue_id], references: [issue_id], map: "fk_appointment_issue", onDelete: Cascade)
   Appointment_Attendees Appointment_Attendees[]
+  Attachment            Attachment?
+  Feedback              Feedback?
 
   @@map("APPOINTMENT")
 }
 
 model Attendees {
-  attendee_id  Int      @id @default(autoincrement())
-  nic          String?
-  name         String?
-  phone_no     String? @db.VarChar(20)
+  attendee_id Int     @id @default(autoincrement())
+  nic         String?
+  name        String?
+  phone_no    String? @db.VarChar(20)
 
   // Relations
   Appointment_Attendees Appointment_Attendees[]
@@ -182,4 +186,41 @@ model Free_Times {
 
   @@id([authority_id, date])
   @@map("FREE_TIMES")
+}
+
+model Attachment {
+  attachment_id  Int      @id @default(autoincrement())
+  file_urls      String[]
+  appointment_id Int      @unique
+
+  // Relations
+  Appointment Appointment @relation(fields: [appointment_id], references: [appointment_id], map: "fk_attachment_appointment", onDelete: Cascade)
+
+  @@map("ATTACHMENT")
+}
+
+model Feedback {
+  feedback_id    Int     @id @default(autoincrement())
+  rating         Int?
+  comment        String?
+  appointment_id Int     @unique
+
+  // Relations
+  Appointment Appointment @relation(fields: [appointment_id], references: [appointment_id], map: "fk_feedback_appointment", onDelete: Cascade)
+
+  @@map("FEEDBACK")
+}
+
+// This new model holds information about government officials.
+model Official {
+  official_id  Int     @id @default(autoincrement())
+  username     String  @unique
+  password     String  @db.Text
+  position     String?
+  authority_id Int?
+
+  // Relations
+  Authority Authorities? @relation(fields: [authority_id], references: [authority_id], map: "fk_official_authority")
+
+  @@map("OFFICIAL")
 }

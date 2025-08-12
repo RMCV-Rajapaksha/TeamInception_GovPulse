@@ -5,10 +5,53 @@ info:
 tags:
   - name: user-related
     description: endpoints related to user
+  - name: official-related
+    description: endpoints related to government officials
   - name: issues-related
     description: endpoints related to issues
+  - name: time-slot-related
+    description: endpoints related to time slots for appointments
+  - name: images-related
+    description: endpoints related to image generation and signatures
 
 paths:
+  /api/generate-image-signature:
+    get:
+      summary: Generate image signature
+      operationId: generateImageSignature
+      description: Generates a signature for image upload
+      tags:
+        - images-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    example: "cd82f46dc8197fe3f6f1b7090dd90faf56abf5a4"
+                  timestamp:
+                    type: integer
+                    format: int64
+                    example: 1754998209
+                required:
+                  - signature
+                  - timestamp
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal Server Error"
+      deprecated: false
+      security: 
+        - BearerAuth: []
+
+
   /api/users/signup:
     post:
       summary: User signup
@@ -295,6 +338,280 @@ paths:
                 example: Internal Server Error
       deprecated: false
       security: []
+  /api/officials/login:
+    post:
+      summary: Official login
+      operationId: officialLogin
+      description: Allows a government official to log in
+      tags:
+        - official-related
+      requestBody:
+        description: Contains the login credentials of the official
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.officialLoginReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        "401":
+          description: Unauthorized - Invalid credentials
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":      
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+      deprecated: false
+      security: []
+  /api/officials/register:
+    post:
+      summary: Official registration
+      operationId: officialRegister
+      description: Allows a government official to register
+      tags:
+        - official-related
+      requestBody:
+        description: Contains the registration details of the official
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.officialRegisterReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Official registered successfully
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: []
+
+  /api/time-slots/view-free-time-slots:
+    get:
+      summary: View free time slots
+      operationId: viewFreeTimeSlots
+      description: Allows government officials to view available free time slots of their employed Authority. Note that the authority is identified using the bearer token.
+      tags:
+        - time-slot-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/models.freeTimeSlotData"
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/time-slots/add-free-time-slot:
+    post:
+      summary: Create free time slot
+      operationId: createFreeTimeSlot
+      description: Allows government officials to create a new free time slot for appointments related to their employed Authority. Note that the authority is identified using the bearer token.
+      tags:
+        - time-slot-related
+      requestBody:
+        description: Contains the details of the free time slot to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.freeTimeSlotData"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Free time slot created successfully
+                  free_time_slot_data:
+                    $ref: "#/components/schemas/models.freeTimeSlotData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/time-slots/remove-free-time-slot:
+    post:
+      summary: Remove free time slot
+      operationId: removeFreeTimeSlot
+      description: Allows government officials to remove a free time slot for appointments related to their employed Authority. Note that the authority is identified using the bearer token.
+      tags:
+        - time-slot-related
+      requestBody:
+        description: Contains the details of the free time slot to be removed
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date-time
+                  example: "2025-08-15T00:00:00.000Z"
+                start_time:
+                  type: string
+                  example: "10:00"
+                end_time:
+                  type: string
+                  example: "11:00"
+              required:
+                - date
+                - start_time
+                - end_time
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Free time slot removed successfully
+                  free_time_slot_data:
+                    $ref: "#/components/schemas/models.freeTimeSlotData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/time-slots/get-free-time-slots-of-authority/{authority_id}:
+    get:
+      summary: Get free time slots of an authority
+      operationId: getFreeTimeSlotsOfAnAuthority
+      description: Retrieves all free time slots of a specific authority, ment to be used by users.
+      tags:
+        - time-slot-related
+      parameters:
+        - name: authority_id
+          in: path
+          required: true
+          description: The ID of the authority whose free time slots are to be retrieved
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/models.freeTimeSlotData"
+        "404":
+          description: Not Found - Authority not found or no free time slots available
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Authority not found or no free time slots available
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: []
 components:
   securitySchemes:
     BearerAuth:
@@ -363,6 +680,38 @@ components:
         token:
           type: string
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    models.officialRegisterReqObj:
+      type: object
+      properties:
+        username:
+          type: string
+          example: official_username
+        password:
+          type: string
+          format: password
+          example: official_password123
+        position:
+          type: string
+          example: "District Secretary"
+        authority_id:
+          type: integer
+          format: int64
+          example: 1
+      required:
+        - username
+        - password
+        - position
+        - authority_id
+    models.officialLoginReqObj:
+      type: object
+      properties:
+        username:
+          type: string
+          example: official_username
+        password:
+          type: string
+          format: password
+          example: official_password123
     models.issueCreateReqObj:
       type: object
       properties:
@@ -529,3 +878,27 @@ components:
               type: integer
               format: int64
               example: 1
+    models.freeTimeSlotData:
+      type: object
+      properties:
+        authority_id:
+          type: integer
+          format: int64
+          example: 1
+        date:
+          type: string
+          format: date-time
+          example: "2025-08-15T00:00:00.000Z"
+        time_slots:
+          type: array
+          items:
+            type: string
+            example: "10:00 - 11:00"
+          example:
+            - "10:00 - 11:00"
+            - "11:30 - 12:30"
+            - "14:00 - 15:00"
+      required:
+        - authority_id
+        - date
+        - time_slots

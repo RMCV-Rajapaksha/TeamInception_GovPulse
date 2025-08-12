@@ -10,9 +10,8 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-print("🌤️ Initializing Health Care Agent...")
+print("🚀 Starting Sri Lanka Health Care Agent setup...")
 
-# Load shared .env
 # Load shared .env from backend directory
 root_dir = Path(__file__).resolve().parents[2]
 dotenv_path = root_dir / ".env"
@@ -24,17 +23,18 @@ langsmith_key = os.getenv("LANGSMITH_API_KEY")
 if langsmith_key:
     os.environ["LANGCHAIN_API_KEY"] = langsmith_key
 os.environ["LANGCHAIN_PROJECT"] = "Agent2AgentProtocol"
+
 if not api_key:
     raise EnvironmentError(f"❌ OPEN_API_KEY not found in {dotenv_path}")
 else:
-    print(f"✅ OPEN_API_KEY loaded from {dotenv_path}")
+    print(f"🔑 OPEN_API_KEY successfully loaded from {dotenv_path}")
 
 memory = MemorySaver()
 
 @tool
 def get_healthcare_info(city: str = "Colombo") -> dict:
     """Returns a hardcoded healthcare service summary for a given Sri Lankan city."""
-    print(f"🏥 Tool called: get_healthcare_info for city='{city}'")
+    print(f"🏥 Fetching healthcare info for '{city}'...")
     
     # Example hardcoded data
     return {
@@ -60,18 +60,16 @@ class ResponseFormat(BaseModel):
 
 class HealthAgent:
     SYSTEM_INSTRUCTION = (
-      
-     
-    "You are a helpful assistant that provides accurate and up-to-date information "
-    "about Sri Lankan government healthcare services. Use the 'get_healthcare_info' tool "
-    "to fetch relevant details based on the user's request (such as hospitals, clinics, services, or programs). "
-    "If the user's request is unclear or missing key information (e.g., location or service type), set status to 'input_required'. "
-    "Set status to 'completed' once the information is successfully provided. "
-    "Use 'error' if something goes wrong or the request cannot be fulfilled."
-)
+        "You are a helpful assistant that provides accurate and up-to-date information "
+        "about Sri Lankan government healthcare services. Use the 'get_healthcare_info' tool "
+        "to fetch relevant details based on the user's request (such as hospitals, clinics, services, or programs). "
+        "If the user's request is unclear or missing key information (e.g., location or service type), set status to 'input_required'. "
+        "Set status to 'completed' once the information is successfully provided. "
+        "Use 'error' if something goes wrong or the request cannot be fulfilled."
+    )
 
     def __init__(self):
-        print("⚙️ Creating LangGraph ReAct agent for Health Care Agent...")
+        print("⚙️ Initializing LangGraph ReAct agent for healthcare tasks...")
         self.model = ChatOpenAI(
             model="gpt-4",
             temperature=0.7,
@@ -87,24 +85,24 @@ class HealthAgent:
         )
 
     async def invoke(self, query: str, session_id: str) -> dict:
-        print(f"🧠 invoke() called with query='{query}' and session_id='{session_id}'")
+        print(f"📩 Received user query: '{query}' | Session ID: '{session_id}'")
         config = {"configurable": {"thread_id": session_id}}
         await self.graph.ainvoke({"messages": [("user", query)]}, config)
         agent_response = self.get_agent_response(config)
-        print(f"📡 Agent response: {agent_response}")
+        print(f"✅ Agent processed response: {agent_response}")
         return agent_response
 
     async def stream(self, query: str, session_id: str) -> AsyncIterable[Dict[str, Any]]:
-        print(f"📡 stream() called with query='{query}' and session_id='{session_id}'")
+        print(f"📡 Streaming response for query: '{query}' | Session ID: '{session_id}'")
         inputs = {"messages": [("user", query)]}
         config = {"configurable": {"thread_id": session_id}}
 
         async for item in self.graph.astream(inputs, config, stream_mode="values"):
             message = item["messages"][-1]
             if isinstance(message, AIMessage) and message.tool_calls:
-                yield {"is_task_complete": False, "require_user_input": False, "content": "🌧️ Fetching health data..."}
+                yield {"is_task_complete": False, "require_user_input": False, "content": "🔍 Gathering health data..."}
             elif isinstance(message, ToolMessage):
-                yield {"is_task_complete": False, "require_user_input": False, "content": "🛠️ Analyzing health report..."}
+                yield {"is_task_complete": False, "require_user_input": False, "content": "🛠️ Processing health report..."}
 
         yield self.get_agent_response(config)
 
@@ -117,10 +115,8 @@ class HealthAgent:
                 last_message = messages[-1]
                 if hasattr(last_message, 'content') and last_message.content:
                     content = last_message.content
-                    print(f"📝 Using last AI message: {content}")
+                    print(f"📝 Final AI response content: {content}")
                     
-                    # Simple heuristic to determine if task is complete
-                    # If the message contains Health information, consider it complete
                     is_complete = any(keyword in content.lower() for keyword in [
                         'health', 'wellness', 'medical', 'hospital', 'clinic', 'treatment'
                     ])
@@ -131,14 +127,14 @@ class HealthAgent:
                         "content": content
                     }
             
-            print("⚠️ No valid messages found. Returning fallback.")
+            print("⚠️ No valid AI messages found. Sending fallback response.")
             return {
                 "is_task_complete": False,
                 "require_user_input": True,
-                "content": "⚠️ Unable to get Health information. Please try again."
+                "content": "⚠️ Unable to retrieve healthcare information. Please try again."
             }
         except Exception as e:
-            print(f"❌ Error in get_agent_response: {e}")
+            print(f"❌ Error while retrieving agent response: {e}")
             return {
                 "is_task_complete": False,
                 "require_user_input": True,
@@ -147,4 +143,4 @@ class HealthAgent:
 
     SUPPORTED_CONTENT_TYPES = ["text", "text/plain"]
 
-print("✅ Health Care Agent is fully initialized.")
+print("✅ Sri Lanka Health Care Agent is now ready for service!")

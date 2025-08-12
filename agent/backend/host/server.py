@@ -64,7 +64,7 @@ app.add_middleware(
 )
 
 # 🔗 Set up HostAgent
-REMOTE_AGENTS = ["http://localhost:10010", "http://localhost:10011"]
+REMOTE_AGENTS = [ "http://localhost:10011"]
 print("🚀 Initializing HostAgent with remote agents:")
 for url in REMOTE_AGENTS:
     print(f"🔗 {url}")
