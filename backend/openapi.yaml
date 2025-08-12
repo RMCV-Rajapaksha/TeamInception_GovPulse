@@ -467,6 +467,72 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
+  /api/time-slots/remove-free-time-slot:
+    post:
+      summary: Remove free time slot
+      operationId: removeFreeTimeSlot
+      description: Allows government officials to remove a free time slot for appointments related to their employed Authority. Note that the authority is identified using the bearer token.
+      tags:
+        - time-slot-related
+      requestBody:
+        description: Contains the details of the free time slot to be removed
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date-time
+                  example: "2025-08-15T00:00:00.000Z"
+                start_time:
+                  type: string
+                  example: "10:00"
+                end_time:
+                  type: string
+                  example: "11:00"
+              required:
+                - date
+                - start_time
+                - end_time
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Free time slot removed successfully
+                  free_time_slot_data:
+                    $ref: "#/components/schemas/models.freeTimeSlotData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
 components:
   securitySchemes:
     BearerAuth:
