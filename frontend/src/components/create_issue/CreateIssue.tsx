@@ -72,6 +72,11 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
         },
       });
 
+      // Check if the response is ok
+      
+    
+     
+
       if (!signatureResponse.ok) {
         throw new Error('Failed to get signature');
       }
