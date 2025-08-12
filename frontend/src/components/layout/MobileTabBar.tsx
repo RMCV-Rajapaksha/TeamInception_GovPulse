@@ -1,7 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { FiCompass, FiBell, FiUser, FiBarChart2, FiPlus } from "react-icons/fi";
+import {
+  FiCompass,
+  FiBell,
+  FiUser,
+  FiBarChart2,
+  FiPlus,
+  FiMessageCircle,
+} from "react-icons/fi";
 import React from "react";
-import CreateIssue from "../create_issue/CreateIssue";
+import Chatbot from "../chatbot/Chatbot";
 
 function Tab({
   to,
@@ -36,10 +43,11 @@ function Tab({
 
 export default function MobileTabBar() {
   const { pathname } = useLocation();
-  const [isReportedClicked, setIsReportedClicked] = React.useState(false);
+  const [isChatbotOpen, setIsChatbotOpen] = React.useState(false);
   return (
     <>
-      <nav className="fixed bottom-0 inset-x-0 sm:hidden bg-white/80 backdrop-blur border-t border-gray-200">
+      {/* Mobile Tab Bar */}
+      <nav className="fixed bottom-0 inset-x-0 sm:hidden bg-white/80 backdrop-blur border-t border-gray-200 z-30">
         <div className="px-6 py-3 flex justify-between items-center">
           <Tab to="/" label="Explore" selected={pathname === "/"}>
             <FiCompass className="h-5 w-5" />
@@ -52,9 +60,8 @@ export default function MobileTabBar() {
             <FiBarChart2 className="h-5 w-5" />
           </Tab>
           <div
-            onClick={() => setIsReportedClicked(true)}
             aria-label="Report"
-            className="w-14 h-14 bg-gray-900 rounded-[32px] inline-flex items-center justify-center text-white shadow-md"
+            className="w-14 h-14 bg-gray-900 rounded-[32px] inline-flex items-center justify-center text-white shadow-md opacity-60 pointer-events-none"
           >
             <FiPlus className="h-6 w-6 text-white" />
           </div>
@@ -74,7 +81,20 @@ export default function MobileTabBar() {
           </Tab>
         </div>
       </nav>
-      <CreateIssue isReportedClicked={isReportedClicked} setIsReportedClicked={setIsReportedClicked} />
+
+      {/* Floating chatbot button for both mobile and desktop */}
+      <button
+        type="button"
+        onClick={() => setIsChatbotOpen(true)}
+        aria-label="Open AI Chatbot"
+        className="fixed bottom-24 right-4 z-40 w-14 h-14 bg-yellow-300 hover:bg-yellow-400 rounded-2xl shadow-lg items-center justify-center border-2 border-yellow-400 transition-colors flex sm:bottom-8 sm:right-8"
+        style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.10)" }}
+      >
+        <FiMessageCircle className="w-7 h-7 text-gray-900" />
+      </button>
+
+      {/* Chatbot panel (mobile: full, desktop: floating) */}
+      <Chatbot open={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
     </>
   );
 }
