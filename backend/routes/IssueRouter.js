@@ -1,12 +1,12 @@
-const { 
-    test, 
-    createIssue,
-    deleteIssue, 
-    getUserIssues, 
-    getIssues, 
-    getIssueById
+const {
+  test,
+  createIssue,
+  deleteIssue,
+  getUserIssues,
+  getIssues,
+  getIssueById,
 } = require("../controllers/IssueController");
-const {verifyToken} = require("../middleware/verifyToken");
+const { verifyToken } = require("../middleware/verifyToken");
 const express = require("express");
 const router = express.Router();
 
