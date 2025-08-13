@@ -6,8 +6,10 @@ import { TimeSlotDashboard } from "@/components/TimeSlotDashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, CheckCircle, Shield } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, isLoading, login, logout } = useAuth();
   const [authModal, setAuthModal] = useState<{
     isOpen: boolean;
     type: 'official-login' | 'official-signup' | null;
@@ -15,22 +17,30 @@ const Index = () => {
     isOpen: false,
     type: null,
   });
-  
-  const [user, setUser] = useState<{ token: string; type: string } | null>(null);
 
   const handleAuthClick = (type: 'official-login' | 'official-signup') => {
     setAuthModal({ isOpen: true, type });
   };
 
   const handleAuthSuccess = (token: string, userType: string) => {
-    setUser({ token, type: userType });
+    login(token, userType);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userType');
-    setUser(null);
+    logout();
   };
+
+  // Show loading spinner while checking for existing session
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (user) {
     return (
