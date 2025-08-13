@@ -102,7 +102,7 @@ class HostAgent:
     """Provide root instruction for the GovPulse assistant agent."""
     current_agent = self.check_state(context)
     return f"""You are GovPulse – a smart and friendly assistant that helps people by connecting their requests to the right government service, department, or digital agent.
-
+   give the response using markdown format and answers shoude be simple and easy to understand and well formatted.
 🧭 Your Role – Discovery:
 
 Use list_remote_agents to see all available agents who can help with different kinds of requests.
