@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
+import { AuthenticatedNavigation } from "@/components/AuthenticatedNavigation";
 import { AuthModal } from "@/components/AuthModal";
 import { TimeSlotDashboard } from "@/components/TimeSlotDashboard";
 import { Button } from "@/components/ui/button";
@@ -34,19 +35,7 @@ const Index = () => {
   if (user) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="bg-gradient-hero">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Calendar className="h-8 w-8 text-primary-foreground mr-2" />
-                <span className="text-xl font-bold text-primary-foreground">GovTimeSync</span>
-              </div>
-              <Button variant="secondary" onClick={handleLogout}>
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
+        <AuthenticatedNavigation onLogout={handleLogout} />
         <TimeSlotDashboard userType={user.type} />
       </div>
     );
@@ -61,7 +50,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6">
-              Sri Lankan Government
+              Sri Lankan Government{' '}
               <span className="block text-accent">Official Portal</span>
             </h1>
             <p className="text-xl text-primary-foreground/90 mb-8 max-w-3xl mx-auto">
