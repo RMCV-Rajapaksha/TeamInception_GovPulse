@@ -15,11 +15,6 @@ CLOUDINARY_API_KEY=your_actual_api_key
 CLOUDINARY_API_SECRET=your_actual_api_secret
 ```
 
-#### Frontend (.env):
-```env
-VITE_CLOUDINARY_CLOUD_NAME=your_actual_cloud_name
-VITE_CLOUDINARY_API_KEY=your_actual_api_key
-```
 
 ### 3. What the code does now:
 

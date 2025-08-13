@@ -107,7 +107,7 @@ GovPulse/
 
 The GovPulse platform uses a comprehensive database schema designed to handle complex government issue management workflows. The Entity-Relationship diagram below illustrates the relationships between different entities in the system:
 
-![GovPulse ER Diagram](docs/govpulse-er-diagram.png)
+![GovPulse ER Diagram](docs/GovPulse-ER.drawio.png)
 
 *Entity-Relationship diagram showing the database structure and relationships between users, issues, appointments, officials, and other core entities in the GovPulse system*
 
