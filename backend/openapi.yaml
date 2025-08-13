@@ -962,7 +962,408 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-
+  /api/appointments/add-attendee-by-user:
+    post:
+      summary: Add attendee by user
+      operationId: addAttendeeByUser
+      description: Allows a user to add an attendee to their appointment
+      tags:
+        - appointment-related
+      requestBody:
+        description: Contains the details of the attendee to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.addAttendeeReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Attendee added successfully
+                  appointment_data:
+                    $ref: "#/components/schemas/models.attendeeData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/add-attendee-by-official:
+    post:
+      summary: Add attendee by official
+      operationId: addAttendeeByOfficial
+      description: Allows a government official to add an attendee to an appointment. Note that the official is identified using the bearer token.
+      tags:
+        - appointment-related
+      requestBody:
+        description: Contains the details of the attendee to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.addAttendeeReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Attendee added successfully
+                  appointment_data:
+                    $ref: "#/components/schemas/models.attendeeData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/attendees-of-appointment/{appointment_id}:
+    get:
+      summary: Get attendees of an appointment
+      operationId: getAttendeesOfAppointment
+      description: Retrieves all attendees of a specific appointment by its ID
+      tags:
+        - appointment-related
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          description: The ID of the appointment whose attendees are to be retrieved
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/models.attendeeData"
+        "404":
+          description: Not Found - Appointment not found or no attendees available
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Appointment not found or no attendees available
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security: []
+  /api/appointments/remove-attendee-from-appointment-by-user/{attendee_id}:
+    delete:
+      summary: Remove attendee from appointment by user
+      operationId: removeAttendeeFromAppointmentByUser
+      description: Allows a user to remove an attendee from their appointment
+      tags:
+        - appointment-related
+      parameters:
+        - name: attendee_id
+          in: path
+          required: true
+          description: The ID of the attendee to be removed
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Attendee removed successfully
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/remove-attendee-from-appointment-by-official/{attendee_id}:
+    delete:
+      summary: Remove attendee from appointment by official
+      operationId: removeAttendeeFromAppointmentByOfficial
+      description: Allows a government official to remove an attendee from an appointment. Note that the official is identified using the bearer token.
+      tags:
+        - appointment-related
+      parameters:
+        - name: attendee_id
+          in: path
+          required: true
+          description: The ID of the attendee to be removed
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string 
+                    example: Attendee removed successfully
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/add-attachment-file:
+    post:
+      summary: Add attachment file to appointment
+      operationId: addAttachmentFileToAppointment
+      description: Allows a user to add an attachment file to an appointment
+      tags:
+        - appointment-related
+      requestBody:
+        description: Contains the details of the attachment file to be added
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                appointment_id:
+                  type: integer
+                  format: int64
+                  example: 12345
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Attachment file added successfully
+                  attachment_data:
+                    $ref: "#/components/schemas/models.attachmentData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/get-attachment-for-appointment/{appointment_id}:
+    get:
+      summary: Get attachments of an appointment
+      operationId: getAttachmentsOfAppointment
+      description: Retrieves the attachment, along with all its file urls, of a specific appointment by its ID
+      tags:
+        - appointment-related
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          description: The ID of the appointment whose attachments are to be retrieved
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.attachmentData"
+        "404":
+          description: Not Found - Appointment not found or no attachments available
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Appointment not found or no attachments available
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security: []
+  /api/appointments/remove-file-from-attachment:
+    post:
+      summary: Remove file from attachment
+      operationId: removeFileFromAttachment
+      description: Allows a user to remove a file from an appointment's attachment
+      tags:
+        - appointment-related
+      requestBody:
+        description: Contains the details of the file to be removed from the attachment
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointment_id:
+                  type: integer
+                  format: int64
+                  example: 12345
+                file_url:
+                  type: string
+                  format: uri
+                  example: "https://example.com/attachment/file1.jpg"
+              required:
+                - appointment_id
+                - file_url
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: File removed from attachment successfully
+                  attachment_data:
+                    $ref: "#/components/schemas/models.attachmentData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
 components:
   securitySchemes:
     BearerAuth:
@@ -1333,3 +1734,80 @@ components:
           type: string
           nullable: true
           example: null
+    models.addAttendeeReqObj:
+      type: object
+      properties:
+        appointment_id:
+          type: integer
+          format: int64
+          example: 1
+        nic:
+          type: string
+          example: "425253456V"
+        name:
+          type: string
+          example: "Jane Doe"
+        phone_no:
+          type: string
+          format: phone
+          example: "+94123456789"
+      required:
+        - appointment_id
+        - nic
+        - name
+    models.attendeeData:
+      type: object
+      properties:
+        attendee_id:
+          type: integer
+          format: int64
+          example: 1
+        appointment_id:
+          type: integer
+          format: int64
+          example: 1
+        nic:
+          type: string
+          example: "425253456V"
+        name:
+          type: string
+          example: "Jane Doe"
+        phone_no:
+          type: string
+          format: phone
+          example: "+94123456789"
+    models.addAttachmentFileReqObj:
+      type: object
+      properties:
+        appointment_id:
+          type: integer
+          format: int64
+          example: 1
+        file_url:
+          type: string
+          format: uri
+          example: "https://example.com/attachment.pdf"
+      required:
+        - appointment_id
+        - file_url
+    models.attachmentData:
+      type: object
+      properties:
+        appointment_id:
+          type: integer
+          format: int64
+          example: 1
+        attachment_id:
+          type: integer
+          format: int64
+          example: 1
+        file_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+            example: "https://example.com/attachment.pdf"
+      required:
+        - appointment_id
+        - file_urls
+
