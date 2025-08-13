@@ -8,6 +8,11 @@ import { apiClient, FreeTimeSlot } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, Clock, Plus, Trash2 } from "lucide-react";
 
+interface TimeSlotInput {
+  id: string;
+  value: string;
+}
+
 interface TimeSlotDashboardProps {
   userType: string;
 }
@@ -17,8 +22,7 @@ export const TimeSlotDashboard = ({ userType }: TimeSlotDashboardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [newSlot, setNewSlot] = useState({
     date: '',
-    time_slots: [''],
-    authority_id: 1
+    time_slots: [{ id: crypto.randomUUID(), value: '' }] as TimeSlotInput[]
   });
   const { toast } = useToast();
 
@@ -32,6 +36,7 @@ export const TimeSlotDashboard = ({ userType }: TimeSlotDashboardProps) => {
       const slots = await apiClient.viewFreeTimeSlots();
       setTimeSlots(slots);
     } catch (error: any) {
+      console.error('Failed to load time slots:', error);
       toast({
         title: "Error",
         description: "Failed to load time slots",
@@ -44,7 +49,7 @@ export const TimeSlotDashboard = ({ userType }: TimeSlotDashboardProps) => {
 
   const addTimeSlot = async () => {
     try {
-      const filteredTimeSlots = newSlot.time_slots.filter(slot => slot.trim() !== '');
+      const filteredTimeSlots = newSlot.time_slots.filter(slot => slot.value.trim() !== '');
       
       if (filteredTimeSlots.length === 0) {
         toast({
@@ -55,20 +60,39 @@ export const TimeSlotDashboard = ({ userType }: TimeSlotDashboardProps) => {
         return;
       }
 
-      await apiClient.addFreeTimeSlot({
-        ...newSlot,
-        time_slots: filteredTimeSlots,
-        date: new Date(newSlot.date).toISOString()
-      });
+      const date = new Date(newSlot.date).toISOString();
+
+      // Send each time slot as a separate request
+      for (const timeSlot of filteredTimeSlots) {
+        // Parse time slot format like "10:00 - 11:00" or "10:00-11:00"
+        const timeRange = timeSlot.value.split(/\s*-\s*/);
+        if (timeRange.length !== 2) {
+          toast({
+            title: "Error",
+            description: `Invalid time format: ${timeSlot.value}. Use format "10:00 - 11:00"`,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const [start_time, end_time] = timeRange;
+        
+        await apiClient.addFreeTimeSlot({
+          date,
+          start_time: start_time.trim(),
+          end_time: end_time.trim()
+        });
+      }
       
       toast({
         title: "Success",
-        description: "Time slot added successfully",
+        description: "Time slot(s) added successfully",
       });
       
-      setNewSlot({ date: '', time_slots: [''], authority_id: 1 });
+      setNewSlot({ date: '', time_slots: [{ id: crypto.randomUUID(), value: '' }] });
       loadTimeSlots();
     } catch (error: any) {
+      console.error('Failed to add time slot:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to add time slot",
@@ -80,13 +104,13 @@ export const TimeSlotDashboard = ({ userType }: TimeSlotDashboardProps) => {
   const addTimeSlotField = () => {
     setNewSlot({
       ...newSlot,
-      time_slots: [...newSlot.time_slots, '']
+      time_slots: [...newSlot.time_slots, { id: crypto.randomUUID(), value: '' }]
     });
   };
 
   const updateTimeSlot = (index: number, value: string) => {
     const updated = [...newSlot.time_slots];
-    updated[index] = value;
+    updated[index] = { ...updated[index], value };
     setNewSlot({ ...newSlot, time_slots: updated });
   };
 
@@ -99,8 +123,8 @@ export const TimeSlotDashboard = ({ userType }: TimeSlotDashboardProps) => {
 
   const renderTimeSlots = () => {
     if (isLoading) {
-      return Array.from({ length: 6 }).map((_, i) => (
-        <Card key={i} className="animate-pulse">
+      return Array.from({ length: 6 }, (_, i) => (
+        <Card key={`skeleton-card-${i}`} className="animate-pulse">
           <CardHeader>
             <div className="h-4 bg-muted rounded w-3/4"></div>
             <div className="h-3 bg-muted rounded w-1/2"></div>
@@ -198,10 +222,10 @@ export const TimeSlotDashboard = ({ userType }: TimeSlotDashboardProps) => {
               <div>
                 <Label>Time Slots</Label>
                 {newSlot.time_slots.map((slot, index) => (
-                  <div key={index} className="flex items-center gap-2 mt-2">
+                  <div key={slot.id} className="flex items-center gap-2 mt-2">
                     <Input
                       placeholder="e.g., 10:00 - 11:00"
-                      value={slot}
+                      value={slot.value}
                       onChange={(e) => updateTimeSlot(index, e.target.value)}
                       className="flex-1"
                     />
@@ -226,16 +250,6 @@ export const TimeSlotDashboard = ({ userType }: TimeSlotDashboardProps) => {
                   <Plus className="h-4 w-4 mr-2" />
                   Add Time Slot
                 </Button>
-              </div>
-
-              <div>
-                <Label htmlFor="authority_id">Authority ID</Label>
-                <Input
-                  id="authority_id"
-                  type="number"
-                  value={newSlot.authority_id}
-                  onChange={(e) => setNewSlot({ ...newSlot, authority_id: parseInt(e.target.value) })}
-                />
               </div>
 
               <Button onClick={addTimeSlot} className="w-full">
