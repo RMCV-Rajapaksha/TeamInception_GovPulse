@@ -3,7 +3,6 @@ const multer = require("multer");
 const {
   uploadMultipleImagesController,
 } = require("../controllers/ImageUpload");
-// const { verifyToken } = require("../middleware/verifyToken");
 const router = express.Router();
 
 // Configure multer for memory storage
