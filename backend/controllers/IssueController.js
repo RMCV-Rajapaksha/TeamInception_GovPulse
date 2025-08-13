@@ -32,36 +32,51 @@ const createIssue = async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const {
-      title,
-      description,
-      gs_division,
-      ds_division,
-      urgency_score,
-      status_id,
-      authority_id,
-      category_id,
-      image_urls,
-    } = req.body;
+    const { title, description, grama, city, district, sector, image_urls } =
+      req.body;
 
     // Validate input data
-    if (!title || !description || !authority_id || !category_id) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "title, description, authority_id and category_id are required",
-        });
+    if (!title || !description || !district || !sector) {
+      return res.status(400).json({
+        error: "title, description, district, and sector are required",
+      });
     }
-    urgency_score_generated = await getUrgencyScore(
+
+    // Map sector to category_id (you'll need to adjust these mappings based on your database)
+    const sectorToCategoryMap = {
+      "Roads & Transport": 1,
+      "Water Supply": 2,
+      Electricity: 3,
+      "Waste Management": 4,
+      Other: 5,
+    };
+
+    // Map sector to authority_id (you'll need to adjust these mappings based on your database)
+    const sectorToAuthorityMap = {
+      "Roads & Transport": 1,
+      "Water Supply": 2,
+      Electricity: 3,
+      "Waste Management": 4,
+      Other: 1,
+    };
+
+    const category_id = sectorToCategoryMap[sector];
+    const authority_id = sectorToAuthorityMap[sector];
+
+    if (!category_id || !authority_id) {
+      return res.status(400).json({ error: "Invalid sector selected" });
+    }
+
+    // Generate urgency score
+    const urgency_score_generated = await getUrgencyScore(
       title,
       description,
-      gs_division,
-      ds_division,
-      status_id,
+      grama,
+      city,
+      1, // default status_id
       authority_id,
       category_id,
-      image_urls
+      image_urls || ""
     );
 
     // Create a new issue in the database
@@ -72,19 +87,26 @@ const createIssue = async (req, res) => {
         },
         title,
         description,
-        gs_division,
-        ds_division,
-        urgency_score: parseFloat(urgency_score_generated) || 0, // Default to 0 if not provided
+        district,
+        gs_division: grama,
+        ds_division: city,
+        urgency_score: parseFloat(urgency_score_generated) || 0,
         Issue_Status: {
-          connect: { status_id: parseInt(status_id) || 1 }, // Connect to the existing status
+          connect: { status_id: 1 }, // Default to pending status
         },
         Authority: {
-          connect: { authority_id: parseInt(authority_id) || null }, // Allow null if not provided
+          connect: { authority_id: parseInt(authority_id) },
         },
         Category: {
-          connect: { category_id: parseInt(category_id) }, // Allow null if not provided
+          connect: { category_id: parseInt(category_id) },
         },
-        image_urls: image_urls || "", // Default to empty string if not provided
+        image_urls: image_urls || "",
+      },
+      include: {
+        User: true,
+        Issue_Status: true,
+        Authority: true,
+        Category: true,
       },
     });
 
