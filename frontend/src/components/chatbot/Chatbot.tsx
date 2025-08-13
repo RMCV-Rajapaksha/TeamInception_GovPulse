@@ -54,20 +54,8 @@ interface Message {
 
 const initialMessages: Message[] = [
   {
-    sender: "bot",
-    text: "👋 Hello! I can help you report an issue. Do you want to continue in Sinhala or English?",
-  },
-  {
-    sender: "user",
-    text: "I'll speak in English",
-  },
-  {
-    sender: "bot",
-    text: "Great! Please describe the issue in detail.",
-  },
-  {
-    sender: "user",
-    text: "Main road to the divisional hospital in Matugama is broken for months. Ambulances can't get through.",
+   sender: "bot",
+   text: "👋 Hey there! I’m here to help you quickly report any issue and make sure it gets the attention it deserves. Let’s get started!"
   },
 ];
 
