@@ -136,7 +136,7 @@ model Appointment {
   appointment_id   Int      @id @default(autoincrement())
   user_id          Int
   authority_id     Int
-  issue_id         Int
+  issue_id         Int?
   date             DateTime @db.Date
   time_slot        String?
   official_comment String?

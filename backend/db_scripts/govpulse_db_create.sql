@@ -121,7 +121,7 @@ CREATE TABLE "APPOINTMENT" (
     "appointment_id" SERIAL PRIMARY KEY,
     "user_id" INTEGER NOT NULL,
     "authority_id" INTEGER NOT NULL,
-    "issue_id" INTEGER NOT NULL,
+    "issue_id" INTEGER,
     "date" DATE,
     "time_slot" VARCHAR(255),
     "official_comment" TEXT

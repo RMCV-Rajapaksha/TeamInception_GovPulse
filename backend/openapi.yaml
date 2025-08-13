@@ -11,6 +11,8 @@ tags:
     description: endpoints related to issues
   - name: time-slot-related
     description: endpoints related to time slots for appointments
+  - name: appointment-related
+    description: endpoints related to appointments
   - name: images-related
     description: endpoints related to image generation and signatures
 
@@ -612,6 +614,58 @@ paths:
                 example: Internal Server Error
       deprecated: false
       security: []
+  
+  /api/appointments/book-appointment:
+    post:
+      summary: Book an appointment
+      operationId: bookAppointment
+      description: Allows a user to book an appointment with government Authority.
+      tags:
+        - appointment-related
+      requestBody:
+        description: Contains the details of the appointment to be booked
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.bookAppointmentReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Appointment booked successfully
+                  appointment_data:
+                    $ref: "#/components/schemas/models.appointmentData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
 components:
   securitySchemes:
     BearerAuth:
@@ -902,3 +956,53 @@ components:
         - authority_id
         - date
         - time_slots
+    models.bookAppointmentReqObj:
+      type: object
+      properties:
+        authority_id:
+          type: integer
+          format: int64
+          example: 1
+        date:
+          type: string
+          format: date-time
+          example: "2025-08-15T00:00:00.000Z"
+        time_slot:
+          type: string
+          example: "10:00 - 11:00"
+        issue_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: 12345
+    models.appointmentData:
+      type: object
+      properties:
+        appointment_id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        authority_id:
+          type: integer
+          format: int64
+          example: 2
+        issue_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        date:
+          type: string
+          format: date-time
+          example: "2025-08-15T00:00:00.000Z"
+        time_slot:
+          type: string
+          example: "10:00 - 11:00"
+        official_comment:
+          type: string
+          nullable: true
+          example: null
