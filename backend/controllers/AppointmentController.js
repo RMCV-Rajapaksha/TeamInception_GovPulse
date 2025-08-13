@@ -1,4 +1,5 @@
 const { PrismaClient } = require("../generated/prisma");
+const { get } = require("../routes/AppointmentRouter");
 
 const prisma = new PrismaClient();
 
@@ -346,11 +347,135 @@ const removeAttendeeFromAppointment = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+const addAttachmentFile = async (req, res) => {
+    try {
+        const { appointment_id, file_url } = req.body;
+
+        if (!appointment_id || !file_url) {
+            return res.status(400).json({ error: "Appointment ID and file URL are required" });
+        }
+        
+        const AttachmentExists = await prisma.attachment.findUnique({
+            where: {
+                appointment_id: parseInt(appointment_id)
+            }
+        });
+
+        if (AttachmentExists) {
+            // append the new file_url to the existing attachment file_urls array
+            const updatedAttachment = await prisma.attachment.update({
+                where: {
+                    appointment_id: parseInt(appointment_id)
+                },
+                data: {
+                    file_urls: {
+                        push: file_url // Assuming file_url is an array, if not, you may need to adjust this
+                    }
+                }
+            });
+
+            return res.status(200).json({ message: "Attachment updated successfully", attachment: updatedAttachment });
+        }else{
+            // If no attachment exists, create a new one
+            const newAttachment = await prisma.attachment.create({
+                data: {
+                    Appointment: {
+                        connect: { appointment_id: parseInt(appointment_id) }
+                    },
+                    file_urls: [file_url] // Store the file_url as an array
+                }
+            });
+
+            return res.status(200).json({ message: "Attachment added successfully", attachment_data: newAttachment });
+        }
+
+    } catch (error) {
+        console.error("Error adding attachment:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const getAttachmentByAppointmentId = async (req, res) => {
+    try {
+        const { appointment_id } = req.params;
+
+        // Fetch the attachment by appointment ID
+        const attachment = await prisma.attachment.findUnique({
+            where: {
+                appointment_id: parseInt(appointment_id)
+            }
+        });
+
+        if (!attachment) {
+            return res.status(404).json({ error: "Attachment not found for this appointment" });
+        }
+
+        res.status(200).json({ attachment });
+    } catch (error) {
+        console.error("Error fetching attachment:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const removefileFromAttachment = async (req, res) => {
+    try {
+        const { attachment_id, file_url } = req.body;
+
+        if (!attachment_id || !file_url) {
+            return res.status(400).json({ error: "Appointment ID and file URL are required" });
+        }
+
+        // Fetch the attachment by appointment ID
+        const attachment = await prisma.attachment.findUnique({
+            where: {
+                attachment_id: parseInt(attachment_id)
+            }
+        });
+
+        if (!attachment) {
+            return res.status(404).json({ error: "Attachment not found for this appointment" });
+        }
+        if (!attachment.file_urls.includes(file_url)) {
+            return res.status(404).json({ error: "File URL not found in the attachment" });
+        }
+        if (attachment.file_urls.length === 1) {
+            // If this was the last file, delete the attachment record
+            await prisma.attachment.delete({
+                where: {
+                    attachment_id: parseInt(attachment_id)
+                }
+            });
+            return res.status(200).json({ message: "Attachment deleted successfully, last file url was also deleted therefore entire attachment record was deleted", attachment_data: {} });
+        } else {
+
+            const updatedAttachment = await prisma.attachment.update({
+                where: {
+                    attachment_id: parseInt(attachment_id)
+                },
+                data: {
+                    file_urls: {
+                        set: attachment.file_urls.filter(url => url !== file_url)
+                    }
+                }
+            });
+            res.status(200).json({ message: "File removed successfully", attachment_data: updatedAttachment });
+        }
+
+
+    } catch (error) {
+        console.error("Error removing file from attachment:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 module.exports = { 
     bookAppointment, 
     getUsersAppointments,
     getAppointmentById,
     getAuthorityAppointments,
+    addAttachmentFile,
+    getAttachmentByAppointmentId,
+    removefileFromAttachment,
     cancelAppointment,
     addAttendeeToAppointment,
     getAttendeesOfAppointment,
