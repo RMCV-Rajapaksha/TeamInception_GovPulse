@@ -56,12 +56,12 @@ This will load up colorful and highly user friendly interface in the right hands
 please take note of following:
 1. if a developer edits the db_script govpulse_db_create.sql, unless its a very minor change like to the comments, the /prisma/schema.prisma file should be updated accordingly.
 
-2. updating the govpulse_db_create.sql would normally require you to re-run it or else the changes to be made to the schema wont happen (unless its a very minor change like to the comments )
+2. updating the govpulse_db_create.sql would normally require you to re-run it or else the changes to be made to the schema wont happen in your actual database (unless its a very minor change like to the comments ). However this essentially **resets your database**.
 
-3. when you are pulling in code changes to your branch, know that if the govpulse_db_create.sql has been updated you will have to rerun it for your own postgres database to properly updated too. This would result in your stored data being erased. If you want attempt to update your own database without losing its current data refer 4. below.
+3. when you are pulling in code changes to your branch, know that if the govpulse_db_create.sql has been updated you will have to rerun it for your own postgres database to properly updated too. This would result in your **database being reset**. If you want attempt to update your own database without losing its current data refer 4. below.
 
-4. running **npx prisma migrate dev** from within /backend directory will attempt to sync your database with the schema.prisma, it only in some cases result in your data being reset (depending on how out of sync your database is with current database).
+4. running **npx prisma migrate dev** from within /backend directory will attempt to sync your database with the schema.prisma, it only in some cases result in your data being reset (depending on how out of sync your database is with the latest database schema).
 
-5. It is recommended to wait until it is confirmable that the database schema will no longer be changed and then add considerable number of demo data records. And also to add the demo data also through a db script and then in the case of the database reset discussed above you would just need to refactor you demo data db script and then run it and you would have your data available without issues.
+5. It is recommended to wait until it is confirmable that the database schema will no longer be changed and then add considerable number of demo data records. And also to add the demo data also through a db script and then in the case of the database reset discussed above you would just need to refactor you demo data db script and then run it and you would have your data available in the right format without issues.
 
 
