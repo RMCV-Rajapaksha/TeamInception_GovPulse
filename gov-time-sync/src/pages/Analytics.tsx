@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, BarChart3, TrendingUp, Clock, AlertCircle, RefreshCw } from "lucide-react";
+import { Calendar, BarChart3, AlertCircle, RefreshCw } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { useTimeSlotAnalytics } from "@/hooks/useTimeSlotAnalytics";
+import { QuickStats, TimeSlotInsights } from "@/components/AnalyticsComponents";
 import {
   LineChart,
   Line,
@@ -53,19 +54,7 @@ const Analytics = () => {
     hasData 
   } = useTimeSlotAnalytics(dateRange);
 
-  const { totalTimeSlots, totalHours, avgSlotsPerDay, maxSlotsInDay, busiestDay } = metrics;
-
-  const getPeriodText = () => {
-    if (dateRange === 'week') return 'This Week';
-    if (dateRange === 'month') return 'This Month';
-    return 'This Quarter';
-  };
-
-  const getDateRangeText = () => {
-    if (dateRange === 'week') return '7 days';
-    if (dateRange === 'month') return '30 days';
-    return '90 days';
-  };
+  const { totalTimeSlots, totalHours, avgSlotsPerDay, busiestDay } = metrics;
 
   if (isLoading) {
     return (
@@ -166,63 +155,17 @@ const Analytics = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Time Slots</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{totalTimeSlots}</div>
-              <p className="text-xs text-muted-foreground">
-                Last {getDateRangeText()}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{totalHours}h</div>
-              <p className="text-xs text-muted-foreground">
-                Available time
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Daily Average</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{avgSlotsPerDay.toFixed(1)}</div>
-              <p className="text-xs text-muted-foreground">
-                Slots per day
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Peak Day</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{maxSlotsInDay}</div>
-              <p className="text-xs text-muted-foreground">
-                Maximum slots in a day
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Chart Controls */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Statistics Cards */}
+      <div className="mb-8">
+        <QuickStats
+          totalSlots={totalTimeSlots}
+          totalHours={totalHours}
+          avgSlotsPerDay={avgSlotsPerDay}
+          busiestDay={busiestDay?.date || 'N/A'}
+          isLoading={isLoading}
+        />
+      </div>        {/* Chart Controls */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-foreground">Time Slot Trends</h2>
           <div className="flex space-x-2">
@@ -331,86 +274,17 @@ const Analytics = () => {
           </CardContent>
         </Card>
 
-        {/* Additional Insights and Hourly Distribution */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Time Slot Insights */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Availability Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Average Hours/Day:</span>
-                  <span className="font-semibold text-blue-600">
-                    {timeSlotData.length > 0 ? (totalHours / timeSlotData.length).toFixed(1) : 0}h
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Busiest Day:</span>
-                  <span className="font-semibold">
-                    {busiestDay?.date || 'N/A'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Total Days:</span>
-                  <span className="font-semibold">{timeSlotData.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Most Common Time:</span>
-                  <span className="font-semibold text-green-600">
-                    {hourlyDistribution.length > 0 ? 
-                      hourlyDistribution.reduce((prev, current) => (prev.count > current.count) ? prev : current).hour
-                      : 'N/A'
-                    }
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Performance Trends */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Availability Trends</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Trend Direction:</span>
-                  <span className="font-semibold text-blue-600">
-                    {timeSlotData.length > 1 && 
-                     timeSlotData[timeSlotData.length - 1].totalSlots > timeSlotData[0].totalSlots 
-                     ? '↗ Increasing' : '↘ Decreasing'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Most Active Period:</span>
-                  <span className="font-semibold">
-                    {getPeriodText()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Data Points:</span>
-                  <span className="font-semibold">{timeSlotData.length} days</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Preferred Time:</span>
-                  <span className="font-semibold text-orange-600">
-                    {(() => {
-                      const totalMorning = timeSlotData.reduce((sum, item) => sum + item.morningSlots, 0);
-                      const totalAfternoon = timeSlotData.reduce((sum, item) => sum + item.afternoonSlots, 0);
-                      const totalEvening = timeSlotData.reduce((sum, item) => sum + item.eveningSlots, 0);
-                      
-                      if (totalMorning >= totalAfternoon && totalMorning >= totalEvening) return 'Morning';
-                      if (totalAfternoon >= totalEvening) return 'Afternoon';
-                      return 'Evening';
-                    })()}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Additional Insights and Time Distribution */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Time Slot Insights - Takes 2 columns */}
+          <div className="lg:col-span-2">
+            <TimeSlotInsights
+              timeSlotData={timeSlotData}
+              hourlyDistribution={hourlyDistribution}
+              totalHours={totalHours}
+              totalSlots={totalTimeSlots}
+            />
+          </div>
 
           {/* Hourly Distribution Chart */}
           <Card>
@@ -421,7 +295,7 @@ const Analytics = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[200px] w-full">
+              <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={hourlyDistribution.slice(0, 8)}>
                     <CartesianGrid strokeDasharray="3 3" />
