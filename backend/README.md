@@ -23,6 +23,8 @@ GOOGLE_API_KEY=
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
+EMAIL_USER=
+EMAIL_PASS=
 ```
 
 note that here the default "postgres" user with a password "admin" is used to connect to the local postgreSQL instance running on port 5432. You can change this according to the way you have setup you user.
