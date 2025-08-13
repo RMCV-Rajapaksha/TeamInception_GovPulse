@@ -30,6 +30,55 @@ class ApiClient {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
+  // Utility function to check if token is expired
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      return payload.exp < currentTime;
+    } catch (error) {
+      console.error('Error parsing token:', error);
+      return true; // Consider invalid tokens as expired
+    }
+  }
+
+  // Validate current session
+  async validateSession(): Promise<boolean> {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return false;
+
+      // Check if token is expired
+      if (this.isTokenExpired(token)) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userType');
+        return false;
+      }
+
+      // Make a test API call to verify token is still valid
+      const response = await fetch(`${API_BASE_URL}/time-slots/view-free-time-slots`, {
+        method: 'GET',
+        headers: {
+          ...this.getAuthHeaders(),
+        },
+      });
+
+      if (!response.ok) {
+        // Token is invalid, clear it
+        localStorage.removeItem('token');
+        localStorage.removeItem('userType');
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Session validation error:', error);
+      localStorage.removeItem('token');
+      localStorage.removeItem('userType');
+      return false;
+    }
+  }
+
   async officialRegister(data: OfficialRegisterRequest) {
     const response = await fetch(`${API_BASE_URL}/officials/register`, {
       method: 'POST',
