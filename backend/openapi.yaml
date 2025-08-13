@@ -11,6 +11,8 @@ tags:
     description: endpoints related to issues
   - name: time-slot-related
     description: endpoints related to time slots for appointments
+  - name: appointment-related
+    description: endpoints related to appointments
   - name: images-related
     description: endpoints related to image generation and signatures
 
@@ -705,6 +707,262 @@ paths:
                 example: Internal Server Error
       deprecated: false
       security: []
+  
+  /api/appointments/book-appointment:
+    post:
+      summary: Book an appointment
+      operationId: bookAppointment
+      description: Allows a user to book an appointment with government Authority.
+      tags:
+        - appointment-related
+      requestBody:
+        description: Contains the details of the appointment to be booked
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.bookAppointmentReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Appointment booked successfully
+                  appointment_data:
+                    $ref: "#/components/schemas/models.appointmentData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/user-appointments:
+    get:
+      summary: Get user appointments
+      operationId: getUserAppointments
+      description: Retrieves all appointments booked by the authenticated user
+      tags:
+        - appointment-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/models.appointmentData"
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/authority-appointments:
+    get:
+      summary: Get authority appointments
+      operationId: getAuthorityAppointments
+      description: Retrieves all appointments for the authenticated official's employed authority. Note that the authority is identified using the bearer token.
+      tags:
+        - appointment-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/models.appointmentData"
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/appointment-by-id/{appointment_id}:
+    get:
+      summary: Get appointment by ID
+      operationId: getAppointmentById
+      description: Retrieves a specific appointment by its ID
+      tags:
+        - appointment-related
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          description: The ID of the appointment to retrieve
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.appointmentData"
+        "404":
+          description: Not Found - Appointment not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Appointment not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security: []
+  /api/appointments/cancel-appointment-by-user:
+    post:
+      summary: Cancel appointment by user
+      operationId: cancelAppointmentByUser
+      description: Allows a user to cancel an appointment they have booked
+      tags:
+        - appointment-related
+      requestBody:
+        description: Contains the ID of the appointment to be canceled
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.cancelAppointmentReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Appointment canceled successfully
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/appointments/cancel-appointment-by-official:
+    post:
+      summary: Cancel appointment by official
+      operationId: cancelAppointmentByOfficial
+      description: Allows a government official to cancel an appointment. Note that official is identified using the bearer token.
+      tags:
+        - appointment-related
+      requestBody:
+        description: Contains the ID of the appointment to be canceled
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.cancelAppointmentReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Appointment canceled successfully
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+
 components:
   securitySchemes:
     BearerAuth:
@@ -995,3 +1253,66 @@ components:
         - authority_id
         - date
         - time_slots
+    models.bookAppointmentReqObj:
+      type: object
+      properties:
+        authority_id:
+          type: integer
+          format: int64
+          example: 1
+        date:
+          type: string
+          format: date-time
+          example: "2025-08-15T00:00:00.000Z"
+        time_slot:
+          type: string
+          example: "10:00 - 11:00"
+        issue_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: 12345
+    models.cancelAppointmentReqObj:
+      type: object
+      properties:
+        appointment_id:
+          type: integer
+          format: int64
+          example: 12345
+        reason:
+          type: string
+          example: "Personal reasons"
+      required:
+        - appointment_id
+        - reason
+    models.appointmentData:
+      type: object
+      properties:
+        appointment_id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        authority_id:
+          type: integer
+          format: int64
+          example: 2
+        issue_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        date:
+          type: string
+          format: date-time
+          example: "2025-08-15T00:00:00.000Z"
+        time_slot:
+          type: string
+          example: "10:00 - 11:00"
+        official_comment:
+          type: string
+          nullable: true
+          example: null

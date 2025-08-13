@@ -136,7 +136,7 @@ model Appointment {
   appointment_id   Int      @id @default(autoincrement())
   user_id          Int
   authority_id     Int
-  issue_id         Int
+  issue_id         Int?
   date             DateTime @db.Date
   time_slot        String?
   official_comment String?
@@ -169,7 +169,7 @@ model Appointment_Attendees {
   attendee_id    Int
 
   // Relations
-  Appointment Appointment @relation(fields: [appointment_id], references: [appointment_id], map: "fk_appointment_attendees_appointment")
+  Appointment Appointment @relation(fields: [appointment_id], references: [appointment_id], map: "fk_appointment_attendees_appointment", onDelete: Cascade)
   Attendee    Attendees   @relation(fields: [attendee_id], references: [attendee_id], map: "fk_appointment_attendees_attendee")
 
   @@id([appointment_id, attendee_id])
