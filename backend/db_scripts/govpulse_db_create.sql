@@ -209,7 +209,7 @@ ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_authority" FOREIGN KEY 
 ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_issue" FOREIGN KEY ("issue_id") REFERENCES "ISSUE"("issue_id") ON DELETE CASCADE;
 
 -- APPOINTMENT_ATTENDEES foreign keys
-ALTER TABLE "APPOINTMENT_ATTENDEES" ADD CONSTRAINT "fk_appointment_attendees_appointment" FOREIGN KEY ("appointment_id") REFERENCES "APPOINTMENT"("appointment_id");
+ALTER TABLE "APPOINTMENT_ATTENDEES" ADD CONSTRAINT "fk_appointment_attendees_appointment" FOREIGN KEY ("appointment_id") REFERENCES "APPOINTMENT"("appointment_id") ON DELETE CASCADE;
 ALTER TABLE "APPOINTMENT_ATTENDEES" ADD CONSTRAINT "fk_appointment_attendees_attendee" FOREIGN KEY ("attendee_id") REFERENCES "ATTENDEES"("attendee_id");
 
 -- FREE_TIMES foreign key
