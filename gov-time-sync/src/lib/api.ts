@@ -18,6 +18,12 @@ export interface FreeTimeSlot {
   time_slots: string[];
 }
 
+export interface AddFreeTimeSlotRequest {
+  date: string;
+  start_time: string;
+  end_time: string;
+}
+
 class ApiClient {
   private getAuthHeaders() {
     const token = localStorage.getItem('token');
@@ -74,7 +80,7 @@ class ApiClient {
     return response.json();
   }
 
-  async addFreeTimeSlot(data: FreeTimeSlot) {
+  async addFreeTimeSlot(data: AddFreeTimeSlotRequest) {
     const response = await fetch(`${API_BASE_URL}/time-slots/add-free-time-slot`, {
       method: 'POST',
       headers: {
