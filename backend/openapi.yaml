@@ -49,9 +49,102 @@ paths:
               schema:
                 type: string
                 example: "Internal Server Error"
-      deprecated: false
       security: 
         - BearerAuth: []
+
+  /api/upload-image:
+    post:
+      summary: Upload multiple images
+      operationId: uploadMultipleImages
+      description: Uploads one or more images to the server and stores them on Cloudinary.
+      tags:
+        - images-related
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  description: List of image files to upload
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - images
+      responses:
+        "200":
+          description: Successfully uploaded images
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Successfully uploaded 2 images"
+                  images:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        success:
+                          type: boolean
+                          example: true
+                        url:
+                          type: string
+                          format: uri
+                          example: "https://res.cloudinary.com/gov-p/image/upload/v1755059486/govpulse/uploads/image_1755059475754_5879461.png"
+                        public_id:
+                          type: string
+                          example: "govpulse/uploads/image_1755059475754_5879461"
+                        width:
+                          type: integer
+                          example: 10197
+                        height:
+                          type: integer
+                          example: 2622
+                        format:
+                          type: string
+                          example: "png"
+                        bytes:
+                          type: integer
+                          example: 2089919
+                        created_at:
+                          type: string
+                          format: date-time
+                          example: "2025-08-13T04:31:26Z"
+        "400":
+          description: Bad Request (e.g., no images provided or some uploads failed)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "No images provided"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Internal server error during upload"
 
 
   /api/users/signup:

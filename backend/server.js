@@ -9,6 +9,8 @@ const officialRouter = require("./routes/OfficialRouter");
 const timeSlotRouter = require("./routes/TimeSlotRouter");
 const appointmentRouter = require("./routes/AppointmentRouter");
 const generateImageSignatureRouter = require("./routes/GenerateImageSignatureRouter");
+const imageUploadRouter = require("./routes/ImageUploadRouter");
+
 app.use(cors());
 app.use(express.json());
 app.use("/api/issues", issueRouter);
@@ -17,6 +19,8 @@ app.use("/api/officials", officialRouter);
 app.use("/api/time-slots", timeSlotRouter);
 app.use("/api/appointments", appointmentRouter);
 app.use("/api/generate-image-signature", generateImageSignatureRouter);
+app.use("/api/upload-image", imageUploadRouter);
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

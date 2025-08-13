@@ -7,6 +7,8 @@ import threading
 from typing import List, Optional, Callable
 import os
 import sys
+import aiohttp
+import logging  # added logging
 backend_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if backend_root not in sys.path:
     sys.path.insert(0, backend_root)
@@ -35,15 +37,17 @@ from common.types import (
     Part,
     TaskStatusUpdateEvent,
 )
+
 root_dir = Path(__file__).resolve().parents[3]
 dotenv_path = root_dir / ".env"
 load_dotenv(dotenv_path=dotenv_path)
 
-class HostAgent:
-  """The host agent.
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-  This is the agent responsible for choosing which remote agents to send
-  tasks to and coordinate their work.
+class HostAgent:
+  """The host agent responsible for choosing which remote agents to send
+  tasks to and coordinating their work.
   """
 
   def __init__(
@@ -66,6 +70,7 @@ class HostAgent:
     self.agents = '\n'.join(agent_info)
 
   def register_agent_card(self, card: AgentCard):
+    """Register a new agent card and update remote agent connections."""
     remote_connection = RemoteAgentConnections(card)
     self.remote_agent_connections[card.name] = remote_connection
     self.cards[card.name] = card
@@ -75,6 +80,7 @@ class HostAgent:
     self.agents = '\n'.join(agent_info)
 
   def create_agent(self) -> Agent:
+    """Create and return the main agent with specific tools and instructions."""
     return Agent(
         model="gemini-2.0-flash",
         name="GovPulse_host_agent",
@@ -93,9 +99,10 @@ class HostAgent:
     )
 
   def root_instruction(self, context: ReadonlyContext) -> str:
+    """Provide root instruction for the GovPulse assistant agent."""
     current_agent = self.check_state(context)
     return f"""You are GovPulse – a smart and friendly assistant that helps people by connecting their requests to the right government service, department, or digital agent.
-
+   give the response using markdown format and answers shoude be simple and easy to understand and well formatted.
 🧭 Your Role – Discovery:
 
 Use list_remote_agents to see all available agents who can help with different kinds of requests.
@@ -127,6 +134,7 @@ If there’s already an active agent, send the update using update_task.
 {current_agent['active_agent']}"""
 
   def check_state(self, context: ReadonlyContext):
+    """Check the current active agent from the context state."""
     state = context.state
     if ('session_id' in state and
         'session_active' in state and
@@ -136,6 +144,7 @@ If there’s already an active agent, send the update using update_task.
     return {"active_agent": "None"}
 
   def before_model_callback(self, callback_context: CallbackContext, llm_request):
+    """Callback to initialize or continue session state before the model runs."""
     state = callback_context.state
     if 'session_active' not in state or not state['session_active']:
       if 'session_id' not in state:
@@ -143,7 +152,7 @@ If there’s already an active agent, send the update using update_task.
       state['session_active'] = True
 
   def list_remote_agents(self):
-    """List the available remote agents you can use to delegate the task."""
+    """List the available remote agents to delegate tasks to."""
     if not self.remote_agent_connections:
       return []
 
@@ -154,30 +163,79 @@ If there’s already an active agent, send the update using update_task.
       )
     return remote_agent_info
 
-  async def create_issue(self, Name: str, Description: str):
-    """Create a issue in the database."""
+  async def create_issue(
+    self, 
+    title: str, 
+    description: str, 
+    gs_division: str, 
+    ds_division: str, 
+    urgency_score: float, 
+    status_id: int, 
+    authority_id: int, 
+    category_id: int, 
+    image_urls: Optional[List[List[str]]] = None
+):
+    """Create an issue in the database with the provided details."""
+    
+    if image_urls is None:
+        image_urls = []
+    
+    issue_data = {
+        "title": title,
+        "description": description,
+        "gs_division": gs_division,
+        "ds_division": ds_division,
+        "urgency_score": urgency_score,
+        "status_id": str(status_id),
+        "authority_id": str(authority_id),
+        "category_id": str(category_id),
+        "image_urls": image_urls
+    }
+    
+    logger.info("Issue data to be created:\n%s", json.dumps(issue_data, indent=2))
+    
+    # API endpoint configuration
+    api_url = "http://localhost:4000/api/issues/create"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": os.getenv("API_AUTHORIZATION_TOKEN", "")  # Get from environment variable
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(api_url, json=issue_data, headers=headers) as response:
+                if response.status == 200 or response.status == 201:
+                    result = await response.json()
+                    logger.info("Issue created successfully with title: %s", title)
+                    logger.info("API response: %s", json.dumps(result, indent=2))
+                    return result
+                else:
+                    error_text = await response.text()
+                    logger.error("Failed to create issue. Status: %d, Response: %s", response.status, error_text)
+                    raise Exception(f"API request failed with status {response.status}: {error_text}")
+                    
+    except aiohttp.ClientError as e:
+        logger.error("Network error while creating issue: %s", str(e))
+        raise Exception(f"Network error: {str(e)}")
+    except Exception as e:
+        logger.error("Unexpected error while creating issue: %s", str(e))
+        raise Exception(f"Failed to create issue: {str(e)}")
 
-    # This is a placeholder for the actual implementation.
-    # In a real application, this would interact with a database or an API.
-    print(f"Issue created: Name={Name}, Description={Description}")
-   
-
+  
   async def send_task(
       self,
       agent_name: str,
       message: str,
       tool_context: ToolContext):
-    """Sends a task to a remote agent non-streaming.
-
-    This will send a message to the remote agent named agent_name.
+    """Send a task message to a specified remote agent.
 
     Args:
-      agent_name: The name of the agent to send the task to.
-      message: The message to send to the agent for the task.
-      tool_context: The tool context this method runs in.
+      agent_name: Name of the remote agent to send the task.
+      message: The message content for the task.
+      tool_context: Context of the tool during execution.
 
-    Yields:
-      A dictionary of JSON data.
+    Returns:
+      A list of response parts from the agent.
     """
     if agent_name not in self.remote_agent_connections:
       raise ValueError(f"Agent {agent_name} not found")
@@ -192,7 +250,6 @@ If there’s already an active agent, send the update using update_task.
     else:
       taskId = str(uuid.uuid4())
     sessionId = state['session_id']
-    task: Task
     messageId = ""
     metadata = {}
     if 'input_message_metadata' in state:
@@ -211,11 +268,10 @@ If there’s already an active agent, send the update using update_task.
             metadata=metadata,
         ),
         acceptedOutputModes=["text", "text/plain", "image/png"],
-        # pushNotification=None,
         metadata={'conversation_id': sessionId},
     )
     task = await client.send_task(request, self.task_callback)
-    # Assume completion unless a state returns that isn't complete
+    # Update session active status based on task completion state
     state['session_active'] = task.status.state not in [
         TaskState.COMPLETED,
         TaskState.CANCELED,
@@ -223,18 +279,16 @@ If there’s already an active agent, send the update using update_task.
         TaskState.UNKNOWN,
     ]
     if task.status.state == TaskState.INPUT_REQUIRED:
-      # Force user input back
+      # Signal that user input is needed
       tool_context.actions.skip_summarization = True
       tool_context.actions.escalate = True
     elif task.status.state == TaskState.CANCELED:
-      # Open question, should we return some info for cancellation instead
       raise ValueError(f"Agent {agent_name} task {task.id} is cancelled")
     elif task.status.state == TaskState.FAILED:
-      # Raise error for failure
       raise ValueError(f"Agent {agent_name} task {task.id} failed")
     response = []
     if task.status.message:
-      # Assume the information is in the task message.
+      # Extract and convert message parts
       response.extend(convert_parts(task.status.message.parts, tool_context))
     if task.artifacts:
       for artifact in task.artifacts:
@@ -242,19 +296,20 @@ If there’s already an active agent, send the update using update_task.
     return response
 
 def convert_parts(parts: list[Part], tool_context: ToolContext):
+  """Convert a list of parts into suitable output formats."""
   rval = []
   for p in parts:
     rval.append(convert_part(p, tool_context))
   return rval
 
 def convert_part(part: Part, tool_context: ToolContext):
+  """Convert a single part into text or data, handling file artifacts."""
   if part.type == "text":
     return part.text
   elif part.type == "data":
     return part.data
   elif part.type == "file":
-    # Repackage A2A FilePart to google.genai Blob
-    # Currently not considering plain text as files    
+    # Handle file parts by converting and saving them as artifacts.
     file_id = part.file.name
     file_bytes = base64.b64decode(part.file.bytes)    
     file_part = types.Part(
@@ -265,4 +320,4 @@ def convert_part(part: Part, tool_context: ToolContext):
     tool_context.actions.skip_summarization = True
     tool_context.actions.escalate = True
     return DataPart(data = {"artifact-file-id": file_id})
-  return f"Unknown type: {p.type}"
+  return f"Unknown type: {part.type}"
