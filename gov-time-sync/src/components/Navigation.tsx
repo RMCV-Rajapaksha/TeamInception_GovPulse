@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Menu, X, Calendar, Users, FileText } from "lucide-react";
 
 interface NavigationProps {
-  onAuthClick: (type: 'citizen-login' | 'citizen-signup' | 'official-login' | 'official-signup') => void;
+  onAuthClick: (type: 'official-login' | 'official-signup') => void;
 }
 
 export const Navigation = ({ onAuthClick }: NavigationProps) => {
@@ -37,10 +37,10 @@ export const Navigation = ({ onAuthClick }: NavigationProps) => {
             <div className="flex items-center space-x-2 ml-6">
               <Button 
                 variant="secondary" 
-                onClick={() => onAuthClick('citizen-login')}
+                onClick={() => onAuthClick('official-signup')}
                 className="bg-white/10 text-primary-foreground border-white/20 hover:bg-white/20"
               >
-                Citizen Login
+                Register as Official
               </Button>
               <Button 
                 variant="accent"
@@ -80,10 +80,10 @@ export const Navigation = ({ onAuthClick }: NavigationProps) => {
               <div className="border-t border-white/20 pt-4 space-y-2">
                 <Button 
                   variant="secondary" 
-                  onClick={() => onAuthClick('citizen-login')}
+                  onClick={() => onAuthClick('official-signup')}
                   className="w-full bg-white/10 text-primary-foreground border-white/20 hover:bg-white/20"
                 >
-                  Citizen Login
+                  Register as Official
                 </Button>
                 <Button 
                   variant="accent"

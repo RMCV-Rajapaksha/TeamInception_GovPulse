@@ -4,12 +4,12 @@ import { AuthModal } from "@/components/AuthModal";
 import { TimeSlotDashboard } from "@/components/TimeSlotDashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, FileText, Clock, CheckCircle, Shield } from "lucide-react";
+import { Calendar, Clock, CheckCircle, Shield } from "lucide-react";
 
 const Index = () => {
   const [authModal, setAuthModal] = useState<{
     isOpen: boolean;
-    type: 'citizen-login' | 'citizen-signup' | 'official-login' | 'official-signup' | null;
+    type: 'official-login' | 'official-signup' | null;
   }>({
     isOpen: false,
     type: null,
@@ -17,7 +17,7 @@ const Index = () => {
   
   const [user, setUser] = useState<{ token: string; type: string } | null>(null);
 
-  const handleAuthClick = (type: 'citizen-login' | 'citizen-signup' | 'official-login' | 'official-signup') => {
+  const handleAuthClick = (type: 'official-login' | 'official-signup') => {
     setAuthModal({ isOpen: true, type });
   };
 
@@ -62,29 +62,29 @@ const Index = () => {
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6">
               Sri Lankan Government
-              <span className="block text-accent">Time Synchronization</span>
+              <span className="block text-accent">Official Portal</span>
             </h1>
             <p className="text-xl text-primary-foreground/90 mb-8 max-w-3xl mx-auto">
-              Streamline government appointments and services. Connect citizens with officials efficiently through our modern booking system.
+              Manage government appointments and services efficiently. Official time slot management system for government authorities.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 variant="accent" 
                 size="lg"
-                onClick={() => handleAuthClick('citizen-signup')}
+                onClick={() => handleAuthClick('official-signup')}
                 className="text-lg px-8 py-3"
               >
-                <Users className="h-5 w-5 mr-2" />
-                Get Started as Citizen
+                <Shield className="h-5 w-5 mr-2" />
+                Register as Official
               </Button>
               <Button 
                 variant="secondary" 
                 size="lg"
-                onClick={() => handleAuthClick('official-signup')}
+                onClick={() => handleAuthClick('official-login')}
                 className="text-lg px-8 py-3 bg-white/10 text-primary-foreground border-white/20 hover:bg-white/20"
               >
                 <Shield className="h-5 w-5 mr-2" />
-                Official Registration
+                Official Login
               </Button>
             </div>
           </div>
@@ -96,10 +96,10 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-foreground mb-4">
-              Efficient Government Services
+              Efficient Government Operations
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Modern solutions for traditional government processes, making services accessible to all Sri Lankan citizens.
+              Professional time slot management for government officials to organize and schedule appointments effectively.
             </p>
           </div>
 
@@ -108,12 +108,12 @@ const Index = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-primary">
                   <Calendar className="h-6 w-6" />
-                  Easy Scheduling
+                  Time Slot Management
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  Book appointments with government officials seamlessly. View available time slots and select what works best for you.
+                  Create and manage appointment time slots efficiently. Organize your schedule to provide optimal service availability.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -122,12 +122,12 @@ const Index = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-primary">
                   <Clock className="h-6 w-6" />
-                  Real-time Updates
+                  Appointment Tracking
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  Get instant notifications about your appointments. Stay informed about any changes or updates to your scheduled meetings.
+                  Monitor scheduled appointments and manage your daily workflow. Track appointment history and optimize scheduling.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -136,12 +136,12 @@ const Index = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-primary">
                   <CheckCircle className="h-6 w-6" />
-                  Secure & Reliable
+                  Secure & Professional
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  Your data is protected with government-grade security. Reliable service ensuring your appointments are never missed.
+                  Government-grade security for all official operations. Professional interface designed for efficient workflow management.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -156,23 +156,23 @@ const Index = () => {
             Ready to Get Started?
           </h2>
           <p className="text-xl text-primary-foreground/90 mb-8">
-            Join thousands of Sri Lankan citizens already using GovTimeSync for their government service needs.
+            Join government officials using GovTimeSync for efficient appointment management.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               variant="accent" 
               size="lg"
-              onClick={() => handleAuthClick('citizen-login')}
+              onClick={() => handleAuthClick('official-login')}
             >
-              Citizen Login
+              Official Login
             </Button>
             <Button 
               variant="secondary" 
               size="lg"
-              onClick={() => handleAuthClick('official-login')}
+              onClick={() => handleAuthClick('official-signup')}
               className="bg-white/10 text-primary-foreground border-white/20 hover:bg-white/20"
             >
-              Official Login
+              Register as Official
             </Button>
           </div>
         </div>

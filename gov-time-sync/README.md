@@ -1,73 +1,168 @@
-# Welcome to your Lovable project
+# GovTimeSync Frontend
 
-## Project info
+A modern React-based frontend application for the Sri Lankan Government Time Synchronization system. This application provides an intuitive interface for government officials to manage their time slots and appointments.
 
-**URL**: https://lovable.dev/projects/ff349809-32ae-4d40-9756-61d97a301d3a
+## 🌟 Features
 
-## How can I edit this code?
+### For Government Officials
+- **Time Slot Management**: Create and manage available appointment slots
+- **Dashboard Overview**: View all appointments and manage schedules efficiently
+- **Appointment Tracking**: Monitor and update appointment statuses
+- **User-friendly Interface**: Modern, responsive design optimized for all devices
+- **Secure Authentication**: Secure login and registration system
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+- **Frontend Framework**: React 18 with TypeScript
+- **Build Tool**: Vite 5
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI + shadcn/ui
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router DOM
+- **Form Handling**: React Hook Form with Zod validation
+- **Icons**: Lucide React
+- **Notifications**: Sonner + Radix Toast
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ff349809-32ae-4d40-9756-61d97a301d3a) and start prompting.
+## 📋 Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+Before running this application, make sure you have:
 
-**Use your preferred IDE**
+- Node.js (version 18 or higher)
+- npm or yarn package manager
+- Access to the GovPulse backend API
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🚀 Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Installation
 
-Follow these steps:
+1. Clone the repository and navigate to the gov-time-sync directory:
+```bash
+cd gov-time-sync
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. Install dependencies:
+```bash
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open your browser and navigate to `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📜 Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start the development server
+- `npm run build` - Build the application for production
+- `npm run build:dev` - Build the application in development mode
+- `npm run preview` - Preview the production build
+- `npm run lint` - Run ESLint for code quality checks
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🏗️ Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Base UI components (shadcn/ui)
+│   ├── AuthModal.tsx   # Authentication modal component
+│   ├── Navigation.tsx  # Main navigation component
+│   └── TimeSlotDashboard.tsx  # Dashboard for managing time slots
+├── pages/              # Application pages
+│   ├── Index.tsx       # Landing page and main app interface
+│   └── NotFound.tsx    # 404 error page
+├── hooks/              # Custom React hooks
+├── lib/                # Utility libraries and configurations
+├── App.tsx             # Main application component
+└── main.tsx           # Application entry point
+```
 
-This project is built with:
+## 🎨 UI Components
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+This project uses a combination of:
+- **Radix UI**: Accessible, unstyled UI primitives
+- **shadcn/ui**: Beautiful, customizable components built on Radix UI
+- **Tailwind CSS**: Utility-first CSS framework for styling
 
-## How can I deploy this project?
+## 🔧 Configuration
 
-Simply open [Lovable](https://lovable.dev/projects/ff349809-32ae-4d40-9756-61d97a301d3a) and click on Share -> Publish.
+### Environment Variables
+Create a `.env` file in the root directory and configure the following variables:
+```env
+VITE_API_BASE_URL=your_backend_api_url
+VITE_APP_TITLE=GovTimeSync
+```
 
-## Can I connect a custom domain to my Lovable project?
+### Vite Configuration
+The application is configured to run on port 8080 by default. You can modify this in `vite.config.ts`.
 
-Yes, you can!
+## 🌐 Deployment
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Production Build
+```bash
+npm run build
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+The build artifacts will be generated in the `dist/` directory, ready for deployment to any static hosting service.
+
+### Development Build
+```bash
+npm run build:dev
+```
+
+## 🔒 Security Features
+
+- Secure authentication system with JWT tokens
+- Protected routes for authenticated users
+- Input validation using Zod schemas
+- CSRF protection and secure headers
+
+## 🎯 Key Components
+
+### AuthModal
+Handles government official authentication with separate login/signup flows.
+
+### TimeSlotDashboard
+Main interface for managing appointment time slots, optimized for government officials.
+
+### Navigation
+Responsive navigation component with authentication state management for officials.
+
+## 📱 Responsive Design
+
+The application is fully responsive and optimized for:
+- Desktop computers
+- Tablets
+- Mobile devices
+- Government office workstations
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Submit a pull request
+
+## 📄 License
+
+This project is part of the GovPulse system for the Sri Lankan government and is subject to government licensing terms.
+
+## 🆘 Support
+
+For technical support or questions about the GovTimeSync frontend:
+- Create an issue in the repository
+- Contact the development team
+- Refer to the main GovPulse documentation
+
+## 🔄 Integration
+
+This frontend application integrates with:
+- **GovPulse Backend API**: For data management and business logic
+- **Official Authentication Service**: For government official user management
+- **Notification Service**: For real-time updates
+
+---
+
+Built with ❤️ for the Sri Lankan Government by the TECH-TRILITHON team.
