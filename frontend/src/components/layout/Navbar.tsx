@@ -10,8 +10,10 @@ import {
   FiCreditCard,
 } from "react-icons/fi";
 import CreateIssue from "../create_issue/CreateIssue";
+import { useAuthShim } from "../../app/providers";
 
 export default function Navbar() {
+  const { hasClerk } = useAuthShim();
   const searchId = useId();
   const [isReportedClicked, setIsReportedClicked] = React.useState(false);
   const { user } = useUser();
@@ -45,14 +47,15 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="ml-auto flex items-center gap-2 md:gap-4 shrink-0">
-            {user != null ? (
-              <div
+            {hasClerk && user != null ? (
+              <button
+                type="button"
                 onClick={() => setIsReportedClicked(true)}
-                className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center cursor-pointer hover:bg-yellow-300 transition-colors duration-200 ease-in-out"
+                className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center hover:bg-yellow-300 transition-colors duration-200 ease-in-out"
               >
                 <FiPlus className="h-5 w-5" aria-hidden />
                 <span>Report</span>
-              </div>
+              </button>
             ) : (
               <Link
                 to="/sign-in"
@@ -73,16 +76,18 @@ export default function Navbar() {
 
             {/* Auth/Profile - hidden on mobile, visible from sm and up */}
             <div className="pl-2  hidden sm:block">
-              <SignedOut>
-                <Link to="/sign-in">Sign In</Link>
-              </SignedOut>
-              <SignedIn>
-                <UserButton>
-                  <UserButton.UserProfilePage
-                    label="User Details"
-                    labelIcon={<FiSettings />}
-                    url="user-details"
-                  >
+              {hasClerk ? (
+                <>
+                  <SignedOut>
+                    <Link to="/sign-in">Sign In</Link>
+                  </SignedOut>
+                  <SignedIn>
+                    <UserButton>
+                      <UserButton.UserProfilePage
+                        label="User Details"
+                        labelIcon={<FiSettings />}
+                        url="user-details"
+                      >
                     <form>
                       <div>
                         <h4 className="font-bold mb-1">User Details</h4>
@@ -137,9 +142,13 @@ export default function Navbar() {
                         </button>
                       </div>
                     </form>
-                  </UserButton.UserProfilePage>
-                </UserButton>
-              </SignedIn>
+                      </UserButton.UserProfilePage>
+                    </UserButton>
+                  </SignedIn>
+                </>
+              ) : (
+                <Link to="/sign-in">Sign In</Link>
+              )}
             </div>
           </div>
         </div>
