@@ -17,8 +17,12 @@ create a .env file or export following environmental variables accordingly,
 
 ```
 BACKEND_PORT=4000
-DATABASE_URL=postgres://postgres:admin@localhost:5432/govpulse
+DATABASE_URL=postgres://postgres:@12@localhost:5432/govpulse
 JWT_SECRET=ThisIsASecretKeyfgnjsgojq1orj314
+GOOGLE_API_KEY=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 ```
 
 note that here the default "postgres" user with a password "admin" is used to connect to the local postgreSQL instance running on port 5432. You can change this according to the way you have setup you user.
