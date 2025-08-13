@@ -2,16 +2,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
-import { apiClient, UserSignupRequest, UserLoginRequest, OfficialRegisterRequest, OfficialLoginRequest } from "@/lib/api";
+import { apiClient, OfficialRegisterRequest, OfficialLoginRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: 'citizen-login' | 'citizen-signup' | 'official-login' | 'official-signup' | null;
+  type: 'official-login' | 'official-signup' | null;
   onSuccess: (token: string, userType: string) => void;
 }
 
@@ -29,14 +28,6 @@ export const AuthModal = ({ isOpen, onClose, type, onSuccess }: AuthModalProps) 
       let userType = '';
 
       switch (type) {
-        case 'citizen-signup':
-          response = await apiClient.userSignup(formData as UserSignupRequest);
-          userType = 'citizen';
-          break;
-        case 'citizen-login':
-          response = await apiClient.userLogin(formData as UserLoginRequest);
-          userType = 'citizen';
-          break;
         case 'official-signup':
           response = await apiClient.officialRegister(formData as OfficialRegisterRequest);
           userType = 'official';
@@ -72,8 +63,6 @@ export const AuthModal = ({ isOpen, onClose, type, onSuccess }: AuthModalProps) 
 
   const getTitle = () => {
     switch (type) {
-      case 'citizen-signup': return 'Citizen Registration';
-      case 'citizen-login': return 'Citizen Login';
       case 'official-signup': return 'Official Registration';
       case 'official-login': return 'Official Login';
       default: return 'Authentication';
@@ -82,8 +71,6 @@ export const AuthModal = ({ isOpen, onClose, type, onSuccess }: AuthModalProps) 
 
   const getDescription = () => {
     switch (type) {
-      case 'citizen-signup': return 'Create your citizen account to access government services';
-      case 'citizen-login': return 'Sign in to your citizen account';
       case 'official-signup': return 'Register as a government official';
       case 'official-login': return 'Sign in to your official account';
       default: return '';
@@ -103,85 +90,6 @@ export const AuthModal = ({ isOpen, onClose, type, onSuccess }: AuthModalProps) 
           </CardHeader>
           <CardContent className="px-0">
             <form onSubmit={handleSubmit} className="space-y-4">
-              {(type === 'citizen-signup') && (
-                <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="first_name">First Name</Label>
-                      <Input
-                        id="first_name"
-                        required
-                        value={formData.first_name || ''}
-                        onChange={(e) => setFormData({...formData, first_name: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="last_name">Last Name</Label>
-                      <Input
-                        id="last_name"
-                        required
-                        value={formData.last_name || ''}
-                        onChange={(e) => setFormData({...formData, last_name: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="nic">NIC Number</Label>
-                    <Input
-                      id="nic"
-                      required
-                      value={formData.nic || ''}
-                      onChange={(e) => setFormData({...formData, nic: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      value={formData.email || ''}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={formData.password || ''}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    />
-                  </div>
-                </>
-              )}
-
-              {(type === 'citizen-login') && (
-                <>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      value={formData.email || ''}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={formData.password || ''}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    />
-                  </div>
-                </>
-              )}
-
               {(type === 'official-signup') && (
                 <>
                   <div>
@@ -258,34 +166,6 @@ export const AuthModal = ({ isOpen, onClose, type, onSuccess }: AuthModalProps) 
                   {isLoading ? 'Loading...' : 'Submit'}
                 </Button>
               </div>
-
-              {(type === 'citizen-login' || type === 'citizen-signup') && (
-                <div className="text-center text-sm text-muted-foreground">
-                  {type === 'citizen-login' ? (
-                    <span>
-                      Need an account?{' '}
-                      <button
-                        type="button"
-                        className="text-primary hover:underline"
-                        onClick={() => window.location.reload()}
-                      >
-                        Sign up here
-                      </button>
-                    </span>
-                  ) : (
-                    <span>
-                      Already have an account?{' '}
-                      <button
-                        type="button"
-                        className="text-primary hover:underline"
-                        onClick={() => window.location.reload()}
-                      >
-                        Sign in here
-                      </button>
-                    </span>
-                  )}
-                </div>
-              )}
             </form>
           </CardContent>
         </Card>
