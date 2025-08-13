@@ -110,29 +110,32 @@ const Analytics = () => {
   return (
     <Layout>
       <div className="bg-gradient-hero">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <div className="flex items-center">
-              <BarChart3 className="h-8 w-8 text-primary-foreground mr-3" />
+              <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground mr-2 sm:mr-3" />
               <div>
-                <h1 className="text-2xl font-bold text-primary-foreground">Time Slot Analytics</h1>
-                <p className="text-primary-foreground/80">Track and analyze your available time slots over time</p>
+                <h1 className="text-lg sm:text-2xl font-bold text-primary-foreground">Time Slot Analytics</h1>
+                <p className="text-sm sm:text-base text-primary-foreground/80 hidden sm:block">Track and analyze your available time slots over time</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 onClick={() => refetch()}
                 size="sm"
                 disabled={isLoading}
+                className="text-xs sm:text-sm"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+                <span className="sm:hidden">↻</span>
               </Button>
               <Button
                 variant={dateRange === 'week' ? 'accent' : 'secondary'}
                 onClick={() => setDateRange('week')}
                 size="sm"
+                className="text-xs sm:text-sm"
               >
                 Week
               </Button>
@@ -140,6 +143,7 @@ const Analytics = () => {
                 variant={dateRange === 'month' ? 'accent' : 'secondary'}
                 onClick={() => setDateRange('month')}
                 size="sm"
+                className="text-xs sm:text-sm"
               >
                 Month
               </Button>
@@ -147,6 +151,7 @@ const Analytics = () => {
                 variant={dateRange === 'quarter' ? 'accent' : 'secondary'}
                 onClick={() => setDateRange('quarter')}
                 size="sm"
+                className="text-xs sm:text-sm"
               >
                 Quarter
               </Button>
@@ -155,9 +160,9 @@ const Analytics = () => {
         </div>
       </div>
 
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-8">
       {/* Statistics Cards */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <QuickStats
           totalSlots={totalTimeSlots}
           totalHours={totalHours}
@@ -166,85 +171,90 @@ const Analytics = () => {
           isLoading={isLoading}
         />
       </div>        {/* Chart Controls */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-foreground">Time Slot Trends</h2>
+        <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:items-center sm:space-y-0 mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground">Time Slot Trends</h2>
           <div className="flex space-x-2">
             <Button
               variant={viewType === 'line' ? 'default' : 'outline'}
               onClick={() => setViewType('line')}
               size="sm"
+              className="text-xs sm:text-sm"
             >
-              Line Chart
+              <span className="hidden sm:inline">Line Chart</span>
+              <span className="sm:hidden">Line</span>
             </Button>
             <Button
               variant={viewType === 'bar' ? 'default' : 'outline'}
               onClick={() => setViewType('bar')}
               size="sm"
+              className="text-xs sm:text-sm"
             >
-              Bar Chart
+              <span className="hidden sm:inline">Bar Chart</span>
+              <span className="sm:hidden">Bar</span>
             </Button>
           </div>
         </div>
 
         {/* Main Chart */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Time Slot Availability Over Time</CardTitle>
-            <CardDescription>
+        <Card className="mb-6 sm:mb-8">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Time Slot Availability Over Time</CardTitle>
+            <CardDescription className="text-sm">
               Track your available time slots and identify availability patterns
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="h-[400px] w-full">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-[250px] sm:h-[300px] lg:h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 {viewType === 'line' ? (
                   <LineChart data={timeSlotData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="date" 
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 10 }}
                       angle={-45}
                       textAnchor="end"
-                      height={60}
+                      height={50}
+                      interval="preserveStartEnd"
                     />
                     <YAxis 
-                      tick={{ fontSize: 12 }}
-                      label={{ value: 'Time Slot Count', angle: -90, position: 'insideLeft' }}
+                      tick={{ fontSize: 10 }}
+                      label={{ value: 'Slots', angle: -90, position: 'insideLeft', style: { fontSize: '10px' } }}
                     />
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
                     <Line 
                       type="monotone" 
                       dataKey="totalSlots" 
                       stroke="#2563eb" 
-                      strokeWidth={3}
-                      name="Total Slots"
-                      dot={{ fill: '#2563eb', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: '#2563eb', strokeWidth: 2 }}
+                      strokeWidth={2}
+                      name="Total"
+                      dot={{ fill: '#2563eb', strokeWidth: 1, r: 2 }}
+                      activeDot={{ r: 4, stroke: '#2563eb', strokeWidth: 1 }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="morningSlots" 
                       stroke="#16a34a" 
-                      strokeWidth={2}
-                      name="Morning Slots"
-                      dot={{ fill: '#16a34a', strokeWidth: 2, r: 3 }}
+                      strokeWidth={1.5}
+                      name="Morning"
+                      dot={{ fill: '#16a34a', strokeWidth: 1, r: 1.5 }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="afternoonSlots" 
                       stroke="#ea580c" 
-                      strokeWidth={2}
-                      name="Afternoon Slots"
-                      dot={{ fill: '#ea580c', strokeWidth: 2, r: 3 }}
+                      strokeWidth={1.5}
+                      name="Afternoon"
+                      dot={{ fill: '#ea580c', strokeWidth: 1, r: 1.5 }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="eveningSlots" 
                       stroke="#7c3aed" 
-                      strokeWidth={2}
-                      name="Evening Slots"
-                      dot={{ fill: '#7c3aed', strokeWidth: 2, r: 3 }}
+                      strokeWidth={1.5}
+                      name="Evening"
+                      dot={{ fill: '#7c3aed', strokeWidth: 1, r: 1.5 }}
                     />
                   </LineChart>
                 ) : (
@@ -252,21 +262,22 @@ const Analytics = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="date" 
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 10 }}
                       angle={-45}
                       textAnchor="end"
-                      height={60}
+                      height={50}
+                      interval="preserveStartEnd"
                     />
                     <YAxis 
-                      tick={{ fontSize: 12 }}
-                      label={{ value: 'Time Slot Count', angle: -90, position: 'insideLeft' }}
+                      tick={{ fontSize: 10 }}
+                      label={{ value: 'Slots', angle: -90, position: 'insideLeft', style: { fontSize: '10px' } }}
                     />
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-                    <Bar dataKey="totalSlots" fill="#2563eb" name="Total Slots" />
-                    <Bar dataKey="morningSlots" fill="#16a34a" name="Morning Slots" />
-                    <Bar dataKey="afternoonSlots" fill="#ea580c" name="Afternoon Slots" />
-                    <Bar dataKey="eveningSlots" fill="#7c3aed" name="Evening Slots" />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <Bar dataKey="totalSlots" fill="#2563eb" name="Total" />
+                    <Bar dataKey="morningSlots" fill="#16a34a" name="Morning" />
+                    <Bar dataKey="afternoonSlots" fill="#ea580c" name="Afternoon" />
+                    <Bar dataKey="eveningSlots" fill="#7c3aed" name="Evening" />
                   </BarChart>
                 )}
               </ResponsiveContainer>
@@ -275,8 +286,8 @@ const Analytics = () => {
         </Card>
 
         {/* Additional Insights and Time Distribution */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Time Slot Insights - Takes 2 columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          {/* Time Slot Insights - Takes 2 columns on large screens, full width on mobile */}
           <div className="lg:col-span-2">
             <TimeSlotInsights
               timeSlotData={timeSlotData}
@@ -288,25 +299,25 @@ const Analytics = () => {
 
           {/* Hourly Distribution Chart */}
           <Card>
-            <CardHeader>
-              <CardTitle>Hourly Distribution</CardTitle>
-              <CardDescription>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-base sm:text-lg">Hourly Distribution</CardTitle>
+              <CardDescription className="text-sm">
                 Most popular time slots by hour
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="h-[300px] w-full">
+            <CardContent className="px-2 sm:px-6">
+              <div className="h-[200px] sm:h-[250px] lg:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={hourlyDistribution.slice(0, 8)}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="hour" 
-                      tick={{ fontSize: 10 }}
+                      tick={{ fontSize: 9 }}
                       angle={-45}
                       textAnchor="end"
-                      height={40}
+                      height={35}
                     />
-                    <YAxis tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 9 }} />
                     <Tooltip 
                       formatter={(value: any, name: string) => [
                         name === 'count' ? `${value} slots` : `${value}%`, 
@@ -323,28 +334,34 @@ const Analytics = () => {
 
         {/* Day of Week Analysis */}
         {dayOfWeekData.length > 0 && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Weekly Pattern Analysis</CardTitle>
-              <CardDescription>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-lg sm:text-xl">Weekly Pattern Analysis</CardTitle>
+              <CardDescription className="text-sm">
                 Your availability patterns by day of the week
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="h-[300px] w-full">
+            <CardContent className="px-2 sm:px-6">
+              <div className="h-[200px] sm:h-[250px] lg:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={dayOfWeekData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
+                    <XAxis 
+                      dataKey="day" 
+                      tick={{ fontSize: 10 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={40}
+                    />
+                    <YAxis tick={{ fontSize: 10 }} />
                     <Tooltip 
                       formatter={(value: any, name: string) => [
                         name === 'slots' ? `${value} slots` : `${value} hours`, 
                         name === 'slots' ? 'Time Slots' : 'Total Hours'
                       ]}
                     />
-                    <Legend />
-                    <Bar dataKey="slots" fill="#2563eb" name="Time Slots" />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <Bar dataKey="slots" fill="#2563eb" name="Slots" />
                     <Bar dataKey="hours" fill="#16a34a" name="Hours" />
                   </BarChart>
                 </ResponsiveContainer>
