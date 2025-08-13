@@ -103,7 +103,25 @@ GovPulse/
 └── main.py                     # Application Entry Point
 ```
 
-## 🛠️ Technology Stack
+## � Database Schema & ER Diagram
+
+The GovPulse platform uses a comprehensive database schema designed to handle complex government issue management workflows. The Entity-Relationship diagram below illustrates the relationships between different entities in the system:
+
+![GovPulse ER Diagram](docs/GovPulse-ER.drawio.png)
+
+*Entity-Relationship diagram showing the database structure and relationships between users, issues, appointments, officials, and other core entities in the GovPulse system*
+
+### Key Database Entities:
+
+- **Users**: Citizens, government officials, and administrators
+- **Issues**: Reported problems with metadata, location, and categorization
+- **Appointments**: Scheduled meetings between citizens and officials
+- **Officials**: Government personnel with department assignments
+- **Upvotes**: Community-driven issue prioritization system
+- **TimeSlots**: Available appointment scheduling windows
+- **Government Sectors**: Organizational structure for issue categorization
+
+## �🛠️ Technology Stack
 
 ### **Frontend**
 

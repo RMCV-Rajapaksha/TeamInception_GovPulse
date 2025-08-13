@@ -1,4 +1,5 @@
 const { PrismaClient } = require("../generated/prisma");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const prisma = new PrismaClient();
 
@@ -43,8 +44,14 @@ const signup = async (req, res) => {
         profile_image_url,
       },
     });
+    // Generate a JWT token for the user
+    const token = jwt.sign(
+      { user_id: user.user_id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" } // Token expires in 1 day
+    );
 
-    res.status(201).json(user);
+    res.status(201).json({ message : "User registered successfully", user_id: user.user_id, token });
   } catch (error) {
     console.error("Error signing up user:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -80,12 +87,18 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid password" });
     }
 
+        // Generate a JWT token for the user
+    const token = jwt.sign(
+      { user_id: user.user_id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" } // Token expires in 1 day
+    );
+
     // Login successful, send back user details (without the password)
     res.status(200).json({
-      user: {
-        user_id: user.user_id,
-        email: user.email,
-      },
+      message: "Login successful",
+      user_id: user.user_id,
+      token: token
     });
   } catch (error) {
     console.error("Error logging in user:", error);
@@ -94,12 +107,12 @@ const login = async (req, res) => {
 };
 
 const removeAccount = async (req, res) => {
-  // Extract the userId from the request body.
-  // It's important to convert it to a number as req.body values are strings.
-  const userId = parseInt(req.body.userId, 10);
+  // Extract the user_id from the request headers.
+  // It's important to convert it to a number as req.headers values are strings.
+  const user_id = parseInt(req.headers.user_id, 10);
 
-  // Check if userId is a valid number
-  if (isNaN(userId)) {
+  // Check if user_id is a valid number
+  if (isNaN(user_id)) {
     return res.status(400).json({ error: "Invalid user ID provided." });
   }
 
@@ -110,23 +123,22 @@ const removeAccount = async (req, res) => {
     // in the ISSUE, UPVOTE, and APPOINTMENT tables.
     const deletedUser = await prisma.user.delete({
       where: {
-        user_id: userId,
+        user_id: user_id,
       },
     });
 
     console.log(
-      `User with ID ${userId} and all related data have been successfully deleted.`
+      `User with ID ${user_id} and all related data have been successfully deleted.`
     );
     return res.status(200).json({
-      message: `User with ID ${userId} was successfully deleted.`,
-      deletedUser,
+      message: `User with ID ${user_id} was successfully deleted.`,
     });
   } catch (error) {
     // Prisma error code for "record not found" (P2025)
     if (error.code === "P2025") {
       return res
         .status(404)
-        .json({ error: `User with ID ${userId} not found.` });
+        .json({ error: `User with ID ${user_id} not found.` });
     }
     console.error("An error occurred during account deletion:", error);
     return res.status(500).json({

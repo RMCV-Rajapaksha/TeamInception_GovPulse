@@ -1,5 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { FiCompass, FiBell, FiUser, FiBarChart2, FiPlus } from "react-icons/fi";
+import {
+  FiCompass,
+  FiBell,
+  FiUser,
+  FiBarChart2,
+  FiPlus,
+  FiMessageCircle,
+} from "react-icons/fi";
+import React from "react";
+import Chatbot from "../chatbot/Chatbot";
 
 function Tab({
   to,
@@ -34,41 +43,58 @@ function Tab({
 
 export default function MobileTabBar() {
   const { pathname } = useLocation();
+  const [isChatbotOpen, setIsChatbotOpen] = React.useState(false);
   return (
-    <nav className="fixed bottom-0 inset-x-0 sm:hidden bg-white/80 backdrop-blur border-t border-gray-200">
-      <div className="px-6 py-3 flex justify-between items-center">
-        <Tab to="/" label="Explore" selected={pathname === "/"}>
-          <FiCompass className="h-5 w-5" />
-        </Tab>
-        <Tab
-          to="/stats"
-          label="Statistics"
-          selected={pathname.startsWith("/stats")}
-        >
-          <FiBarChart2 className="h-5 w-5" />
-        </Tab>
-        <Link
-          to="/report"
-          aria-label="Report"
-          className="w-14 h-14 bg-gray-900 rounded-[32px] inline-flex items-center justify-center text-white shadow-md"
-        >
-          <FiPlus className="h-6 w-6 text-white" />
-        </Link>
-        <Tab
-          to="/notifications"
-          label="Notification"
-          selected={pathname.startsWith("/notifications")}
-        >
-          <FiBell className="h-5 w-5" />
-        </Tab>
-        <Tab
-          to="/profile"
-          label="Profile"
-          selected={pathname.startsWith("/profile")}
-        >
-          <FiUser className="h-5 w-5" />
-        </Tab>
-      </div>
-    </nav>
+    <>
+      {/* Mobile Tab Bar */}
+      <nav className="fixed bottom-0 inset-x-0 sm:hidden bg-white/80 backdrop-blur border-t border-gray-200 z-30">
+        <div className="px-6 py-3 flex justify-between items-center">
+          <Tab to="/" label="Explore" selected={pathname === "/"}>
+            <FiCompass className="h-5 w-5" />
+          </Tab>
+          <Tab
+            to="/stats"
+            label="Statistics"
+            selected={pathname.startsWith("/stats")}
+          >
+            <FiBarChart2 className="h-5 w-5" />
+          </Tab>
+          <div
+            aria-label="Report"
+            className="w-14 h-14 bg-gray-900 rounded-[32px] inline-flex items-center justify-center text-white shadow-md opacity-60 pointer-events-none"
+          >
+            <FiPlus className="h-6 w-6 text-white" />
+          </div>
+          <Tab
+            to="/notifications"
+            label="Notification"
+            selected={pathname.startsWith("/notifications")}
+          >
+            <FiBell className="h-5 w-5" />
+          </Tab>
+          <Tab
+            to="/profile"
+            label="Profile"
+            selected={pathname.startsWith("/profile")}
+          >
+            <FiUser className="h-5 w-5" />
+          </Tab>
+        </div>
+      </nav>
+
+      {/* Floating chatbot button for both mobile and desktop */}
+      <button
+        type="button"
+        onClick={() => setIsChatbotOpen(true)}
+        aria-label="Open AI Chatbot"
+        className="fixed bottom-24 right-4 z-40 w-14 h-14 bg-yellow-300 hover:bg-yellow-400 rounded-2xl shadow-lg items-center justify-center border-2 border-yellow-400 transition-colors flex sm:bottom-8 sm:right-8"
+        style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.10)" }}
+      >
+        <FiMessageCircle className="w-7 h-7 text-gray-900" />
+      </button>
+
+      {/* Chatbot panel (mobile: full, desktop: floating) */}
+      <Chatbot open={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
+    </>
   );
 }
