@@ -8,13 +8,25 @@ import {
   FiSettings,
   FiUser,
   FiCreditCard,
+  FiX,
 } from "react-icons/fi";
+import { ScanQrCode } from "lucide-react";
 import CreateIssue from "../create_issue/CreateIssue";
+import QRScanner from "../qr/QRScanner";
 
 export default function Navbar() {
   const searchId = useId();
   const [isReportedClicked, setIsReportedClicked] = React.useState(false);
+  const [isQrScanOpen, setIsQrScanOpen] = React.useState(false);
   const { user } = useUser();
+
+  const handleQRScan = (result: string) => {
+    console.log("QR Scanned:", result);
+    // Handle the scanned QR code result here
+    // You can navigate to a URL, process the data, etc.
+    alert(`QR Code Scanned: ${result}`);
+  };
+
   return (
     <>
       <div className="sticky md:py-3 top-0 z-50 w-full bg-white/80 border-b border-gray-200 backdrop-blur-sm flex justify-center ">
@@ -28,7 +40,7 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Search */}
+          {/* Search - Full search bar on desktop, icon only on mobile */}
           <div className="flex-1 max-w-[916px] hidden sm:flex min-w-0">
             <label htmlFor={searchId} className="sr-only">
               Search
@@ -43,6 +55,25 @@ export default function Navbar() {
             </div>
           </div>
 
+          {/* Mobile Search Icon */}
+          <button
+            type="button"
+            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent sm:hidden"
+            aria-label="Search"
+          >
+            <FiSearch className="w-5 h-5" />
+          </button>
+
+          {/* QR Scan Button - Visible on all screen sizes */}
+          <button
+            type="button"
+            onClick={() => setIsQrScanOpen(true)}
+            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent"
+            aria-label="Scan QR Code"
+          >
+            <ScanQrCode className="w-5 h-5" />
+          </button>
+
           {/* Actions */}
           <div className="ml-auto flex items-center gap-2 md:gap-4 shrink-0">
             {user != null ? (
@@ -51,7 +82,7 @@ export default function Navbar() {
                 className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center cursor-pointer hover:bg-yellow-300 transition-colors duration-200 ease-in-out"
               >
                 <FiPlus className="h-5 w-5" aria-hidden />
-                <span>Report</span>
+                <span className="hidden sm:inline">Report</span>
               </div>
             ) : (
               <Link
@@ -59,7 +90,7 @@ export default function Navbar() {
                 className="px-3 py-2 bg-yellow-200/80 rounded-lg inline-flex items-center gap-2 text-gray-900 text-sm md:text-base font-medium justify-center cursor-pointer hover:bg-yellow-300 transition-colors duration-200 ease-in-out"
               >
                 <FiPlus className="h-5 w-5" aria-hidden />
-                <span>Report</span>
+                <span className="hidden sm:inline">Report</span>
               </Link>
             )}
 
@@ -144,6 +175,14 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* QR Scanner Component */}
+      <QRScanner
+        isOpen={isQrScanOpen}
+        onClose={() => setIsQrScanOpen(false)}
+        onScan={handleQRScan}
+      />
+
       {isReportedClicked && user && (
         <CreateIssue
           isReportedClicked={isReportedClicked}
