@@ -12,7 +12,7 @@ CREATE DATABASE govpulse;
 -- Drop tables if they exist to allow for a clean creation
 -- Using CASCADE ensures that foreign key constraints are dropped along with the tables.
 DROP TABLE IF EXISTS "FREE_TIMES" CASCADE;
-DROP TABLE IF EXISTS "APPOINTMENT_ATTENDEES" CASCADE;
+-- The APPOINTMENT_ATTENDEES junction table is removed
 DROP TABLE IF EXISTS "ATTENDEES" CASCADE;
 DROP TABLE IF EXISTS "UPVOTE" CASCADE;
 DROP TABLE IF EXISTS "APPOINTMENT" CASCADE;
@@ -115,7 +115,6 @@ CREATE TABLE "UPVOTE" (
 
 -- Create the APPOINTMENT table
 -- This table stores information about appointments related to issues.
--- The attendee tracking is now handled by the APPOINTMENT_ATTENDEES junction table.
 -- A new official_comment column has been added.
 CREATE TABLE "APPOINTMENT" (
     "appointment_id" SERIAL PRIMARY KEY,
@@ -129,20 +128,17 @@ CREATE TABLE "APPOINTMENT" (
 
 -- Create the ATTENDEES table
 -- This table holds information about attendees for appointments.
+-- The appointment_id foreign key has been added here.
 CREATE TABLE "ATTENDEES" (
     "attendee_id" SERIAL PRIMARY KEY,
     "nic" VARCHAR(255),
     "name" VARCHAR(255),
-    "phone_no" VARCHAR(20)
+    "phone_no" VARCHAR(20),
+    "added_by" VARCHAR(50), -- Indicates whether the attendee was added by a user or an official
+    "appointment_id" INTEGER
 );
 
--- Create the APPOINTMENT_ATTENDEES junction table
--- This table links the APPOINTMENT and ATTENDEES tables to establish an n:n relationship.
-CREATE TABLE "APPOINTMENT_ATTENDEES" (
-    "appointment_id" INTEGER NOT NULL,
-    "attendee_id" INTEGER NOT NULL,
-    PRIMARY KEY ("appointment_id", "attendee_id")
-);
+-- The APPOINTMENT_ATTENDEES junction table is now removed.
 
 -- Create the FREE_TIMES table
 -- This table tracks free time slots offered by authorities.
@@ -208,9 +204,10 @@ ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_user" FOREIGN KEY ("use
 ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_authority" FOREIGN KEY ("authority_id") REFERENCES "AUTHORITIES"("authority_id");
 ALTER TABLE "APPOINTMENT" ADD CONSTRAINT "fk_appointment_issue" FOREIGN KEY ("issue_id") REFERENCES "ISSUE"("issue_id") ON DELETE CASCADE;
 
--- APPOINTMENT_ATTENDEES foreign keys
-ALTER TABLE "APPOINTMENT_ATTENDEES" ADD CONSTRAINT "fk_appointment_attendees_appointment" FOREIGN KEY ("appointment_id") REFERENCES "APPOINTMENT"("appointment_id") ON DELETE CASCADE;
-ALTER TABLE "APPOINTMENT_ATTENDEES" ADD CONSTRAINT "fk_appointment_attendees_attendee" FOREIGN KEY ("attendee_id") REFERENCES "ATTENDEES"("attendee_id");
+-- The APPOINTMENT_ATTENDEES foreign keys are removed.
+
+-- ATTENDEES foreign key
+ALTER TABLE "ATTENDEES" ADD CONSTRAINT "fk_attendee_appointment" FOREIGN KEY ("appointment_id") REFERENCES "APPOINTMENT"("appointment_id") ON DELETE CASCADE;
 
 -- FREE_TIMES foreign key
 ALTER TABLE "FREE_TIMES" ADD CONSTRAINT "fk_free_times_authority" FOREIGN KEY ("authority_id") REFERENCES "AUTHORITIES"("authority_id");

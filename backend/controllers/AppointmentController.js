@@ -246,10 +246,113 @@ const cancelAppointment = async (req, res) => {
     }
 };
 
+const addAttendeeToAppointment = async (req, res) => {
+    try {
+        const { appointment_id, nic, name, phone_no } = req.body;
+        var added_by = "";
+        if ("official" in req) {
+            added_by = "official";
+        }
+        if ("user" in req) {
+            added_by = "user";
+        }
+        if (added_by === "") {
+            return res.status(400).json({ error: "you need to be logged in as a user of official to add attendee" });
+        }
+
+        if (!appointment_id || !nic || !name) {
+            return res.status(400).json({ error: "Appointment ID, NIC, and name are required" });
+        }
+        
+        // Fetch the appointment by ID
+        const appointment = await prisma.appointment.findUnique({
+            where: {
+                appointment_id: parseInt(appointment_id)
+            }
+        });
+
+        if (!appointment) {
+            return res.status(404).json({ error: "Appointment not found" });
+        }
+
+
+        // Add the attendee to the Attendee table
+        const newAttendee = await prisma.attendees.create({
+            data: {
+                Appointment: {
+                    connect: { appointment_id: parseInt(appointment_id) }
+                },
+                nic: nic,
+                name: name,
+                phone_no: phone_no,
+                added_by: added_by
+            }
+        });
+
+        res.status(200).json({ message: "Attendee added successfully", attendee_data: newAttendee });
+    } catch (error) {
+        console.error("Error adding attendees:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const getAttendeesOfAppointment = async (req, res) => {
+    try {
+        const { appointment_id } = req.params;
+
+        // Fetch the attendees for the specified appointment
+        const attendees = await prisma.attendees.findMany({
+            where: {
+                appointment_id: parseInt(appointment_id)
+            }
+        });
+
+        if (!attendees || attendees.length === 0) {
+            return res.status(404).json({ error: "No attendees found for this appointment" });
+        }
+
+        res.status(200).json({ attendees });
+    } catch (error) {
+        console.error("Error fetching attendees:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const removeAttendeeFromAppointment = async (req, res) => {
+    try {
+        const { attendee_id } = req.params;
+
+        // Fetch the attendee by ID
+        const attendee = await prisma.attendees.findUnique({
+            where: {
+                attendee_id: parseInt(attendee_id)
+            }
+        });
+
+        if (!attendee) {
+            return res.status(404).json({ error: "Attendee not found" });
+        }
+
+        // Delete the attendee
+        await prisma.attendees.delete({
+            where: {
+                attendee_id: parseInt(attendee_id)
+            }
+        });
+
+        res.status(200).json({ message: "Attendee removed successfully" });
+    } catch (error) {
+        console.error("Error removing attendee:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
 module.exports = { 
     bookAppointment, 
     getUsersAppointments,
     getAppointmentById,
     getAuthorityAppointments,
     cancelAppointment,
+    addAttendeeToAppointment,
+    getAttendeesOfAppointment,
+    removeAttendeeFromAppointment
 };
