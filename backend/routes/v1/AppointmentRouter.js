@@ -10,8 +10,8 @@ const {
     addAttachmentFile,
     getAttachmentByAppointmentId,
     removefileFromAttachment
-} = require('../controllers/AppointmentController');
-const { verifyToken, verifyOfficialToken } = require("../middleware/verifyToken");
+} = require('../../controllers/v1/AppointmentController');
+const { verifyToken, verifyOfficialToken } = require("../../middleware/verifyToken");
 const express = require("express");
 const router = express.Router();
 router.post("/book-appointment", verifyToken, bookAppointment);

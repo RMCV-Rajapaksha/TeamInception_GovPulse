@@ -1,8 +1,8 @@
 const {
   generateImagesignature,
-} = require("../controllers/GenerateImageSignature");
+} = require("../../controllers/v1/GenerateImageSignature");
 const express = require("express");
-const { verifyToken } = require("../middleware/verifyToken");
+const { verifyToken } = require("../../middleware/verifyToken");
 const router = express.Router();
 
 router.get("/", verifyToken, generateImagesignature);

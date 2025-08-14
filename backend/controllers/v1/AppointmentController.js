@@ -1,5 +1,4 @@
-const { PrismaClient } = require("../generated/prisma");
-const { get } = require("../routes/AppointmentRouter");
+const { PrismaClient } = require("../../generated/prisma");
 
 const prisma = new PrismaClient();
 

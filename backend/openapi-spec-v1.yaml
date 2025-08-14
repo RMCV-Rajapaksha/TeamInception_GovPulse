@@ -1,0 +1,2246 @@
+  openapi: 3.1.0
+  info:
+    title: Govpulse Backend Service
+    version: 1.0.0
+  tags:
+    - name: user-related
+      description: endpoints related to user
+    - name: official-related
+      description: endpoints related to government officials
+    - name: issues-related
+      description: endpoints related to issues
+    - name: time-slot-related
+      description: endpoints related to time slots for appointments
+    - name: appointment-related
+      description: endpoints related to appointments
+    - name: comment-related
+      description: endpoints related to appointment comments
+    - name: images-related
+      description: endpoints related to image generation and signatures
+  paths:
+    /api/v1/generate-image-signature:
+      get:
+        summary: Generate image signature
+        operationId: generateImageSignature
+        description: Generates a signature for image upload
+        tags:
+          - images-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    signature:
+                      type: string
+                      example: "cd82f46dc8197fe3f6f1b7090dd90faf56abf5a4"
+                    timestamp:
+                      type: integer
+                      format: int64
+                      example: 1754998209
+                  required:
+                    - signature
+                    - timestamp
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: "Internal Server Error"
+        security: 
+          - BearerAuth: []
+
+    /api/v1/upload-image:
+      post:
+        summary: Upload multiple images
+        operationId: uploadMultipleImages
+        description: Uploads one or more images to the server and stores them on Cloudinary.
+        tags:
+          - images-related
+        requestBody:
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  images:
+                    type: array
+                    description: List of image files to upload
+                    items:
+                      type: string
+                      format: binary
+                required:
+                  - images
+        responses:
+          "200":
+            description: Successfully uploaded images
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      example: true
+                    message:
+                      type: string
+                      example: "Successfully uploaded 2 images"
+                    images:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          success:
+                            type: boolean
+                            example: true
+                          url:
+                            type: string
+                            format: uri
+                            example: "https://res.cloudinary.com/gov-p/image/upload/v1755059486/govpulse/uploads/image_1755059475754_5879461.png"
+                          public_id:
+                            type: string
+                            example: "govpulse/uploads/image_1755059475754_5879461"
+                          width:
+                            type: integer
+                            example: 10197
+                          height:
+                            type: integer
+                            example: 2622
+                          format:
+                            type: string
+                            example: "png"
+                          bytes:
+                            type: integer
+                            example: 2089919
+                          created_at:
+                            type: string
+                            format: date-time
+                            example: "2025-08-13T04:31:26Z"
+          "400":
+            description: Bad Request (e.g., no images provided or some uploads failed)
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      example: false
+                    error:
+                      type: string
+                      example: "No images provided"
+          "500":
+            description: Internal Server Error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      example: false
+                    error:
+                      type: string
+                      example: "Internal server error during upload"
+
+
+    /api/v1/users/signup:
+      post:
+        summary: User signup
+        operationId: userSignup
+        description: Allows a new user to sign up
+        tags:
+          - user-related
+        requestBody:
+          description: Contains the information of new user
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.userSignupReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              text/plain:
+                schema:
+                  type: string
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+        deprecated: false
+        security: []
+    
+    /api/v1/users/login:
+      post:
+        summary: User login
+        operationId: userLogin
+        description: Allows an existing user to log in
+        tags:
+          - user-related
+        requestBody:
+          description: Contains the login credentials of the user
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.userLoginReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema: 
+                  $ref: "#/components/schemas/models.userLoginResObj"
+          "401":
+            description: Unauthorized - Invalid credentials
+            content:
+              text/plain:
+                schema:
+                  type: string
+          "500":      
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+        deprecated: false
+        security: []
+
+    /api/v1/users/remove-account:
+      delete:
+        summary: Remove user account
+        operationId: removeUserAccount
+        description: Allows a user to remove their account
+        tags:
+          - user-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: User account removed successfully
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security: 
+          - BearerAuth: []
+    /api/v1/issues/create:
+      post:
+        summary: Create a new issue
+        operationId: createIssue
+        description: Allows a user to create a new issue
+        tags:
+          - issues-related
+        requestBody:
+          description: Contains the details of the issue to be created
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.issueCreateReqObj"
+        responses:  
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/models.issueCreateResObj"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security: 
+          - BearerAuth: []
+    /api/v1/issues/delete-issue/{issue_id}:
+      delete:
+        summary: Delete an issue
+        operationId: deleteIssue
+        description: Allows a user to delete an issue by its ID
+        tags:
+          - issues-related
+        parameters:
+          - name: issue_id
+            in: path
+            required: true
+            description: The ID of the issue to be deleted
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:  
+                      type: string
+                      example: Issue deleted successfully
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token
+          "404":
+            description: Not Found - Issue not found
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Issue not found
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security: 
+          - BearerAuth: []
+    /api/v1/issues/user-issues:
+      get:
+        summary: Get issues created by the user
+        operationId: getUserIssues
+        description: Retrieves all issues created by the authenticated user
+        tags:
+          - issues-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/models.issuedata"
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security: 
+          - BearerAuth: []
+    /api/v1/issues/issues:
+      get:
+        summary: Get all issues
+        operationId: getIssues
+        description: Retrieves all issues in the system
+        tags:
+          - issues-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                      $ref: "#/components/schemas/models.issuedata"
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security: []
+    /api/v1/issues/issues/{issue_id}:
+      get:
+        summary: Get issue by ID
+        operationId: getIssueById
+        description: Retrieves a specific issue by its ID
+        tags:
+          - issues-related
+        parameters:
+          - name: issue_id
+            in: path
+            required: true
+            description: The ID of the issue to retrieve
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/models.issuedata"
+          "404":
+            description: Not Found - Issue not found
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Issue not found
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security: []
+    /api/v1/issues/authority-issues:
+      get:
+        summary: Get authority issues
+        operationId: getAuthorityIssues
+        description: Retrieves all issues assigned to the authenticated official's authority. Only authenticated officials can access this endpoint.
+        tags:
+          - issues-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/models.authorityIssuesResponse"
+          "401":
+            description: Unauthorized - Official access required
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Official access required
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security:
+          - BearerAuth: []
+
+    /api/v1/issues/update-status/{issue_id}:
+      put:
+        summary: Update issue status
+        operationId: updateIssueStatus
+        description: Allows a government official to update the status of an issue. Officials can only update issues assigned to their authority.
+        tags:
+          - issues-related
+        parameters:
+          - name: issue_id
+            in: path
+            required: true
+            description: The ID of the issue whose status is to be updated
+            schema:
+              type: integer
+              format: int64
+              example: 1
+        requestBody:
+          description: Contains the new status ID for the issue
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.updateIssueStatusReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Issue status updated successfully
+                    issue:
+                      $ref: "#/components/schemas/models.issuedata"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Issue ID and Status ID are required
+          "401":
+            description: Unauthorized - Official access required
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Official access required
+          "403":
+            description: Forbidden - Can only update issues assigned to your authority
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Forbidden - You can only update issues assigned to your authority
+          "404":
+            description: Not Found - Issue not found
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Issue not found
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/upvotes/add:
+      post:
+        summary: Add an upvote to an issue
+        operationId: addUpvote
+        description: Allows a user to upvote an issue
+        tags:
+          - issues-related
+        requestBody:
+          description: Contains the ID of the issue to be upvoted
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.addUpvoteReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Upvote added successfully
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/upvotes/remove/{issue_id}:
+      delete:
+        summary: Remove an upvote from an issue
+        operationId: removeUpvote
+        description: Allows a user to remove their upvote from an issue
+        tags:
+          - issues-related
+        parameters:
+          - name: issue_id
+            in: path
+            required: true
+            description: The ID of the issue from which the upvote is to be removed
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Upvote removed successfully
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "404":
+            description: Not Found - Issue not found or no upvote exists for the user
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Issue not found or no upvote exists for the user  
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/upvotes/count/{issue_id}:
+      get:
+        summary: Get upvote count for an issue
+        operationId: getUpvoteCount
+        description: Retrieves the count of upvotes for a specific issue
+        tags:
+          - issues-related
+        parameters:
+          - name: issue_id
+            in: path
+            required: true
+            description: The ID of the issue for which to retrieve the upvote count
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    count:
+                      type: integer
+                      example: 42
+          "404":
+            description: Not Found - Issue not found or no upvotes exist for the issue
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Issue not found or no upvotes exist for the issue  
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security: []
+    /api/v1/upvotes/has-upvoted/{issue_id}:
+      get:
+        summary: Check if a user has upvoted an issue
+        operationId: hasUserUpvoted
+        description: Checks if the authenticated user has already upvoted a specific issue
+        tags:
+          - issues-related
+        parameters:
+          - name: issue_id
+            in: path
+            required: true
+            description: The ID of the issue to check for upvote status
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response indicating whether the user has upvoted the issue
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    has_upvoted:
+                      type: boolean
+                      example: true
+          "404":
+            description: Not Found - Issue not found or no upvotes exist for the issue
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Issue not found or no upvotes exist for the issue  
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/officials/login:
+      post:
+        summary: Official login
+        operationId: officialLogin
+        description: Allows a government official to log in
+        tags:
+          - official-related
+        requestBody:
+          description: Contains the login credentials of the official
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.officialLoginReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          "401":
+            description: Unauthorized - Invalid credentials
+            content:
+              text/plain:
+                schema:
+                  type: string
+          "500":      
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+        deprecated: false
+        security: []
+    /api/v1/officials/register:
+      post:
+        summary: Official registration
+        operationId: officialRegister
+        description: Allows a government official to register
+        tags:
+          - official-related
+        requestBody:
+          description: Contains the registration details of the official
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.officialRegisterReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Official registered successfully
+                    token:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security: []
+
+    /api/v1/time-slots/view-free-time-slots:
+      get:
+        summary: View free time slots
+        operationId: viewFreeTimeSlots
+        description: Allows government officials to view available free time slots of their employed Authority. Note that the authority is identified using the bearer token.
+        tags:
+          - time-slot-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/models.freeTimeSlotData"
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/time-slots/add-free-time-slot:
+      post:
+        summary: Create free time slot
+        operationId: createFreeTimeSlot
+        description: Allows government officials to create a new free time slot for appointments related to their employed Authority. Note that the authority is identified using the bearer token.
+        tags:
+          - time-slot-related
+        requestBody:
+          description: Contains the details of the free time slot to be created
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.addFreeTimeSlotReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Free time slot created successfully
+                    free_time_slot_data:
+                      $ref: "#/components/schemas/models.freeTimeSlotData"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/time-slots/remove-free-time-slot:
+      post:
+        summary: Remove free time slot
+        operationId: removeFreeTimeSlot
+        description: Allows government officials to remove a free time slot for appointments related to their employed Authority. Note that the authority is identified using the bearer token.
+        tags:
+          - time-slot-related
+        requestBody:
+          description: Contains the details of the free time slot to be removed
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date-time
+                    example: "2025-08-15T00:00:00.000Z"
+                  start_time:
+                    type: string
+                    example: "10:00"
+                  end_time:
+                    type: string
+                    example: "11:00"
+                required:
+                  - date
+                  - start_time
+                  - end_time
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Free time slot removed successfully
+                    free_time_slot_data:
+                      $ref: "#/components/schemas/models.freeTimeSlotData"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/time-slots/get-free-time-slots-of-authority/{authority_id}:
+      get:
+        summary: Get free time slots of an authority
+        operationId: getFreeTimeSlotsOfAnAuthority
+        description: Retrieves all free time slots of a specific authority, ment to be used by users.
+        tags:
+          - time-slot-related
+        parameters:
+          - name: authority_id
+            in: path
+            required: true
+            description: The ID of the authority whose free time slots are to be retrieved
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/models.freeTimeSlotData"
+          "404":
+            description: Not Found - Authority not found or no free time slots available
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Authority not found or no free time slots available
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security: []
+    
+    /api/v1/appointments/book-appointment:
+      post:
+        summary: Book an appointment
+        operationId: bookAppointment
+        description: Allows a user to book an appointment with government Authority.
+        tags:
+          - appointment-related
+        requestBody:
+          description: Contains the details of the appointment to be booked
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.bookAppointmentReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Appointment booked successfully
+                    appointment_data:
+                      $ref: "#/components/schemas/models.appointmentData"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/user-appointments:
+      get:
+        summary: Get user appointments
+        operationId: getUserAppointments
+        description: Retrieves all appointments booked by the authenticated user
+        tags:
+          - appointment-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/models.appointmentData"
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/authority-appointments:
+      get:
+        summary: Get authority appointments
+        operationId: getAuthorityAppointments
+        description: Retrieves all appointments for the authenticated official's employed authority. Note that the authority is identified using the bearer token.
+        tags:
+          - appointment-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/models.appointmentData"
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/appointment-by-id/{appointment_id}:
+      get:
+        summary: Get appointment by ID
+        operationId: getAppointmentById
+        description: Retrieves a specific appointment by its ID
+        tags:
+          - appointment-related
+        parameters:
+          - name: appointment_id
+            in: path
+            required: true
+            description: The ID of the appointment to retrieve
+            schema:
+              type: integer
+              format: int64
+              example: 12345
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/models.appointmentData"
+          "404":
+            description: Not Found - Appointment not found
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Appointment not found
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security: []
+    /api/v1/appointments/cancel-appointment-by-user:
+      post:
+        summary: Cancel appointment by user
+        operationId: cancelAppointmentByUser
+        description: Allows a user to cancel an appointment they have booked
+        tags:
+          - appointment-related
+        requestBody:
+          description: Contains the ID of the appointment to be canceled
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.cancelAppointmentReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Appointment canceled successfully
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/cancel-appointment-by-official:
+      post:
+        summary: Cancel appointment by official
+        operationId: cancelAppointmentByOfficial
+        description: Allows a government official to cancel an appointment. Note that official is identified using the bearer token.
+        tags:
+          - appointment-related
+        requestBody:
+          description: Contains the ID of the appointment to be canceled
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.cancelAppointmentReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Appointment canceled successfully
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/add-attendee-by-user:
+      post:
+        summary: Add attendee by user
+        operationId: addAttendeeByUser
+        description: Allows a user to add an attendee to their appointment
+        tags:
+          - appointment-related
+        requestBody:
+          description: Contains the details of the attendee to be added
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.addAttendeeReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Attendee added successfully
+                    appointment_data:
+                      $ref: "#/components/schemas/models.attendeeData"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/add-attendee-by-official:
+      post:
+        summary: Add attendee by official
+        operationId: addAttendeeByOfficial
+        description: Allows a government official to add an attendee to an appointment. Note that the official is identified using the bearer token.
+        tags:
+          - appointment-related
+        requestBody:
+          description: Contains the details of the attendee to be added
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.addAttendeeReqObj"
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Attendee added successfully
+                    appointment_data:
+                      $ref: "#/components/schemas/models.attendeeData"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/attendees-of-appointment/{appointment_id}:
+      get:
+        summary: Get attendees of an appointment
+        operationId: getAttendeesOfAppointment
+        description: Retrieves all attendees of a specific appointment by its ID
+        tags:
+          - appointment-related
+        parameters:
+          - name: appointment_id
+            in: path
+            required: true
+            description: The ID of the appointment whose attendees are to be retrieved
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/models.attendeeData"
+          "404":
+            description: Not Found - Appointment not found or no attendees available
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Appointment not found or no attendees available
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security: []
+    /api/v1/appointments/remove-attendee-from-appointment-by-user/{attendee_id}:
+      delete:
+        summary: Remove attendee from appointment by user
+        operationId: removeAttendeeFromAppointmentByUser
+        description: Allows a user to remove an attendee from their appointment
+        tags:
+          - appointment-related
+        parameters:
+          - name: attendee_id
+            in: path
+            required: true
+            description: The ID of the attendee to be removed
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Attendee removed successfully
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/remove-attendee-from-appointment-by-official/{attendee_id}:
+      delete:
+        summary: Remove attendee from appointment by official
+        operationId: removeAttendeeFromAppointmentByOfficial
+        description: Allows a government official to remove an attendee from an appointment. Note that the official is identified using the bearer token.
+        tags:
+          - appointment-related
+        parameters:
+          - name: attendee_id
+            in: path
+            required: true
+            description: The ID of the attendee to be removed
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string 
+                      example: Attendee removed successfully
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/add-attachment-file:
+      post:
+        summary: Add attachment file to appointment
+        operationId: addAttachmentFileToAppointment
+        description: Allows a user to add an attachment file to an appointment
+        tags:
+          - appointment-related
+        requestBody:
+          description: Contains the details of the attachment file to be added
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  appointment_id:
+                    type: integer
+                    format: int64
+                    example: 12345
+                  file:
+                    type: string
+                    format: binary
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Attachment file added successfully
+                    attachment_data:
+                      $ref: "#/components/schemas/models.attachmentData"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/appointments/get-attachment-for-appointment/{appointment_id}:
+      get:
+        summary: Get attachments of an appointment
+        operationId: getAttachmentsOfAppointment
+        description: Retrieves the attachment, along with all its file urls, of a specific appointment by its ID
+        tags:
+          - appointment-related
+        parameters:
+          - name: appointment_id
+            in: path
+            required: true
+            description: The ID of the appointment whose attachments are to be retrieved
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/models.attachmentData"
+          "404":
+            description: Not Found - Appointment not found or no attachments available
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Not Found - Appointment not found or no attachments available
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security: []
+    /api/v1/appointments/remove-file-from-attachment:
+      post:
+        summary: Remove file from attachment
+        operationId: removeFileFromAttachment
+        description: Allows a user to remove a file from an appointment's attachment
+        tags:
+          - appointment-related
+        requestBody:
+          description: Contains the details of the file to be removed from the attachment
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  appointment_id:
+                    type: integer
+                    format: int64
+                    example: 12345
+                  file_url:
+                    type: string
+                    format: uri
+                    example: "https://example.com/attachment/file1.jpg"
+                required:
+                  - appointment_id
+                  - file_url
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: File removed from attachment successfully
+                    attachment_data:
+                      $ref: "#/components/schemas/models.attachmentData"
+          "400":
+            description: Bad Request - Invalid input data
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Bad Request - Invalid input data
+          "401":
+            description: Unauthorized - Invalid token or insufficient permissions
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token or insufficient permissions              
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/authoauthorities/get-authorities-by-user:
+      get:
+        summary: Get authorities by user
+        operationId: getAuthoritiesByUser
+        description: Retrieves all authorities associated with the authenticated user
+        tags:
+          - authority-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/models.authorityData"
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+    /api/v1/authorities/get-authority-by-official:
+      get:
+        summary: Get authority by official
+        operationId: getAuthorityByOfficial
+        description: Retrieves the authority associated with the authenticated government official
+        tags:
+          - authority-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/models.authorityData"
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
+  components:
+    securitySchemes:
+      BearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+    schemas:
+      models.userSignupReqObj:
+        type: object
+        properties:
+          email:
+            type: string
+            format: email
+            example: user@example.com
+          password:
+            type: string
+            format: password
+            example: strongpassword123
+          nic:
+            type: string
+            example: 123456789V
+          first_name:
+            type: string
+            example: John
+          last_name:
+            type: string
+            example: Doe
+          role:
+            type: string
+            enum: ["citizen", "gov_official", "admin"]
+            example: citizen
+      models.userSignupResObj:
+        type: object
+        properties:
+          message:
+            type: string
+            example: User registered successfully
+          userId:
+            type: integer
+            format: int64
+            example: 12345
+          token:
+            type: string
+            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      models.userLoginReqObj:
+        type: object
+        properties:
+          email:
+            type: string
+            format: email
+            example: user@example.com
+          password:
+            type: string
+            format: password
+            example: strongpassword123
+      models.userLoginResObj:
+        type: object
+        properties:
+          message:
+            type: string
+            example: User logged in successfully
+          user_id:
+            type: integer
+            format: int64
+            example: 12345
+          token:
+            type: string
+            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      models.officialRegisterReqObj:
+        type: object
+        properties:
+          username:
+            type: string
+            example: official_username
+          password:
+            type: string
+            format: password
+            example: official_password123
+          position:
+            type: string
+            example: "District Secretary"
+          authority_id:
+            type: integer
+            format: int64
+            example: 1
+        required:
+          - username
+          - password
+          - position
+          - authority_id
+      models.officialLoginReqObj:
+        type: object
+        properties:
+          username:
+            type: string
+            example: official_username
+          password:
+            type: string
+            format: password
+            example: official_password123
+      models.issueCreateReqObj:
+        type: object
+        properties:
+          title:
+            type: string
+            example: "Issue Title"
+          description:
+            type: string
+            example: "Detailed description of the issue."
+          gs_division:
+            type: string
+            example: "Colombo North"
+          ds_division:
+            type: string
+            example: "Colombo"
+          urgency_score:
+            type: number
+            format: float
+            example: 7.5
+          status_id:
+            type: integer
+            format: int64
+            example: 1
+          authority_id:
+            type: integer
+            format: int64
+            example: 2
+          category_id:
+            type: integer
+            format: int64
+            example: 3
+          image_urls:
+            type: array
+            items:
+              type: string
+              format: uri
+              example:
+              - "https://example.com/image1.jpg"
+              - "https://example.com/image2.jpg"
+        required:
+          - title
+          - description
+          - urgency_score
+          - authority_id
+          - category_id
+      models.issueCreateResObj:
+        type: object
+        properties:
+          message:
+            type: string
+            example: "Issue created successfully"
+          issueId:
+            type: integer
+            format: int64
+            example: 12345
+      models.issuedata:
+        type: object
+        properties:
+          issue_id:
+            type: integer
+            format: int64
+            example: 6
+          user_id:
+            type: integer
+            format: int64
+            example: 6
+          title:
+            type: string
+            example: "test issue3"
+          description:
+            type: string
+            example: "something happened."
+          district:
+            type: string
+            nullable: true
+            example: null
+          gs_division:
+            type: string
+            nullable: true
+            example: null
+          ds_division:
+            type: string
+            nullable: true
+            example: null
+          urgency_score:
+            type: number
+            format: float
+            nullable: true
+            example: null
+          created_at:
+            type: string
+            format: date-time
+            example: "2025-08-11T06:19:58.757Z"
+          status_id:
+            type: integer
+            format: int64
+            example: 1
+          authority_id:
+            type: integer
+            format: int64
+            nullable: true
+            example: null
+          category_id:
+            type: integer
+            format: int64
+            nullable: true
+            example: null
+          image_urls:
+            type: array
+            items:
+              type: string
+              format: uri
+            nullable: true
+            example: null
+          approved_for_appointment_placing:
+            type: boolean
+            example: false
+          User:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                format: int64
+                example: 6
+              first_name:
+                type: string
+                example: "test"
+              last_name:
+                type: string
+                example: "user"
+              name:
+                type: string
+                nullable: true
+                example: null
+              email:
+                type: string
+                format: email
+                example: "testuser1@gmail.com"
+              password:
+                type: string
+                example: "$2b$10$/X9VWOEwy1.e6M8CwMr7EuG/9j.cI6ku2H978Gea3p4dfsGzuWk7O"
+              nic:
+                type: string
+                example: "199902400427"
+              role:
+                type: string
+                example: "citizen"
+              profile_image_url:
+                type: string
+                format: uri
+                nullable: true
+                example: null
+          Issue_Status:
+            type: object
+            properties:
+              status_id:
+                type: integer
+                format: int64
+                example: 1
+              status_name:
+                type: string
+                example: "Pending Review"
+                description: "Status: 1=Pending Review, 2=Assigned to Team, 3=Completed"
+              authority_id:
+                type: integer
+                format: int64
+                example: 1
+      models.authorityIssuesResponse:
+        type: object
+        properties:
+          message:
+            type: string
+            example: "Found 5 issues for authority ID 2"
+          authority_id:
+            type: integer
+            format: int64
+            example: 2
+          total_issues:
+            type: integer
+            example: 5
+          issues:
+            type: array
+            items:
+              $ref: "#/components/schemas/models.issuedata"
+        required:
+          - message
+          - authority_id
+          - total_issues
+          - issues
+
+      models.updateIssueStatusReqObj:
+        type: object
+        properties:
+          status_id:
+            type: integer
+            format: int64
+            example: 2
+            description: "Status ID: 1=Pending Review, 2=Assigned to Team, 3=Completed"
+        required:
+          - status_id
+      models.addUpvoteReqObj:
+        type: object
+        properties:
+          issue_id:
+            type: integer
+            format: int64
+            example: 12345
+          comment:
+            type: string
+            example: "This issue needs urgent attention."
+        required:
+          - issue_id
+      models.addFreeTimeSlotReqObj:
+        type: object
+        properties:
+          date:
+            type: string
+            format: date-time
+            example: "2025-08-15T00:00:00.000Z"
+          start_time:
+            type: string
+            example: "10:00"
+          end_time:
+            type: string
+            example: "11:00"
+        required:
+          - date
+          - start_time
+          - end_time
+      models.freeTimeSlotData:
+        type: object
+        properties:
+          authority_id:
+            type: integer
+            format: int64
+            example: 1
+          date:
+            type: string
+            format: date-time
+            example: "2025-08-15T00:00:00.000Z"
+          time_slots:
+            type: array
+            items:
+              type: string
+              example: "10:00 - 11:00"
+            example:
+              - "10:00 - 11:00"
+              - "11:30 - 12:30"
+              - "14:00 - 15:00"
+        required:
+          - authority_id
+          - date
+          - time_slots
+      models.bookAppointmentReqObj:
+        type: object
+        properties:
+          authority_id:
+            type: integer
+            format: int64
+            example: 1
+          date:
+            type: string
+            format: date-time
+            example: "2025-08-15T00:00:00.000Z"
+          time_slot:
+            type: string
+            example: "10:00 - 11:00"
+          issue_id:
+            type: integer
+            format: int64
+            nullable: true
+            example: 12345
+      models.cancelAppointmentReqObj:
+        type: object
+        properties:
+          appointment_id:
+            type: integer
+            format: int64
+            example: 12345
+          reason:
+            type: string
+            example: "Personal reasons"
+        required:
+          - appointment_id
+          - reason
+      models.appointmentData:
+        type: object
+        properties:
+          appointment_id:
+            type: integer
+            format: int64
+            example: 1
+          user_id:
+            type: integer
+            format: int64
+            example: 1
+          authority_id:
+            type: integer
+            format: int64
+            example: 2
+          issue_id:
+            type: integer
+            format: int64
+            nullable: true
+            example: null
+          date:
+            type: string
+            format: date-time
+            example: "2025-08-15T00:00:00.000Z"
+          time_slot:
+            type: string
+            example: "10:00 - 11:00"
+          official_comment:
+            type: string
+            nullable: true
+            example: null
+      models.addAttendeeReqObj:
+        type: object
+        properties:
+          appointment_id:
+            type: integer
+            format: int64
+            example: 1
+          nic:
+            type: string
+            example: "425253456V"
+          name:
+            type: string
+            example: "Jane Doe"
+          phone_no:
+            type: string
+            format: phone
+            example: "+94123456789"
+        required:
+          - appointment_id
+          - nic
+          - name
+      models.attendeeData:
+        type: object
+        properties:
+          attendee_id:
+            type: integer
+            format: int64
+            example: 1
+          appointment_id:
+            type: integer
+            format: int64
+            example: 1
+          nic:
+            type: string
+            example: "425253456V"
+          name:
+            type: string
+            example: "Jane Doe"
+          phone_no:
+            type: string
+            format: phone
+            example: "+94123456789"
+      models.addAttachmentFileReqObj:
+        type: object
+        properties:
+          appointment_id:
+            type: integer
+            format: int64
+            example: 1
+          file_url:
+            type: string
+            format: uri
+            example: "https://example.com/attachment.pdf"
+        required:
+          - appointment_id
+          - file_url
+      models.attachmentData:
+        type: object
+        properties:
+          appointment_id:
+            type: integer
+            format: int64
+            example: 1
+          attachment_id:
+            type: integer
+            format: int64
+            example: 1
+          file_urls:
+            type: array
+            items:
+              type: string
+              format: uri
+              example: "https://example.com/attachment.pdf"
+        required:
+          - appointment_id
+          - file_urls
+      models.authorityData:
+        type: object
+        properties:
+          authority_id:
+            type: integer
+            format: int64
+            example: 1
+          name:
+            type: string
+            example: "Colombo Municipal Council"
+          ministry:
+            type: string
+            nullable: true
+            example: null
+          location:
+            type: string
+            nullable: true
+            example: null
+          description:
+            type: string
+            nullable: true
+            example: "The local authority for Colombo city."
+          category_id:
+            type: integer
+            format: int64
+            nullable: true
+            example: null

@@ -7,13 +7,15 @@ const {
   getIssueById,
   updateIssueStatus,
   getAuthorityIssues,
-} = require("../controllers/IssueController");
+} = require("../../controllers/v1/IssueController");
+const { verifyToken } = require("../../middleware/verifyToken");
 const {
   verifyToken,
   verifyOfficialToken,
 } = require("../middleware/verifyToken");
 const express = require("express");
 const router = express.Router();
+
 
 router.get("/", getIssues);
 router.get("/authority-issues", verifyOfficialToken, getAuthorityIssues);
