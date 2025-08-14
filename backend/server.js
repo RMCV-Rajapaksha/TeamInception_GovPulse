@@ -17,6 +17,7 @@ const userRouter = require("./routes/UserRouter");
 const officialRouter = require("./routes/OfficialRouter");
 const timeSlotRouter = require("./routes/TimeSlotRouter");
 const appointmentRouter = require("./routes/AppointmentRouter");
+const commentRouter = require("./routes/CommentRouter");
 const generateImageSignatureRouter = require("./routes/GenerateImageSignatureRouter");
 const imageUploadRouter = require("./routes/ImageUploadRouter");
 
@@ -41,6 +42,7 @@ app.use("/api/users", userRouter);
 app.use("/api/officials", officialRouter);
 app.use("/api/time-slots", timeSlotRouter);
 app.use("/api/appointments", appointmentRouter);
+app.use("/api/comments", commentRouter);
 app.use("/api/generate-image-signature", generateImageSignatureRouter);
 app.use("/api/upload-image", imageUploadRouter);
 
