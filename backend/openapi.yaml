@@ -13,6 +13,8 @@ tags:
     description: endpoints related to time slots for appointments
   - name: appointment-related
     description: endpoints related to appointments
+  - name: comment-related
+    description: endpoints related to appointment comments
   - name: images-related
     description: endpoints related to image generation and signatures
 
@@ -433,6 +435,114 @@ paths:
                 example: Internal Server Error
       deprecated: false
       security: []
+
+  /api/issues/authority-issues:
+    get:
+      summary: Get authority issues
+      operationId: getAuthorityIssues
+      description: Retrieves all issues assigned to the authenticated official's authority. Only authenticated officials can access this endpoint.
+      tags:
+        - issues-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.authorityIssuesResponse"
+        "401":
+          description: Unauthorized - Official access required
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Official access required
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+
+  /api/issues/update-status/{issue_id}:
+    put:
+      summary: Update issue status
+      operationId: updateIssueStatus
+      description: Allows a government official to update the status of an issue. Officials can only update issues assigned to their authority.
+      tags:
+        - issues-related
+      parameters:
+        - name: issue_id
+          in: path
+          required: true
+          description: The ID of the issue whose status is to be updated
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      requestBody:
+        description: Contains the new status ID for the issue
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.updateIssueStatusReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Issue status updated successfully
+                  issue:
+                    $ref: "#/components/schemas/models.issuedata"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Issue ID and Status ID are required
+        "401":
+          description: Unauthorized - Official access required
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Official access required
+        "403":
+          description: Forbidden - Can only update issues assigned to your authority
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden - You can only update issues assigned to your authority
+        "404":
+          description: Not Found - Issue not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Issue not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+
   /api/officials/login:
     post:
       summary: Official login
@@ -1364,6 +1474,300 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
+
+  # Comment-related endpoints
+  /api/comments/add-comment:
+    post:
+      summary: Add comment to appointment
+      operationId: addCommentToAppointment
+      description: Allows a government official to add an official comment to an appointment. Note that the official is identified using the bearer token and can only comment on appointments for their authority.
+      tags:
+        - comment-related
+      requestBody:
+        description: Contains the details of the comment to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointment_id:
+                  type: integer
+                  format: int64
+                  example: 12345
+                  description: The ID of the appointment to add comment to
+                comment:
+                  type: string
+                  example: "Please bring required documents for verification."
+                  description: The official comment text
+              required:
+                - appointment_id
+                - comment
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Comment added to appointment successfully
+                  appointment:
+                    $ref: "#/components/schemas/models.appointmentData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or official access required
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Official access required
+        "403":
+          description: Forbidden - Can only comment on appointments for your authority
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden - You can only comment on appointments for your authority
+        "404":
+          description: Not Found - Appointment not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Appointment not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+
+  /api/comments/appointment/{appointment_id}:
+    get:
+      summary: Get appointment comment
+      operationId: getAppointmentComment
+      description: Retrieves the official comment for a specific appointment by its ID
+      tags:
+        - comment-related
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          description: The ID of the appointment whose comment is to be retrieved
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  appointment_id:
+                    type: integer
+                    format: int64
+                    example: 12345
+                  official_comment:
+                    type: string
+                    example: "Please bring required documents for verification."
+                    nullable: true
+                  authority:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Ministry of Health"
+                      ministry:
+                        type: string
+                        example: "Health Ministry"
+                        nullable: true
+        "400":
+          description: Bad Request - Invalid appointment ID
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Appointment ID is required
+        "404":
+          description: Not Found - Appointment not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Appointment not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security: []
+
+  /api/comments/update-comment:
+    put:
+      summary: Update appointment comment
+      operationId: updateAppointmentComment
+      description: Allows a government official to update an existing official comment on an appointment. Note that the official is identified using the bearer token and can only update comments for appointments of their authority.
+      tags:
+        - comment-related
+      requestBody:
+        description: Contains the details of the comment to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointment_id:
+                  type: integer
+                  format: int64
+                  example: 12345
+                  description: The ID of the appointment whose comment is to be updated
+                comment:
+                  type: string
+                  example: "Updated: Please bring ID and address proof."
+                  description: The updated official comment text
+              required:
+                - appointment_id
+                - comment
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Comment updated successfully
+                  appointment:
+                    $ref: "#/components/schemas/models.appointmentData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or official access required
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Official access required
+        "403":
+          description: Forbidden - Can only update comments for appointments of your authority
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden - You can only update comments for appointments of your authority
+        "404":
+          description: Not Found - Appointment not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Appointment not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+
+  /api/comments/delete-comment/{appointment_id}:
+    delete:
+      summary: Delete appointment comment
+      operationId: deleteAppointmentComment
+      description: Allows a government official to delete an official comment from an appointment. Note that the official is identified using the bearer token and can only delete comments for appointments of their authority.
+      tags:
+        - comment-related
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          description: The ID of the appointment whose comment is to be deleted
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Comment deleted successfully
+                  appointment:
+                    $ref: "#/components/schemas/models.appointmentData"
+        "400":
+          description: Bad Request - Invalid appointment ID
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Appointment ID is required
+        "401":
+          description: Unauthorized - Invalid token or official access required
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Official access required
+        "403":
+          description: Forbidden - Can only delete comments for appointments of your authority
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden - You can only delete comments for appointments of your authority
+        "404":
+          description: Not Found - Appointment not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Appointment not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1626,6 +2030,7 @@ components:
             status_name:
               type: string
               example: "Pending Review"
+              description: "Status: 1=Pending Review, 2=Assigned to Team, 3=Completed"
             authority_id:
               type: integer
               format: int64
@@ -1810,4 +2215,38 @@ components:
       required:
         - appointment_id
         - file_urls
+
+    models.authorityIssuesResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Found 5 issues for authority ID 2"
+        authority_id:
+          type: integer
+          format: int64
+          example: 2
+        total_issues:
+          type: integer
+          example: 5
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/models.issuedata"
+      required:
+        - message
+        - authority_id
+        - total_issues
+        - issues
+
+    models.updateIssueStatusReqObj:
+      type: object
+      properties:
+        status_id:
+          type: integer
+          format: int64
+          example: 2
+          description: "Status ID: 1=Pending Review, 2=Assigned to Team, 3=Completed"
+      required:
+        - status_id
 
