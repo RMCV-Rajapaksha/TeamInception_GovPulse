@@ -1924,27 +1924,27 @@ components:
     models.authorityData:
       type: object
       properties:
-      authority_id:
-        type: integer
-        format: int64
-        example: 1
-      name:
-        type: string
-        example: "Colombo Municipal Council"
-      ministry:
-        type: string
-        nullable: true
-        example: null
-      location:
-        type: string
-        nullable: true
-        example: null
-      description:
-        type: string
-        nullable: true
-        example: "The local authority for Colombo city."
-      category_id:
-        type: integer
-        format: int64
-        nullable: true
-        example: null
+        authority_id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Colombo Municipal Council"
+        ministry:
+          type: string
+          nullable: true
+          example: null
+        location:
+          type: string
+          nullable: true
+          example: null
+        description:
+          type: string
+          nullable: true
+          example: "The local authority for Colombo city."
+        category_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
