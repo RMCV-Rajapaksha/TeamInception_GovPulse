@@ -23,6 +23,19 @@ const getUrgencyLabel = (urgency: number) => {
   return "Low";
 };
 
+const getStatusLabel = (statusId: number) => {
+  switch (statusId) {
+    case 1:
+      return "Pending Review";
+    case 2:
+      return "Assigned to Team";
+    case 3:
+      return "Completed";
+    default:
+      return "Unknown";
+  }
+};
+
 const AuthorityIssues = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
@@ -286,7 +299,7 @@ const AuthorityIssues = () => {
                         {getUrgencyLabel(issue.urgency_score)} ({issue.urgency_score.toFixed(1)})
                       </Badge>
                       <Badge variant="outline">
-                        {issue.Issue_Status.status_name}
+                        {getStatusLabel(issue.Issue_Status.status_id)}
                       </Badge>
                     </div>
                   </div>
@@ -367,7 +380,7 @@ const AuthorityIssues = () => {
                   <div>
                     <div className="text-sm font-medium">Current Status</div>
                     <p className="text-sm text-muted-foreground">
-                      {selectedIssue.Issue_Status.status_name}
+                      {getStatusLabel(selectedIssue.Issue_Status.status_id)}
                     </p>
                   </div>
                   <div>
