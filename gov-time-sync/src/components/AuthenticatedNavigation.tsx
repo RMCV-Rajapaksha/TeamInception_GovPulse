@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Menu, X, Calendar, BarChart3, Home, LogOut, CalendarCheck, FileText } from "lucide-react";
+import { Menu, X, Calendar, BarChart3, Home, LogOut, CalendarCheck, FileText, MessageSquare } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 interface AuthenticatedNavigationProps {
@@ -53,18 +53,7 @@ export const AuthenticatedNavigation = ({ onLogout }: AuthenticatedNavigationPro
                 Appointments
               </Link>
             </Button>
-            <Button 
-              variant="ghost" 
-              className={`text-primary-foreground hover:bg-white/10 ${
-                isActive('/analytics') ? 'bg-white/20' : ''
-              }`}
-              asChild
-            >
-              <Link to="/analytics">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Analytics
-              </Link>
-            </Button>
+          
             <Button 
               variant="ghost" 
               className={`text-primary-foreground hover:bg-white/10 ${
@@ -75,6 +64,30 @@ export const AuthenticatedNavigation = ({ onLogout }: AuthenticatedNavigationPro
               <Link to="/authority-issues">
                 <FileText className="h-4 w-4 mr-2" />
                 Authority Issues
+              </Link>
+            </Button>
+            <Button 
+              variant="ghost" 
+              className={`text-primary-foreground hover:bg-white/10 ${
+                isActive('/feedback') ? 'bg-white/20' : ''
+              }`}
+              asChild
+            >
+              <Link to="/feedback">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Feedback
+              </Link>
+            </Button>
+              <Button 
+              variant="ghost" 
+              className={`text-primary-foreground hover:bg-white/10 ${
+                isActive('/analytics') ? 'bg-white/20' : ''
+              }`}
+              asChild
+            >
+              <Link to="/analytics">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
               </Link>
             </Button>
             
@@ -152,6 +165,18 @@ export const AuthenticatedNavigation = ({ onLogout }: AuthenticatedNavigationPro
                 <Link to="/authority-issues">
                   <FileText className="h-4 w-4 mr-2" />
                   Authority Issues
+                </Link>
+              </Button>
+              <Button 
+                variant="ghost" 
+                className={`w-full text-left text-primary-foreground hover:bg-white/10 ${
+                  isActive('/feedback') ? 'bg-white/20' : ''
+                }`}
+                asChild
+              >
+                <Link to="/feedback">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Feedback
                 </Link>
               </Button>
               
