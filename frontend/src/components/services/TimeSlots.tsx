@@ -1,0 +1,93 @@
+interface TimeSlot {
+  id: string;
+  time: string;
+  available: boolean;
+}
+
+interface TimeSlotsProps {
+  timeSlots: TimeSlot[];
+  selectedTimeSlot?: string | null;
+  onTimeSlotSelect?: (slotId: string) => void;
+  className?: string;
+}
+
+export default function TimeSlots({
+  timeSlots,
+  selectedTimeSlot = null,
+  onTimeSlotSelect,
+  className = ''
+}: TimeSlotsProps) {
+  
+  const handleTimeSlotClick = (slot: TimeSlot) => {
+    if (slot.available && onTimeSlotSelect) {
+      onTimeSlotSelect(slot.id);
+    }
+  };
+
+  const getSlotClasses = (slot: TimeSlot) => {
+    const baseClasses = "flex-1 box-border flex flex-row gap-4 h-11 items-center justify-center min-h-11 min-w-px p-[16px] rounded-lg";
+    
+    if (!slot.available) {
+      return `${baseClasses} bg-[#ffffff] border border-[#ebebeb] cursor-not-allowed`;
+    }
+    
+    if (selectedTimeSlot === slot.id) {
+      return `${baseClasses} bg-[#ffffff] border-2 border-[#141414] cursor-pointer`;
+    }
+    
+    return `${baseClasses} bg-[#ffffff] border border-[#a7a7a2] cursor-pointer hover:bg-gray-50 transition-colors`;
+  };
+
+  const getSlotTextClasses = (slot: TimeSlot) => {
+    if (!slot.available) {
+      return "text-[#bbbbbb] text-[12px] text-center leading-normal";
+    }
+    
+    return "text-[#000000] text-[12px] text-center leading-normal";
+  };
+
+  // Group slots into rows of 3
+  const groupedSlots = [];
+  for (let i = 0; i < timeSlots.length; i += 3) {
+    groupedSlots.push(timeSlots.slice(i, i + 3));
+  }
+
+  return (
+    <div className={`flex flex-col gap-8 items-start justify-start w-full ${className}`}>
+      <div className="flex flex-col gap-6 items-start justify-start w-full">
+        <div 
+          className="font-bold text-[#4b4b4b] text-[18px] text-left w-full leading-[22px]"
+          style={{ fontFamily: 'var(--font-family-body, Satoshi)' }}
+        >
+          Available Slots:
+        </div>
+        
+        <div className="flex flex-col gap-2 items-start justify-start w-full">
+          {groupedSlots.map((row, rowIndex) => (
+            <div key={rowIndex} className="flex flex-row gap-2 h-11 items-start justify-start w-full">
+              {row.map((slot) => (
+                <button
+                  key={slot.id}
+                  onClick={() => handleTimeSlotClick(slot)}
+                  disabled={!slot.available}
+                  className={getSlotClasses(slot)}
+                >
+                  <div 
+                    className={getSlotTextClasses(slot)}
+                    style={{ fontFamily: 'var(--font-family-body, Satoshi)' }}
+                  >
+                    {slot.time}
+                  </div>
+                </button>
+              ))}
+              {/* Fill empty slots in the row */}
+              {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, index) => (
+                <div key={`empty-${index}`} className="flex-1" />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

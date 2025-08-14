@@ -1,12 +1,14 @@
+import { useNavigate } from 'react-router-dom';
+
 export default function DrivingLicensePage() {
+  const navigate = useNavigate();
+
   const handleBookLightVehicle = () => {
-    console.log('Booking Light Vehicle license');
-    // TODO: Add navigation to booking page
+    navigate('/services/driving-license/book');
   };
 
   const handleBookHeavyVehicle = () => {
-    console.log('Booking Heavy Vehicle license');
-    // TODO: Add navigation to booking page
+    navigate('/services/driving-license/book');
   };
 
   return (
@@ -36,7 +38,7 @@ export default function DrivingLicensePage() {
 
           {/* Question */}
           <div className="flex flex-row gap-2 items-start justify-start px-4 py-0 w-full">
-            <div className="flex-1 font-bold text-[#4b4b4b] text-[16px] text-left leading-normal" style={{ fontFamily: 'var(--font-family-body)' }}>
+            <div className="py-3 flex-1 font-bold text-[#4b4b4b] text-[16px] text-left leading-normal" style={{ fontFamily: 'var(--font-family-body)' }}>
               Which license are you applying for?
             </div>
           </div>
@@ -44,7 +46,7 @@ export default function DrivingLicensePage() {
           {/* License Cards Container */}
           <div className="flex flex-wrap gap-8 items-start justify-start px-4 py-0 w-full">
             {/* Light Vehicles Card */}
-            <div className="flex-1 min-w-[300px] max-w-[468px] bg-white border border-[#d7d7d7] rounded-3xl p-8 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.1)] flex flex-col gap-8">
+            <div className="flex-1 min-w-[300px] max-w-[468px] bg-white border border-[#d7d7d7] rounded-2xl p-6 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.1)] flex flex-col gap-8">
               <h2 
                 className="font-bold text-[#000000] text-[18px] text-left leading-[22px] w-full"
                 style={{ fontFamily: 'var(--font-family-body)' }}
@@ -66,7 +68,8 @@ export default function DrivingLicensePage() {
 
               <button
                 onClick={handleBookLightVehicle}
-                className="w-full bg-white border border-[#a7a7a2] rounded-lg h-11 flex items-center justify-center px-4 py-2 hover:bg-gray-50 transition-colors active:bg-gray-100"
+                className="w-full border border-[#a7a7a2] rounded-lg h-11 flex items-center justify-center px-4 py-2 hover:opacity-90 transition-all active:opacity-80"
+                style={{ backgroundColor: '#FFFF80' }}
               >
                 <span 
                   className="font-bold text-[#000000] text-[18px] leading-[22px]"
@@ -78,7 +81,7 @@ export default function DrivingLicensePage() {
             </div>
 
             {/* Heavy Vehicles Card */}
-            <div className="flex-1 min-w-[300px] max-w-[468px] bg-white border border-[#d7d7d7] rounded-3xl p-8 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.1)] flex flex-col gap-8">
+            <div className="flex-1 min-w-[300px] max-w-[468px] bg-white border border-[#d7d7d7] rounded-2xl p-6 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.1)] flex flex-col gap-8">
               <h2 
                 className="font-bold text-[#000000] text-[18px] text-left leading-[22px] w-full"
                 style={{ fontFamily: 'var(--font-family-body)' }}
@@ -100,7 +103,8 @@ export default function DrivingLicensePage() {
 
               <button
                 onClick={handleBookHeavyVehicle}
-                className="w-full bg-white border border-[#a7a7a2] rounded-2xl h-11 flex items-center justify-center px-4 py-2 hover:bg-gray-50 transition-colors active:bg-gray-100"
+                className="w-full border border-[#a7a7a2] rounded-2xl h-11 flex items-center justify-center px-4 py-2 hover:opacity-90 transition-all active:opacity-80"
+                style={{ backgroundColor: '#FFFF80' }}
               >
                 <span 
                   className="font-bold text-[#000000] text-[18px] leading-[22px]"

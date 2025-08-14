@@ -9,6 +9,7 @@ import StatisticsPage from "../pages/Statistics/StatisticsPage";
 import ServicesPage from "../pages/Services/ServicesPage";
 import RegistrationsPage from "../pages/Registrations/RegistrationsPage";
 import DrivingLicensePage from "../pages/Services/DrivingLicensePage";
+import AppointmentBookingPage from "../pages/Services/AppointmentBookingPage";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
       { path: "/services", element: <ServicesPage /> },
       { path: "/services/registrations", element: <RegistrationsPage /> },
       { path: "/services/driving-license", element: <DrivingLicensePage /> },
+      { path: "/services/driving-license/book", element: <AppointmentBookingPage /> },
       { path: "/sign-in", element: <SignInPage /> },
       { path: "/sign-up", element: <SignUpPage /> },
       {
