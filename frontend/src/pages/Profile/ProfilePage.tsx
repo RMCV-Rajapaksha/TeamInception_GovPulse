@@ -36,21 +36,21 @@ export default function ProfilePage() {
                 icon={FiFolder}
                 title="My reports"
                 description="View and track all your reported issues"
-                onClick={() => console.log("My reports clicked")}
+                route="/myreports"
             />
             
              <ProfileListButton
                 icon={BiUpvote}
                 title="Upvoted issues"
                 description="See issues you’ve supported"
-                onClick={() => console.log("Upvoted clicked")}
+                route="/upvoted-issues"
             />
 
             <ProfileListButton
                 icon={FiCalendar}
                 title="Appointments"
                 description="Manage your appointments"
-                onClick={() => console.log("Appointments clicked")}
+                route="/appointments"
             />
             
           </TabsContent>

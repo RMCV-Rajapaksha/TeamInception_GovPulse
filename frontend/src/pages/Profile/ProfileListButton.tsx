@@ -1,16 +1,17 @@
 import { IoIosArrowForward } from "react-icons/io"
+import { Link } from "react-router-dom";
 
 type ProfileListButtonProps = {
   icon: React.ComponentType<{ size?: number }>;
   title: string;
   description: string;
-  onClick?: () => void;
+  route: string;
 };
 
-export default function ProfileListButton({ icon: Icon, title, description, onClick }: ProfileListButtonProps) {
+export default function ProfileListButton({ icon: Icon, title, description, route }: ProfileListButtonProps) {
   return (
-    <button
-      onClick={onClick}
+    <Link
+      to={route}
       className="w-full flex items-center justify-between p-4 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer"
     >
       {/* Left: Icon + Text */}
@@ -26,6 +27,6 @@ export default function ProfileListButton({ icon: Icon, title, description, onCl
 
       {/* Right: Arrow */}
       <IoIosArrowForward size={18} className="text-gray-400" />
-    </button>
+    </Link>
   )
 }
