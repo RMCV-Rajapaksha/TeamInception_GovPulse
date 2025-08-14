@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import { Calendar, TimeSlots, BookingButton, type TimeSlot } from '../../components/services';
+import { useNavigate } from 'react-router-dom';
 
 export default function AppointmentBookingPage() {
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
@@ -9,6 +10,7 @@ export default function AppointmentBookingPage() {
   const [selectedLocation, setSelectedLocation] = useState('');
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [locationSearchTerm, setLocationSearchTerm] = useState('');
+  const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -174,12 +176,15 @@ export default function AppointmentBookingPage() {
 
   const handleBookAppointment = () => {
     if (selectedDate && selectedTimeSlot) {
-      console.log('Booking appointment:', {
-        date: selectedDate,
-        timeSlot: selectedTimeSlot,
-        location: selectedLocation
+      const selectedTimeLabel = currentTimeSlots.find(s => s.id === selectedTimeSlot)?.time || '';
+      const dateTimeLabel = `${new Date(2025, 7, selectedDate).toLocaleDateString('en-US', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })} · ${selectedTimeLabel}`;
+      navigate('/services/driving-license/confirm', {
+        state: {
+          serviceLabel: 'Applying for Light Vehicles (B/B1) driving license',
+          selectedLocation,
+          dateTimeLabel,
+        }
       });
-      // TODO: Add booking logic
     }
   };
 
@@ -192,7 +197,7 @@ export default function AppointmentBookingPage() {
           <div className="flex flex-col gap-12 px-4 py-4 w-full">
             <div className="flex flex-col gap-4 p-0 w-full">
               <h1 
-                className="font-bold text-[#000000] text-[32px] text-left w-full leading-normal"
+                className="font-bold text-[#000000] text-2xl text-left w-full leading-normal"
                 style={{ fontFamily: 'var(--font-family-title)' }}
               >
                 Appointment booking
@@ -237,16 +242,16 @@ export default function AppointmentBookingPage() {
                 
                 <div className="flex flex-row gap-2 items-center justify-start w-full">
                   <div ref={dropdownRef} className="flex-1 flex flex-col gap-2 items-start justify-start min-w-0 relative">
-                    <div className="flex flex-row gap-2 items-center justify-start px-4 py-0 w-full">
+                    <div className="flex flex-row gap-2 items-center justify-start px-0 py-0 w-full">
                       <div 
-                        className="flex-1 text-[#000000] text-[12px] text-left leading-normal"
+                        className="flex-1 text-[#000000] text-[14px] text-left leading-normal"
                         style={{ fontFamily: 'var(--font-family-body)' }}
                       >
                         Choose a location
                       </div>
                     </div>
                     
-                    <div className="bg-[#ebebeb] flex flex-row items-center justify-start min-h-11 p-2 rounded-[16px] w-full relative">
+                    <div className="bg-[#ebebeb] flex flex-row items-center justify-start min-h-11 p-2 rounded-[8px] w-full relative">
                       <input
                         type="text"
                         placeholder={selectedLocation || "Search for a location..."}
@@ -275,7 +280,7 @@ export default function AppointmentBookingPage() {
                                 {location.name}
                               </div>
                               <div 
-                                className="text-[#888888] text-[12px] leading-normal"
+                                className="text-[#888888] text-[14px] leading-normal"
                                 style={{ fontFamily: 'var(--font-family-body)' }}
                               >
                                 {location.district} District, {location.province} Province
@@ -290,9 +295,9 @@ export default function AppointmentBookingPage() {
                       </div>
                     )}
                     
-                    <div className="flex flex-row gap-2 items-center justify-start px-4 py-0 w-full">
+                    <div className="flex flex-row gap-2 items-center justify-start py-0 w-full">
                       <div 
-                        className="flex-1 text-[#4b4b4b] text-[12px] text-left leading-normal"
+                        className="flex-1 text-[#4b4b4b] text-[14px] text-left leading-normal"
                         style={{ fontFamily: 'var(--font-family-body)' }}
                       >
                         Pick the most convenient government office to complete your appointment.
@@ -303,7 +308,7 @@ export default function AppointmentBookingPage() {
                   <div className="flex flex-row items-center self-stretch">
                     <button 
                       onClick={toggleLocationDropdown}
-                      className="border border-[#bbbbbb] flex items-center justify-center w-11 h-11 p-4 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="border border-[#000000] bg-black flex items-center justify-center w-11 h-11 p-4 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <FiChevronDown className={`w-6 h-6 text-[#4b4b4b] transition-transform ${isLocationDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>

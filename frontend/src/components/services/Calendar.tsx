@@ -117,7 +117,6 @@ export default function Calendar({
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     // For week navigation, we'll move by 7 days
-    const currentWeekData = getCurrentWeekData();
     const targetDate = selectedDate || 14;
     const newDate = direction === 'next' ? targetDate + 7 : targetDate - 7;
     
@@ -256,9 +255,9 @@ export default function Calendar({
         <div className="flex flex-row items-center justify-between w-full px-4">
           <button 
             onClick={() => navigateWeek('prev')}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#f5f5f5] transition-colors"
+            className="flex items-center justify-center w-12 h-12 rounded-lg bg-white border border-[#e0e0e0] hover:bg-[#f5f5f5] hover:border-[#d0d0d0] transition-all shadow-sm"
           >
-            <CaretLeft size={20} className="text-[#4b4b4b]" />
+            <CaretLeft size={24} className="text-[#4b4b4b]" />
           </button>
           
           <div className="text-[#000000] text-[18px] font-bold" style={{ fontFamily: 'var(--font-family-body, Satoshi)' }}>
@@ -267,9 +266,9 @@ export default function Calendar({
           
           <button 
             onClick={() => navigateWeek('next')}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#f5f5f5] transition-colors"
+            className="flex items-center justify-center w-12 h-12 rounded-lg bg-white border border-[#e0e0e0] hover:bg-[#f5f5f5] hover:border-[#d0d0d0] transition-all shadow-sm"
           >
-            <CaretRight size={20} className="text-[#4b4b4b]" />
+            <CaretRight size={24} className="text-[#4b4b4b]" />
           </button>
         </div>
         
@@ -349,9 +348,9 @@ export default function Calendar({
         <div className="flex flex-row items-center justify-between w-full px-4">
           <button 
             onClick={() => navigateDay('prev')}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#f5f5f5] transition-colors"
+            className="flex items-center justify-center w-12 h-12 rounded-lg bg-white border border-[#e0e0e0] hover:bg-[#f5f5f5] hover:border-[#d0d0d0] transition-all shadow-sm"
           >
-            <CaretLeft size={20} className="text-[#4b4b4b]" />
+            <CaretLeft size={24} className="text-[#4b4b4b]" />
           </button>
           
           <div className="text-[#000000] text-[18px] font-bold" style={{ fontFamily: 'var(--font-family-body, Satoshi)' }}>
@@ -360,9 +359,9 @@ export default function Calendar({
           
           <button 
             onClick={() => navigateDay('next')}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#f5f5f5] transition-colors"
+            className="flex items-center justify-center w-12 h-12 rounded-lg bg-white border border-[#e0e0e0] hover:bg-[#f5f5f5] hover:border-[#d0d0d0] transition-all shadow-sm"
           >
-            <CaretRight size={20} className="text-[#4b4b4b]" />
+            <CaretRight size={24} className="text-[#4b4b4b]" />
           </button>
         </div>
         
@@ -462,9 +461,9 @@ export default function Calendar({
             <div className="flex flex-row items-center justify-between w-full px-4">
               <button 
                 onClick={() => navigateMonth('prev')}
-                className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#f5f5f5] transition-colors"
+                className="flex items-center justify-center w-12 h-12 rounded-lg bg-white border border-[#e0e0e0] hover:bg-[#f5f5f5] hover:border-[#d0d0d0] transition-all shadow-sm"
               >
-                <CaretLeft size={20} className="text-[#4b4b4b]" />
+                <CaretLeft size={24} className="text-[#4b4b4b]" />
               </button>
               
               <div className="text-[#000000] text-[18px] font-bold" style={{ fontFamily: 'var(--font-family-body, Satoshi)' }}>
@@ -473,9 +472,9 @@ export default function Calendar({
               
               <button 
                 onClick={() => navigateMonth('next')}
-                className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#f5f5f5] transition-colors"
+                className="flex items-center justify-center w-12 h-12 rounded-lg bg-white border border-[#e0e0e0] hover:bg-[#f5f5f5] hover:border-[#d0d0d0] transition-all shadow-sm"
               >
-                <CaretRight size={20} className="text-[#4b4b4b]" />
+                <CaretRight size={24} className="text-[#4b4b4b]" />
               </button>
             </div>
 

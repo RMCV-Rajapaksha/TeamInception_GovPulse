@@ -1,3 +1,5 @@
+import { CheckCircle } from "@phosphor-icons/react";
+
 interface TimeSlot {
   id: string;
   time: string;
@@ -34,7 +36,7 @@ export default function TimeSlots({
     }
     
     if (selectedTimeSlot === slot.id) {
-      return `${baseClasses} bg-[#ffffff] border-[2px] border-solid border-[#141414] cursor-pointer`;
+      return `${baseClasses} bg-[#fffbeb] border-[2px] border-solid border-[#eab308] cursor-pointer`;
     }
     
     return `${baseClasses} bg-[#ffffff] border-[1px] border-solid border-[#A7A7A2] cursor-pointer hover:bg-[#f9f9f9] transition-colors`;
@@ -42,10 +44,10 @@ export default function TimeSlots({
 
   const getSlotTextClasses = (slot: TimeSlot) => {
     if (!slot.available) {
-      return "text-[#bbbbbb] text-[12px] text-center leading-normal";
+      return "text-[#bbbbbb] text-[14px] text-center leading-normal";
     }
     
-    return "text-[#000000] text-[12px] text-center leading-normal";
+    return "text-[#000000] text-[14px] text-center leading-normal";
   };
 
   // Group slots into rows of 3
@@ -118,12 +120,24 @@ export default function TimeSlots({
                   disabled={!slot.available}
                   className={getSlotClasses(slot)}
                 >
-                  <div 
-                    className={getSlotTextClasses(slot)}
-                    style={{ fontFamily: 'var(--font-family-body, Satoshi)' }}
-                  >
-                    {slot.time}
-                  </div>
+                  {selectedTimeSlot === slot.id ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <CheckCircle size={32} className="text-[#eab308]" weight="fill" />
+                      <div 
+                        className={getSlotTextClasses(slot)}
+                        style={{ fontFamily: 'var(--font-family-body, Satoshi)' }}
+                      >
+                        {slot.time}
+                      </div>
+                    </div>
+                  ) : (
+                    <div 
+                      className={getSlotTextClasses(slot)}
+                      style={{ fontFamily: 'var(--font-family-body, Satoshi)' }}
+                    >
+                      {slot.time}
+                    </div>
+                  )}
                 </button>
               ))}
               {/* Fill empty slots in the row */}
