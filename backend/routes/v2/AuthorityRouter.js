@@ -1,7 +1,7 @@
-const {getAuthorities} = require("../controllers/AuthorityController");
-const {verifyToken, verifyOfficialToken} = require("../middleware/verifyToken");
+const {getAuthorities} = require("../../controllers/v2/AuthorityController");
+const { verifyOfficialToken} = require("../../middleware/verifyToken");
 const {clerkMiddleware} = require("@clerk/express");
-const {addUserIdFromClerk} = require("../middleware/processClerkToken");
+const {addUserIdFromClerk} = require("../../middleware/processClerkToken");
 const express = require("express");
 const router = express.Router();
 

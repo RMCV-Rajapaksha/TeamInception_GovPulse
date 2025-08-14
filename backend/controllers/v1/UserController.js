@@ -1,4 +1,4 @@
-const { PrismaClient } = require("../generated/prisma");
+const { PrismaClient } = require("../../generated/prisma");
 const {clerkClient} = require("@clerk/express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");

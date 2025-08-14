@@ -15,9 +15,6 @@ tags:
     description: endpoints related to appointments
   - name: images-related
     description: endpoints related to image generation and signatures
-  - name: v2-clerk-supported
-    description: endpoints that support usage of Clerk for various features
-
 paths:
   /api/generate-image-signature:
     get:
@@ -295,53 +292,7 @@ paths:
       deprecated: false
       security: 
         - BearerAuth: []
-  /api/issues/v2/create:
-    post:
-      summary: Create a new issue (v2)
-      operationId: createIssueV2
-      description: Allows a user to create a new issue (v2). Note that this requires clerk token from frontend.
-      tags:
-        - issues-related
-        - v2-clerk-supported
-      requestBody:
-        description: Contains the details of the issue to be created
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/models.issueCreateReqObj"
-      responses:
-        "200":
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/models.issueCreateResObj"
-        "400":
-          description: Bad Request - Invalid input data
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: Bad Request - Invalid input data
-        "401":
-          description: Unauthorized - Invalid token
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: Unauthorized - Invalid token
-        "500":
-          description: Internal Server Error
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: Internal Server Error
-      deprecated: false
-      security:
-        - BearerAuth: []
-  /api/issues/delete-issue/{issue_id}:
+    /api/issues/delete-issue/{issue_id}:
     delete:
       summary: Delete an issue
       operationId: deleteIssue

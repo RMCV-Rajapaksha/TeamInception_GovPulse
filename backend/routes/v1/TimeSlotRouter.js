@@ -3,8 +3,8 @@ const {
     addFreeTimeSlot,
     removeFreeTimeSlot,
     getFreeTimeSlotsOfAnAuthority,
-} = require("../controllers/TimeSlotController");
-const { verifyOfficialToken } = require("../middleware/verifyToken");
+} = require("../../controllers/v1/TimeSlotController");
+const { verifyOfficialToken } = require("../../middleware/verifyToken");
 const express = require("express");
 const router = express.Router();
 
