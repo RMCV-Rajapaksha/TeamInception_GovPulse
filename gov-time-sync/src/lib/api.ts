@@ -58,6 +58,44 @@ export interface UpdateCommentRequest {
   comment: string;
 }
 
+export interface Issue {
+  issue_id: number;
+  title: string;
+  description: string;
+  gs_division?: string;
+  ds_division?: string;
+  urgency_score: number;
+  image_urls?: string;
+  created_at: string;
+  updated_at: string;
+  User: {
+    user_id: number;
+    first_name?: string;
+    last_name?: string;
+    email: string;
+  };
+  Issue_Status: {
+    status_id: number;
+    status_name: string;
+  };
+  Authority: {
+    authority_id: number;
+    name: string;
+    ministry?: string;
+  };
+  Category: {
+    category_id: number;
+    category_name: string;
+  };
+}
+
+export interface AuthorityIssuesResponse {
+  message: string;
+  authority_id: number;
+  total_issues: number;
+  issues: Issue[];
+}
+
 class ApiClient {
   private getAuthHeaders() {
     const token = localStorage.getItem('token');
@@ -304,6 +342,41 @@ class ApiClient {
       headers: {
         ...this.getAuthHeaders(),
       },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    return response.json();
+  }
+
+  // Issue methods
+  async getAuthorityIssues(): Promise<AuthorityIssuesResponse> {
+    const response = await fetch(`${API_BASE_URL}/issues/authority-issues`, {
+      method: 'GET',
+      headers: {
+        ...this.getAuthHeaders(),
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    return response.json();
+  }
+
+  async updateIssueStatus(issueId: number, statusId: number) {
+    const response = await fetch(`${API_BASE_URL}/issues/update-status/${issueId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify({ status_id: statusId }),
     });
 
     if (!response.ok) {

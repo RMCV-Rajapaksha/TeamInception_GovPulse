@@ -46,12 +46,9 @@ const createIssue = async (req, res) => {
 
     // Validate input data
     if (!title || !description || !authority_id || !category_id) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "title, description, authority_id and category_id are required",
-        });
+      return res.status(400).json({
+        error: "title, description, authority_id and category_id are required",
+      });
     }
     urgency_score_generated = await getUrgencyScore(
       title,
@@ -217,6 +214,129 @@ const getIssueById = async (req, res) => {
   }
 };
 
+const updateIssueStatus = async (req, res) => {
+  try {
+    const { official } = req; // Extract official info from the request object
+    if (!official) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized - Official access required" });
+    }
+
+    const { issue_id } = req.params;
+    const { status_id } = req.body;
+
+    // Validate input data
+    if (!issue_id) {
+      return res.status(400).json({ error: "Issue ID is required" });
+    }
+
+    if (!status_id) {
+      return res.status(400).json({ error: "Status ID is required" });
+    }
+
+    // Check if the issue exists first
+    const existingIssue = await prisma.issue.findUnique({
+      where: { issue_id: parseInt(issue_id) },
+      include: {
+        Authority: true,
+      },
+    });
+
+    if (!existingIssue) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    // Verify that the official has authority to update this issue
+    if (existingIssue.authority_id !== parseInt(official.authority_id)) {
+      return res.status(403).json({
+        error:
+          "Forbidden - You can only update issues assigned to your authority",
+      });
+    }
+
+    // Update the issue status
+    const updatedIssue = await prisma.issue.update({
+      where: { issue_id: parseInt(issue_id) },
+      data: {
+        Issue_Status: {
+          connect: { status_id: parseInt(status_id) },
+        },
+        updated_at: new Date(), // Update the timestamp
+      },
+      include: {
+        User: true,
+        Issue_Status: true,
+        Authority: true,
+        Category: true,
+      },
+    });
+
+    // Send a 200 OK response with the updated issue
+    res.status(200).json({
+      message: "Issue status updated successfully",
+      issue: updatedIssue,
+    });
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Failed to update issue status:", error);
+
+    // Handle specific Prisma errors
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "Issue or status not found" });
+    }
+
+    // Send a 500 Internal Server Error response
+    res
+      .status(500)
+      .json({ message: "An error occurred while updating the issue status." });
+  }
+};
+
+const getAuthorityIssues = async (req, res) => {
+  try {
+    const { official } = req; // Extract official info from the request object
+    if (!official) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized - Official access required" });
+    }
+
+    // Fetch all issues assigned to the official's authority
+    const issues = await prisma.issue.findMany({
+      where: {
+        authority_id: parseInt(official.authority_id),
+      },
+      include: {
+        User: true, // Include user information
+        Issue_Status: true, // Include status information
+        Authority: true, // Include authority information
+        Category: true, // Include category information
+      },
+      orderBy: [
+        { urgency_score: "desc" }, // Order by urgency score (highest first)
+        { created_at: "desc" }, // Then by creation date (newest first)
+      ],
+    });
+
+    // Send a 200 OK response with the fetched issues
+    res.status(200).json({
+      message: `Found ${issues.length} issues for authority ID ${official.authority_id}`,
+      authority_id: official.authority_id,
+      total_issues: issues.length,
+      issues: issues,
+    });
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Failed to fetch authority issues:", error);
+
+    // Send a 500 Internal Server Error response
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching authority issues." });
+  }
+};
+
 module.exports = {
   test,
   createIssue,
@@ -224,4 +344,6 @@ module.exports = {
   getUserIssues,
   getIssueById,
   getIssues,
+  updateIssueStatus,
+  getAuthorityIssues,
 };
