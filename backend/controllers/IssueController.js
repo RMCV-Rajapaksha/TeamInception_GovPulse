@@ -259,10 +259,7 @@ const updateIssueStatus = async (req, res) => {
     const updatedIssue = await prisma.issue.update({
       where: { issue_id: parseInt(issue_id) },
       data: {
-        Issue_Status: {
-          connect: { status_id: parseInt(status_id) },
-        },
-        updated_at: new Date(), // Update the timestamp
+        status_id: parseInt(status_id),
       },
       include: {
         User: true,
