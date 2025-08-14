@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Menu, X, Calendar, BarChart3, Home, LogOut } from "lucide-react";
+import { Menu, X, Calendar, BarChart3, Home, LogOut, CalendarCheck } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 interface AuthenticatedNavigationProps {
@@ -39,6 +39,18 @@ export const AuthenticatedNavigation = ({ onLogout }: AuthenticatedNavigationPro
               <Link to="/">
                 <Home className="h-4 w-4 mr-2" />
                 Dashboard
+              </Link>
+            </Button>
+            <Button 
+              variant="ghost" 
+              className={`text-primary-foreground hover:bg-white/10 ${
+                isActive('/appointments') ? 'bg-white/20' : ''
+              }`}
+              asChild
+            >
+              <Link to="/appointments">
+                <CalendarCheck className="h-4 w-4 mr-2" />
+                Appointments
               </Link>
             </Button>
             <Button 
@@ -92,6 +104,18 @@ export const AuthenticatedNavigation = ({ onLogout }: AuthenticatedNavigationPro
                 <Link to="/">
                   <Home className="h-4 w-4 mr-2" />
                   Dashboard
+                </Link>
+              </Button>
+              <Button 
+                variant="ghost" 
+                className={`w-full text-left text-primary-foreground hover:bg-white/10 ${
+                  isActive('/appointments') ? 'bg-white/20' : ''
+                }`}
+                asChild
+              >
+                <Link to="/appointments">
+                  <CalendarCheck className="h-4 w-4 mr-2" />
+                  Appointments
                 </Link>
               </Button>
               <Button 
