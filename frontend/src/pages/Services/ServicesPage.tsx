@@ -1,79 +1,109 @@
 import { useState } from "react";
 import { FiSearch, FiChevronRight } from "react-icons/fi";
+import { 
+  Plant, 
+  CurrencyDollar, 
+  ClipboardText, 
+  WifiHigh, 
+  GraduationCap, 
+  Briefcase, 
+  Tree, 
+  Hospital, 
+  House, 
+  Scales, 
+  Factory, 
+  Airplane 
+} from "@phosphor-icons/react";
 
-// Service categories data
+// Phosphor Icon Component Map
+const PhosphorIcons = {
+  Plant,
+  CurrencyDollar,
+  ClipboardText,
+  WifiHigh,
+  GraduationCap,
+  Briefcase,
+  Tree,
+  Hospital,
+  House,
+  Scales,
+  Factory,
+  Airplane
+} as const;
+
+// Service categories data with Phosphor icons
 const serviceCategories = [
   {
     id: "agriculture",
     title: "Agriculture & Fisheries",
     description: "Grow, farm, and fishery-related services",
-    icon: "🌾"
+    icon: "Plant" as keyof typeof PhosphorIcons
   },
   {
     id: "finance",
     title: "Finance & Taxes",
     description: "Banking, tax, insurance, and money services",
-    icon: "💰"
+    icon: "CurrencyDollar" as keyof typeof PhosphorIcons
   },
   {
     id: "registrations",
     title: "Registrations & Licenses",
     description: "Birth, marriage, driving license, visas",
-    icon: "📋"
+    icon: "ClipboardText" as keyof typeof PhosphorIcons
   },
   {
     id: "communication",
     title: "Communication & Media",
     description: "Media, telecom, and culture",
-    icon: "📡"
+    icon: "WifiHigh" as keyof typeof PhosphorIcons
   },
   {
     id: "education",
     title: "Education & Training",
     description: "Primary, secondary, vocational education",
-    icon: "🎓"
+    icon: "GraduationCap" as keyof typeof PhosphorIcons
   },
   {
     id: "employment",
     title: "Employment & Skills",
     description: "EPF, ETF, pensions, skills",
-    icon: "💼"
+    icon: "Briefcase" as keyof typeof PhosphorIcons
   },
   {
     id: "environment",
     title: "Environment",
     description: "Environmental services and permits",
-    icon: "🌱"
+    icon: "Tree" as keyof typeof PhosphorIcons
   },
   {
     id: "health",
     title: "Health & Social Services",
     description: "Healthcare, welfare, and NGOs",
-    icon: "🏥"
+    icon: "Hospital" as keyof typeof PhosphorIcons
   },
   {
     id: "housing",
     title: "Housing & Utilities",
     description: "Property, land, housing, water, electricity",
-    icon: "🏠"
+    icon: "House" as keyof typeof PhosphorIcons
   },
   {
     id: "law",
     title: "Law & Public Safety",
     description: "Justice, security, and rights",
-    icon: "⚖️"
+    icon: "Scales" as keyof typeof PhosphorIcons
   },
   {
     id: "business",
     title: "Business & Industry",
     description: "Trade, industry, economic statistics",
-    icon: "🏭"
+    icon: "Factory" as keyof typeof PhosphorIcons
   },
   {
     id: "travel",
     title: "Travel & Leisure",
     description: "Tourism, transport, leisure services",
-    icon: "✈️"
+    icon: "Airplane" as keyof typeof PhosphorIcons
   }
 ];
 
@@ -142,7 +172,18 @@ export default function ServicesPage() {
               >
                 {/* Icon Container */}
                 <div className="bg-[#ebebeb] box-border flex flex-row gap-2 items-center justify-center p-[6px] sm:p-[8px] relative rounded-lg flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
-                  <span className="text-base sm:text-lg">{service.icon}</span>
+                  {(() => {
+                    const IconComponent = PhosphorIcons[service.icon];
+                    return IconComponent ? (
+                      <IconComponent 
+                        size={20} 
+                        weight="regular" 
+                        className="text-[#4b4b4b]"
+                      />
+                    ) : (
+                      <span className="text-base sm:text-lg">{service.icon}</span>
+                    );
+                  })()}
                 </div>
 
                 {/* Service Info */}
