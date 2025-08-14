@@ -89,6 +89,46 @@ export interface Issue {
   };
 }
 
+export interface Feedback {
+  feedback_id: number;
+  appointment_id: number;
+  rating: number;
+  comment?: string;
+  Appointment?: {
+    appointment_id: number;
+    date: string;
+    time_slot: string;
+    User: {
+      user_id: number;
+      first_name?: string;
+      last_name?: string;
+      name?: string;
+      email: string;
+    };
+    Authority: {
+      authority_id: number;
+      name: string;
+      ministry?: string;
+    };
+  };
+}
+
+export interface CreateFeedbackRequest {
+  appointment_id: number;
+  rating: number;
+  comment?: string;
+}
+
+export interface UpdateFeedbackRequest {
+  rating?: number;
+  comment?: string;
+}
+
+export interface FeedbackResponse {
+  feedbacks: Feedback[];
+  count: number;
+}
+
 export interface AuthorityIssuesResponse {
   message: string;
   authority_id: number;
@@ -377,6 +417,85 @@ class ApiClient {
         ...this.getAuthHeaders(),
       },
       body: JSON.stringify({ status_id: statusId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    return response.json();
+  }
+
+  // Feedback methods
+  async getAllFeedback(authorityId?: number, limit?: number, offset?: number): Promise<FeedbackResponse> {
+    const params = new URLSearchParams();
+    if (authorityId) params.append('authority_id', authorityId.toString());
+    if (limit) params.append('limit', limit.toString());
+    if (offset) params.append('offset', offset.toString());
+
+    const response = await fetch(`${API_BASE_URL}/feedback/all?${params.toString()}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    return response.json();
+  }
+
+  async getFeedbackByAppointmentId(appointmentId: number): Promise<{ feedback: Feedback }> {
+    const response = await fetch(`${API_BASE_URL}/feedback/appointment/${appointmentId}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    return response.json();
+  }
+
+  async createFeedback(data: CreateFeedbackRequest): Promise<{ message: string; feedback: Feedback }> {
+    const response = await fetch(`${API_BASE_URL}/feedback/create-feedback`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    return response.json();
+  }
+
+  async updateFeedback(appointmentId: number, data: UpdateFeedbackRequest): Promise<{ message: string; feedback: Feedback }> {
+    const response = await fetch(`${API_BASE_URL}/feedback/appointment/${appointmentId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    return response.json();
+  }
+
+  async deleteFeedback(appointmentId: number): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/feedback/appointment/${appointmentId}`, {
+      method: 'DELETE',
     });
 
     if (!response.ok) {
