@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FiSearch, FiChevronRight } from "react-icons/fi";
 import { 
   Plant, 
@@ -109,6 +110,7 @@ const serviceCategories = [
 
 export default function ServicesPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   const filteredServices = serviceCategories.filter(
     service =>
@@ -118,7 +120,12 @@ export default function ServicesPage() {
 
   const handleServiceClick = (serviceId: string) => {
     // Navigate to specific service category
-    console.log(`Navigate to service: ${serviceId}`);
+    if (serviceId === "registrations") {
+      navigate("/services/registrations");
+    } else {
+      // For other services, just log for now
+      console.log(`Navigate to service: ${serviceId}`);
+    }
   };
 
   return (
@@ -171,7 +178,7 @@ export default function ServicesPage() {
                 className="w-full bg-[#ffffff] box-border flex flex-row gap-3 sm:gap-4 items-center justify-start px-0 py-3 sm:py-2 relative hover:bg-gray-50 transition-colors active:bg-gray-100"
               >
                 {/* Icon Container */}
-                <div className="bg-[#ebebeb] box-border flex flex-row gap-2 items-center justify-center p-[6px] sm:p-[8px] relative rounded-lg flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
+                <div className="bg-[#ebebeb] box-border flex flex-row gap-2 items-center justify-center p-[6px] sm:p-[8px] relative rounded-[8px] flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
                   {(() => {
                     const IconComponent = PhosphorIcons[service.icon];
                     return IconComponent ? (

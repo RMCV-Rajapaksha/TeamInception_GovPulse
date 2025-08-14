@@ -10,7 +10,7 @@ export default function DesktopSidebar() {
           end
           className={({ isActive }) =>
             [
-              "self-stretch p-2 rounded-lg inline-flex justify-start items-center gap-2 transition-colors",
+              "self-stretch p-2 rounded-[8px] inline-flex justify-start items-center gap-2 transition-colors",
               isActive
                 ? "bg-gray-900 text-white"
                 : "text-gray-600 hover:bg-gray-100",
@@ -39,7 +39,7 @@ export default function DesktopSidebar() {
           to="/stats"
           className={({ isActive }) =>
             [
-              "self-stretch p-2 rounded-lg inline-flex justify-start items-center gap-2 transition-colors",
+              "self-stretch p-2 rounded-[8px] inline-flex justify-start items-center gap-2 transition-colors",
               isActive
                 ? "bg-gray-900 text-white"
                 : "text-gray-600 hover:bg-gray-100",
@@ -68,7 +68,7 @@ export default function DesktopSidebar() {
           to="/services"
           className={({ isActive }) =>
             [
-              "self-stretch p-2 rounded-lg inline-flex justify-start items-center gap-2 transition-colors",
+              "self-stretch p-2 rounded-[8px] inline-flex justify-start items-center gap-2 transition-colors",
               isActive
                 ? "bg-gray-900 text-white"
                 : "text-gray-600 hover:bg-gray-100",

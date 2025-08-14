@@ -7,6 +7,8 @@ import SignInPage from "../pages/Auth/SignInPage";
 import SignUpPage from "../pages/Auth/SignUpPage";
 import StatisticsPage from "../pages/Statistics/StatisticsPage";
 import ServicesPage from "../pages/Services/ServicesPage";
+import RegistrationsPage from "../pages/Registrations/RegistrationsPage";
+import DrivingLicensePage from "../pages/Services/DrivingLicensePage";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +17,8 @@ export const router = createBrowserRouter([
       { path: "/", element: <HomePage /> },
       { path: "/stats", element: <StatisticsPage /> },
       { path: "/services", element: <ServicesPage /> },
+      { path: "/services/registrations", element: <RegistrationsPage /> },
+      { path: "/services/driving-license", element: <DrivingLicensePage /> },
       { path: "/sign-in", element: <SignInPage /> },
       { path: "/sign-up", element: <SignUpPage /> },
       {
