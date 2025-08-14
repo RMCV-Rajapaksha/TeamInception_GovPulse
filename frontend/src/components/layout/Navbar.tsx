@@ -76,9 +76,27 @@ export default function Navbar() {
               </button>
               
               {isNotificationOpen && (
-                <div className="absolute right-0 top-full mt-2 z-50">
+                <div className="absolute right-0 top-full mt-2 z-50 w-[90vw] max-w-xs sm:w-80">
                   <NotificationPopup
-                    notifications={[]}
+                    notifications={[
+  {
+    id: "1",
+    type: "appointment",
+    title: "Invite to Schedule Appointment",
+    description: "...",
+    date: "2 Aug 2025 — 9:45 AM",
+    onScheduleNow: () => {},
+    onNotNow: () => {},
+  },
+  {
+    id: "2",
+    type: "issue",
+    title: "Your issue is gaining traction!",
+    description: "...",
+    date: "2 Aug 2025 — 9:45 AM",
+    onViewIssue: () => {},
+  }
+]}
                     onClose={() => setIsNotificationOpen(false)}
                     onMarkAllRead={() => setIsNotificationOpen(false)}
                   />
