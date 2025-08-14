@@ -53,7 +53,8 @@ export default function ConfirmBookingPage() {
           serviceLabel,
           selectedLocation: locationLabel,
           dateTimeLabel,
-          qrCodeData: result.qrCodeSvg // Base64 encoded SVG from backend
+          qrCodeData: result.qrCodeSvg, // Base64 encoded SVG from backend
+          receiptHTML: result.receiptHTML // Base64 encoded HTML receipt
         }
       });
     } catch (error) {

@@ -13,6 +13,8 @@ import AppointmentBookingPage from "../pages/Services/AppointmentBookingPage";
 import ConfirmBookingPage from "../pages/Services/ConfirmBookingPage";
 import AppointmentConfirmationPage from "../pages/Services/AppointmentConfirmationPage";
 import QRVerificationPage from "../pages/QRVerificationPage";
+import ReceiptDemoPage from "../pages/ReceiptDemoPage";
+import FigmaPrintableDemoPage from "../pages/FigmaPrintableDemoPage";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +29,8 @@ export const router = createBrowserRouter([
       { path: "/services/driving-license/confirm", element: <ConfirmBookingPage /> },
       { path: "/services/driving-license/confirmed", element: <AppointmentConfirmationPage /> },
       { path: "/verify-qr", element: <QRVerificationPage /> },
+      { path: "/receipt-demo", element: <ReceiptDemoPage /> },
+      { path: "/figma-printable", element: <FigmaPrintableDemoPage /> },
       { path: "/sign-in", element: <SignInPage /> },
       { path: "/sign-up", element: <SignUpPage /> },
       {

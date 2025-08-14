@@ -86,7 +86,7 @@ export default function AppointmentConfirmation({
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-[#ffffff] flex flex-row gap-6 px-4 rounded-2xl w-full">
+      <div className="bg-[#ffffff] flex flex-row gap-6 px-4 rounded-2xl max-w-[1000px]">
         {/* Left Side - QR Code */}
         <div className="flex-1 flex flex-col gap-2 items-center p-0">
           <div className="flex flex-row gap-2 items-start justify-start w-full">
@@ -154,7 +154,7 @@ export default function AppointmentConfirmation({
           </div>
 
           {/* Date & Time */}
-          <div className="bg-[#ffffa5] rounded-lg p-2 flex flex-row gap-4 items-center">
+          <div className="bg-[#ffffa5] rounded-[8px] p-2 flex flex-row gap-4 items-center">
             <div className="rounded-3xl p-2 bg-gradient-to-b from-[#ffff7f] to-[#ffff00] relative shadow-[0_4px_4px_rgba(255,255,0,0.1),0_4px_12px_rgba(255,255,0,0.25)]">
               <div className="absolute inset-[-2px] rounded-[26px] border-2 border-[#ffffa5]" aria-hidden="true" />
               <Calendar size={24} className="text-[#000000]" />
@@ -166,7 +166,7 @@ export default function AppointmentConfirmation({
           </div>
 
           {/* Instructions */}
-          <div className="bg-neutral-100 flex flex-row gap-2 items-center justify-center px-4 py-2 rounded-lg border border-[#d7d7d7]">
+          <div className="bg-neutral-100 flex flex-row gap-2 items-center justify-center px-4 py-2 rounded-[8px] border border-[#d7d7d7]">
             <Info size={24} className="text-[#4b4b4b]" />
             <div
               className="flex-1 text-[#000000] text-[16px] tracking-[0.16px] leading-5"

@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { AppointmentConfirmation } from '../../components/services';
+import { generatePDFReceipt, downloadReceiptFromAPI } from '../../utils/pdfGenerator';
 
 export default function AppointmentConfirmationPage() {
   const location = useLocation();
@@ -10,6 +11,7 @@ export default function AppointmentConfirmationPage() {
     selectedLocation?: string;
     dateTimeLabel?: string;
     qrCodeData?: string;
+    receiptHTML?: string;
   };
 
   // Generate unique appointment ID if not provided
@@ -29,10 +31,46 @@ export default function AppointmentConfirmationPage() {
     window.open(calendarUrl, '_blank');
   };
 
-  const handleDownloadReceipt = () => {
-    // TODO: Generate and download PDF receipt
-    console.log('Generating receipt for appointment:', appointmentId);
-    alert('Receipt download will be implemented with backend integration');
+  const handleDownloadReceipt = async () => {
+    try {
+      console.log('Generating receipt for appointment:', appointmentId);
+      
+      // Option 1: Use receipt HTML from backend if available
+      if (state.receiptHTML) {
+        const receiptHTML = atob(state.receiptHTML); // Decode base64
+        const receiptWindow = window.open('', '_blank');
+        if (receiptWindow) {
+          receiptWindow.document.write(receiptHTML);
+          receiptWindow.document.close();
+          
+          // Trigger print dialog after content loads
+          receiptWindow.onload = () => {
+            setTimeout(() => {
+              receiptWindow.print();
+            }, 500);
+          };
+        }
+        return;
+      }
+      
+      // Option 2: Generate PDF client-side as fallback
+      const qrCodeElement = document.querySelector('canvas') as HTMLCanvasElement;
+      const qrCodeDataUrl = qrCodeElement ? qrCodeElement.toDataURL() : undefined;
+      
+      await generatePDFReceipt({
+        appointmentId,
+        userName,
+        serviceLabel,
+        locationLabel,
+        dateTimeLabel,
+        qrCodeDataUrl
+      });
+      
+      console.log('Receipt generated successfully');
+    } catch (error) {
+      console.error('Failed to generate receipt:', error);
+      alert('Failed to generate receipt. Please try again.');
+    }
   };
 
   return (

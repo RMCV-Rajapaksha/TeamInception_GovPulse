@@ -1,6 +1,7 @@
 const { PrismaClient } = require("../generated/prisma");
 const QRCode = require('qrcode');
 const crypto = require('crypto');
+const { generateReceiptHTML } = require('../utils/pdfGenerator');
 
 const prisma = new PrismaClient();
 
@@ -36,6 +37,27 @@ async function confirmAppointment(req, res) {
     // Generate appointment ID
     const appointmentId = generateAppointmentId(serviceType);
     
+    // Parse the custom date format: "Friday, 15 Aug 2025 · 10:00 AM"
+    const parseDateTimeString = (dateTimeStr) => {
+      try {
+        // Handle the custom format "Day, DD MMM YYYY · HH:MM AM/PM"
+        const cleanedDateTime = dateTimeStr.replace(' · ', ' ');
+        const parts = cleanedDateTime.split(', ');
+        if (parts.length >= 2) {
+          const dateTimePart = parts[1]; // "15 Aug 2025 10:00 AM"
+          return new Date(dateTimePart);
+        }
+        // Fallback to direct parsing
+        return new Date(dateTimeStr);
+      } catch (error) {
+        console.error('Error parsing date:', error);
+        // Return current date + 1 hour as fallback
+        return new Date(Date.now() + 60 * 60 * 1000);
+      }
+    };
+
+    const appointmentDate = parseDateTimeString(dateTime);
+    
     // Create QR code data
     const qrData = {
       appointmentId,
@@ -51,7 +73,7 @@ async function confirmAppointment(req, res) {
         dateTime
       }, process.env.QR_SECRET_KEY || 'default_secret_key'),
       generatedAt: new Date().toISOString(),
-      expiryDateTime: new Date(new Date(dateTime).getTime() + 60 * 60 * 1000).toISOString() // 1 hour after appointment
+      expiryDateTime: new Date(appointmentDate.getTime() + 60 * 60 * 1000).toISOString() // 1 hour after appointment
     };
 
     // Generate QR code as SVG
@@ -65,6 +87,17 @@ async function confirmAppointment(req, res) {
       }
     });
 
+    // Generate PDF receipt HTML
+    const receiptHTML = generateReceiptHTML({
+      appointmentId,
+      userName,
+      serviceType,
+      location: locationLabel,
+      dateTime,
+      qrCodeSvg: qrCodeSvg,
+      generatedAt: new Date().toISOString()
+    });
+
     // In a real application, you would save this to database
     // For now, we'll just return the data
     
@@ -73,6 +106,7 @@ async function confirmAppointment(req, res) {
       appointmentId,
       qrCodeSvg: Buffer.from(qrCodeSvg).toString('base64'),
       qrCodeData: JSON.stringify(qrData),
+      receiptHTML: Buffer.from(receiptHTML).toString('base64'),
       confirmationDetails: {
         appointmentId,
         userName,
@@ -148,7 +182,40 @@ async function verifyAppointment(req, res) {
   }
 }
 
+// Generate and download PDF receipt
+async function downloadReceipt(req, res) {
+  try {
+    const { appointmentId } = req.params;
+    
+    // In a real application, you would fetch appointment data from database
+    // For now, we'll use sample data
+    const appointmentData = {
+      appointmentId: appointmentId,
+      userName: 'John Doe',
+      serviceType: 'driving_license_b1',
+      location: 'Colombo DMV Office 1',
+      dateTime: new Date().toISOString(),
+      qrCodeSvg: null, // Could regenerate QR code here
+      generatedAt: new Date().toISOString()
+    };
+
+    const receiptHTML = generateReceiptHTML(appointmentData);
+    
+    res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Content-Disposition', `inline; filename="appointment-receipt-${appointmentId}.html"`);
+    res.send(receiptHTML);
+  } catch (error) {
+    console.error('Error generating receipt:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to generate receipt',
+      details: error.message 
+    });
+  }
+}
+
 module.exports = {
   confirmAppointment,
-  verifyAppointment
+  verifyAppointment,
+  downloadReceipt
 };
