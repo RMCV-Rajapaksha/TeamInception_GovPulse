@@ -4,14 +4,15 @@ require("dotenv").config();
 const app = express();
 const port = process.env.BACKEND_PORT || 4000;
 // v1 routers
-const issueRouter = require("./routes/IssueRouter");
-const userRouter = require("./routes/UserRouter");
-const officialRouter = require("./routes/OfficialRouter");
-const timeSlotRouter = require("./routes/TimeSlotRouter");
-const appointmentRouter = require("./routes/AppointmentRouter");
-const AuthorityRouter = require("./routes/AuthorityRouter");
-const generateImageSignatureRouter = require("./routes/GenerateImageSignatureRouter");
-const imageUploadRouter = require("./routes/ImageUploadRouter");
+const issueRouter = require("./routes/v1/IssueRouter");
+const userRouter = require("./routes/v1/UserRouter");
+const officialRouter = require("./routes/v1/OfficialRouter");
+const timeSlotRouter = require("./routes/v1/TimeSlotRouter");
+const appointmentRouter = require("./routes/v1/AppointmentRouter");
+const AuthorityRouter = require("./routes/v1/AuthorityRouter");
+const generateImageSignatureRouter = require("./routes/v1/GenerateImageSignatureRouter");
+const imageUploadRouter = require("./routes/v1/ImageUploadRouter");
+const upvoteRouter = require("./routes/v1/UpvoteRoute");
 
 // v2 routers
 const issueRouter = require("./routes/v2/IssueRouter");
@@ -22,6 +23,7 @@ const appointmentRouter = require("./routes/v2/AppointmentRouter");
 const AuthorityRouter = require("./routes/v2/AuthorityRouter");
 const generateImageSignatureRouter = require("./routes/v2/GenerateImageSignatureRouter");
 const imageUploadRouter = require("./routes/v2/ImageUploadRouter");
+const upvoteRouter = require("./routes/v2/UpvoteRoute");
 
 app.use(cors());
 app.use(express.json());
@@ -39,6 +41,7 @@ app.use("/api/v1/appointments", appointmentRouter);
 app.use("/api/v1/authorities", AuthorityRouter);
 app.use("/api/v1/generate-image-signature", generateImageSignatureRouter);
 app.use("/api/v1/upload-image", imageUploadRouter);
+app.use("/api/v1/upvotes", upvoteRouter);
 
 // v2 routes
 app.use("/api/v2/issues", issueRouter);
@@ -49,6 +52,7 @@ app.use("/api/v2/appointments", appointmentRouter);
 app.use("/api/v2/authorities", AuthorityRouter);
 app.use("/api/v2/generate-image-signature", generateImageSignatureRouter);
 app.use("/api/v2/upload-image", imageUploadRouter);
+app.use("/api/v2/upvotes", upvoteRouter);
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
