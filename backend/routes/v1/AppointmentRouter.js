@@ -1,19 +1,22 @@
 const {
-    bookAppointment,
-    getAppointmentById,
-    getUsersAppointments,
-    getAuthorityAppointments,
-    cancelAppointment,
-    addAttendeeToAppointment,
-    getAttendeesOfAppointment,
-    removeAttendeeFromAppointment,
-    addAttachmentFile,
-    getAttachmentByAppointmentId,
-    removefileFromAttachment,
-    sendOfficialUpdate,
-    rescheduleAppointment,
-} = require('../../controllers/v1/AppointmentController');
-const { verifyToken, verifyOfficialToken } = require("../../middleware/verifyToken");
+  bookAppointment,
+  getAppointmentById,
+  getUsersAppointments,
+  getAuthorityAppointments,
+  cancelAppointment,
+  addAttendeeToAppointment,
+  getAttendeesOfAppointment,
+  removeAttendeeFromAppointment,
+  addAttachmentFile,
+  getAttachmentByAppointmentId,
+  removefileFromAttachment,
+  sendOfficialUpdate,
+  rescheduleAppointment,
+} = require("../../controllers/v1/AppointmentController");
+const {
+  verifyToken,
+  verifyOfficialToken,
+} = require("../../middleware/verifyToken");
 const express = require("express");
 const router = express.Router();
 router.post("/book-appointment", verifyToken, bookAppointment);

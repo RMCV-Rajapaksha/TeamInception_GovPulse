@@ -1,5 +1,5 @@
-const { PrismaClient } = require("../generated/prisma");
-const notificationService = require("../utils/NotificationService");
+const { PrismaClient } = require("../../generated/prisma");
+const notificationService = require("../../utils/NotificationService");
 
 const prisma = new PrismaClient();
 
