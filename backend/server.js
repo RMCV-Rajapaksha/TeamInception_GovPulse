@@ -5,6 +5,9 @@ const fs = require("fs");
 const YAML = require("yaml");
 require("dotenv").config();
 
+// Initialize notification service
+// const notificationService = require("./utils/NotificationService");
+
 const app = express();
 const port = process.env.BACKEND_PORT || 4000;
 
@@ -20,6 +23,7 @@ const appointmentRouter = require("./routes/AppointmentRouter");
 const commentRouter = require("./routes/CommentRouter");
 const generateImageSignatureRouter = require("./routes/GenerateImageSignatureRouter");
 const imageUploadRouter = require("./routes/ImageUploadRouter");
+const notificationService = require("./utils/NotificationService");
 
 // Middleware
 app.use(cors());
