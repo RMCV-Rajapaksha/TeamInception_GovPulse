@@ -16,7 +16,7 @@ tags:
   - name: images-related
     description: endpoints related to image generation and signatures
 paths:
-  /api/generate-image-signature:
+  /api/v1/generate-image-signature:
     get:
       summary: Generate image signature
       operationId: generateImageSignature
@@ -51,7 +51,7 @@ paths:
       security: 
         - BearerAuth: []
 
-  /api/upload-image:
+  /api/v1/upload-image:
     post:
       summary: Upload multiple images
       operationId: uploadMultipleImages
@@ -146,7 +146,7 @@ paths:
                     example: "Internal server error during upload"
 
 
-  /api/users/signup:
+  /api/v1/users/signup:
     post:
       summary: User signup
       operationId: userSignup
@@ -176,7 +176,7 @@ paths:
       deprecated: false
       security: []
   
-  /api/users/login:
+  /api/v1/users/login:
     post:
       summary: User login
       operationId: userLogin
@@ -212,7 +212,7 @@ paths:
       deprecated: false
       security: []
 
-  /api/users/remove-account:
+  /api/v1/users/remove-account:
     delete:
       summary: Remove user account
       operationId: removeUserAccount
@@ -247,7 +247,7 @@ paths:
       deprecated: false
       security: 
         - BearerAuth: []
-  /api/issues/create:
+  /api/v1/issues/create:
     post:
       summary: Create a new issue
       operationId: createIssue
@@ -292,7 +292,7 @@ paths:
       deprecated: false
       security: 
         - BearerAuth: []
-    /api/issues/delete-issue/{issue_id}:
+  /api/v1/issues/delete-issue/{issue_id}:
     delete:
       summary: Delete an issue
       operationId: deleteIssue
@@ -342,7 +342,7 @@ paths:
       deprecated: false
       security: 
         - BearerAuth: []
-  /api/issues/user-issues:
+  /api/v1/issues/user-issues:
     get:
       summary: Get issues created by the user
       operationId: getUserIssues
@@ -368,7 +368,7 @@ paths:
       deprecated: false
       security: 
         - BearerAuth: []
-  /api/issues/issues:
+  /api/v1/issues/issues:
     get:
       summary: Get all issues
       operationId: getIssues
@@ -393,7 +393,7 @@ paths:
                 example: Internal Server Error
       deprecated: false
       security: []
-  /api/issues/issues/{issue_id}:
+  /api/v1/issues/issues/{issue_id}:
     get:
       summary: Get issue by ID
       operationId: getIssueById
@@ -431,7 +431,198 @@ paths:
                 example: Internal Server Error
       deprecated: false
       security: []
-  /api/officials/login:
+  /api/v1/v1/upvotes/add:
+    post:
+      summary: Add an upvote to an issue
+      operationId: addUpvote
+      description: Allows a user to upvote an issue
+      tags:
+        - issues-related
+      requestBody:
+        description: Contains the ID of the issue to be upvoted
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.addUpvoteReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Upvote added successfully
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/v1/v1/upvotes/remove/{issue_id}:
+    delete:
+      summary: Remove an upvote from an issue
+      operationId: removeUpvote
+      description: Allows a user to remove their upvote from an issue
+      tags:
+        - issues-related
+      parameters:
+        - name: issue_id
+          in: path
+          required: true
+          description: The ID of the issue from which the upvote is to be removed
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Upvote removed successfully
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Invalid input data
+        "401":
+          description: Unauthorized - Invalid token or insufficient permissions
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Invalid token or insufficient permissions              
+        "404":
+          description: Not Found - Issue not found or no upvote exists for the user
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Issue not found or no upvote exists for the user  
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/v1/v1/upvotes/count/{issue_id}:
+    get:
+      summary: Get upvote count for an issue
+      operationId: getUpvoteCount
+      description: Retrieves the count of upvotes for a specific issue
+      tags:
+        - issues-related
+      parameters:
+        - name: issue_id
+          in: path
+          required: true
+          description: The ID of the issue for which to retrieve the upvote count
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 42
+        "404":
+          description: Not Found - Issue not found or no upvotes exist for the issue
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Issue not found or no upvotes exist for the issue  
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security: []
+  /api/v1/v1/upvotes/has-upvoted/{issue_id}:
+    get:
+      summary: Check if a user has upvoted an issue
+      operationId: hasUserUpvoted
+      description: Checks if the authenticated user has already upvoted a specific issue
+      tags:
+        - issues-related
+      parameters:
+        - name: issue_id
+          in: path
+          required: true
+          description: The ID of the issue to check for upvote status
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response indicating whether the user has upvoted the issue
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_upvoted:
+                    type: boolean
+                    example: true
+        "404":
+          description: Not Found - Issue not found or no upvotes exist for the issue
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Issue not found or no upvotes exist for the issue  
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error  
+      deprecated: false
+      security:
+        - BearerAuth: []
+  /api/v1/officials/login:
     post:
       summary: Official login
       operationId: officialLogin
@@ -470,7 +661,7 @@ paths:
                 type: string
       deprecated: false
       security: []
-  /api/officials/register:
+  /api/v1/officials/register:
     post:
       summary: Official registration
       operationId: officialRegister
@@ -515,7 +706,7 @@ paths:
       deprecated: false
       security: []
 
-  /api/time-slots/view-free-time-slots:
+  /api/v1/time-slots/view-free-time-slots:
     get:
       summary: View free time slots
       operationId: viewFreeTimeSlots
@@ -548,7 +739,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/time-slots/add-free-time-slot:
+  /api/v1/time-slots/add-free-time-slot:
     post:
       summary: Create free time slot
       operationId: createFreeTimeSlot
@@ -599,7 +790,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/time-slots/remove-free-time-slot:
+  /api/v1/time-slots/remove-free-time-slot:
     post:
       summary: Remove free time slot
       operationId: removeFreeTimeSlot
@@ -665,7 +856,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/time-slots/get-free-time-slots-of-authority/{authority_id}:
+  /api/v1/time-slots/get-free-time-slots-of-authority/{authority_id}:
     get:
       summary: Get free time slots of an authority
       operationId: getFreeTimeSlotsOfAnAuthority
@@ -706,7 +897,7 @@ paths:
       deprecated: false
       security: []
   
-  /api/appointments/book-appointment:
+  /api/v1/appointments/book-appointment:
     post:
       summary: Book an appointment
       operationId: bookAppointment
@@ -757,7 +948,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/user-appointments:
+  /api/v1/appointments/user-appointments:
     get:
       summary: Get user appointments
       operationId: getUserAppointments
@@ -790,7 +981,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/authority-appointments:
+  /api/v1/appointments/authority-appointments:
     get:
       summary: Get authority appointments
       operationId: getAuthorityAppointments
@@ -823,7 +1014,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/appointment-by-id/{appointment_id}:
+  /api/v1/appointments/appointment-by-id/{appointment_id}:
     get:
       summary: Get appointment by ID
       operationId: getAppointmentById
@@ -862,7 +1053,7 @@ paths:
                 example: Internal Server Error  
       deprecated: false
       security: []
-  /api/appointments/cancel-appointment-by-user:
+  /api/v1/appointments/cancel-appointment-by-user:
     post:
       summary: Cancel appointment by user
       operationId: cancelAppointmentByUser
@@ -911,7 +1102,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/cancel-appointment-by-official:
+  /api/v1/appointments/cancel-appointment-by-official:
     post:
       summary: Cancel appointment by official
       operationId: cancelAppointmentByOfficial
@@ -960,7 +1151,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/add-attendee-by-user:
+  /api/v1/appointments/add-attendee-by-user:
     post:
       summary: Add attendee by user
       operationId: addAttendeeByUser
@@ -1011,7 +1202,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/add-attendee-by-official:
+  /api/v1/appointments/add-attendee-by-official:
     post:
       summary: Add attendee by official
       operationId: addAttendeeByOfficial
@@ -1062,7 +1253,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/attendees-of-appointment/{appointment_id}:
+  /api/v1/appointments/attendees-of-appointment/{appointment_id}:
     get:
       summary: Get attendees of an appointment
       operationId: getAttendeesOfAppointment
@@ -1102,7 +1293,7 @@ paths:
                 example: Internal Server Error  
       deprecated: false
       security: []
-  /api/appointments/remove-attendee-from-appointment-by-user/{attendee_id}:
+  /api/v1/appointments/remove-attendee-from-appointment-by-user/{attendee_id}:
     delete:
       summary: Remove attendee from appointment by user
       operationId: removeAttendeeFromAppointmentByUser
@@ -1152,7 +1343,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/remove-attendee-from-appointment-by-official/{attendee_id}:
+  /api/v1/appointments/remove-attendee-from-appointment-by-official/{attendee_id}:
     delete:
       summary: Remove attendee from appointment by official
       operationId: removeAttendeeFromAppointmentByOfficial
@@ -1202,7 +1393,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/add-attachment-file:
+  /api/v1/appointments/add-attachment-file:
     post:
       summary: Add attachment file to appointment
       operationId: addAttachmentFileToAppointment
@@ -1261,7 +1452,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/appointments/get-attachment-for-appointment/{appointment_id}:
+  /api/v1/appointments/get-attachment-for-appointment/{appointment_id}:
     get:
       summary: Get attachments of an appointment
       operationId: getAttachmentsOfAppointment
@@ -1299,7 +1490,7 @@ paths:
                 example: Internal Server Error  
       deprecated: false
       security: []
-  /api/appointments/remove-file-from-attachment:
+  /api/v1/appointments/remove-file-from-attachment:
     post:
       summary: Remove file from attachment
       operationId: removeFileFromAttachment
@@ -1362,7 +1553,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/authoauthorities/get-authorities-by-user:
+  /api/v1/authoauthorities/get-authorities-by-user:
     get:
       summary: Get authorities by user
       operationId: getAuthoritiesByUser
@@ -1395,7 +1586,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/authorities/get-authority-by-official:
+  /api/v1/authorities/get-authority-by-official:
     get:
       summary: Get authority by official
       operationId: getAuthorityByOfficial
@@ -1692,6 +1883,18 @@ components:
               type: integer
               format: int64
               example: 1
+    models.addUpvoteReqObj:
+      type: object
+      properties:
+        issue_id:
+          type: integer
+          format: int64
+          example: 12345
+        comment:
+          type: string
+          example: "This issue needs urgent attention."
+      required:
+        - issue_id
     models.addFreeTimeSlotReqObj:
       type: object
       properties:

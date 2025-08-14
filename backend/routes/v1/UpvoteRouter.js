@@ -7,12 +7,12 @@ const { verifyToken } = require("../../middleware/verifyToken");
 router.post("/add", verifyToken,upvoteController.addUpvote);
 
 // Remove an upvote
-router.delete("/remove",verifyToken, upvoteController.removeUpvote);
+router.delete("/remove/:issue_id",verifyToken, upvoteController.removeUpvote);
 
 // Get upvote count for an issue
 router.get("/count/:issue_id",verifyToken, upvoteController.getUpvoteCount);
 
 // Check if a user has already upvoted an issue
-router.post("/has-upvoted/:issue_id", verifyToken, upvoteController.hasUserUpvoted);
+router.get("/has-upvoted/:issue_id", verifyToken, upvoteController.hasUserUpvoted);
 
 module.exports = router;

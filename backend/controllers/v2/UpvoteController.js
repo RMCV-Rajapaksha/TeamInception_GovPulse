@@ -1,4 +1,4 @@
-const { PrismaClient } = require("../generated/prisma");
+const { PrismaClient } = require("../../generated/prisma");
 const prisma = new PrismaClient();
 
 /**
@@ -6,10 +6,12 @@ const prisma = new PrismaClient();
  */
 const addUpvote = async (req, res) => {
   try {
-    const { user } = req.user; // user object should have user_id
+    const { user } = req; // user object should have user_id
+    console.log("user" in req)
+    console.log("User from request:", user);
     const { issue_id, comment } = req.body;
 
-    if (!user?.user_id || !issue_id) {
+    if (!user.user_id || !issue_id) {
       return res.status(400).json({ error: "User ID and issue ID are required" });
     }
 
@@ -17,8 +19,8 @@ const addUpvote = async (req, res) => {
     const existingUpvote = await prisma.upvote.findUnique({
       where: {
         user_id_issue_id: {
-          user_id: user.user_id,
-          issue_id: issue_id
+          user_id: parseInt(user.user_id),
+          issue_id: parseInt(issue_id)
         }
       }
     });
@@ -30,8 +32,12 @@ const addUpvote = async (req, res) => {
     // Create upvote
     const newUpvote = await prisma.upvote.create({
       data: {
-        user_id: user.user_id,
-        issue_id: issue_id,
+        User:{
+          connect: { user_id: parseInt(user.user_id) }
+        },
+        Issue: {
+          connect: { issue_id: parseInt(issue_id) }
+        },
         comment: comment || null
       }
     });
@@ -52,8 +58,8 @@ const addUpvote = async (req, res) => {
  */
 const removeUpvote = async (req, res) => {
   try {
-    const { user } = req.body;
-    const { issue_id } = req.body;
+    const { user } = req;
+    const { issue_id } = req.params;
 
     if (!user?.user_id || !issue_id) {
       return res.status(400).json({ error: "User ID and issue ID are required" });
@@ -62,8 +68,8 @@ const removeUpvote = async (req, res) => {
     await prisma.upvote.delete({
       where: {
         user_id_issue_id: {
-          user_id: user.user_id,
-          issue_id: issue_id
+          user_id: parseInt(user.user_id),
+          issue_id: parseInt(issue_id)
         }
       }
     });
@@ -107,7 +113,7 @@ const getUpvoteCount = async (req, res) => {
  */
 const hasUserUpvoted = async (req, res) => {
   try {
-    const { user } = req.body;
+    const { user } = req;
     const { issue_id } = req.params;
 
     if (!user?.user_id || !issue_id) {
@@ -117,7 +123,7 @@ const hasUserUpvoted = async (req, res) => {
     const upvote = await prisma.upvote.findUnique({
       where: {
         user_id_issue_id: {
-          user_id: user.user_id,
+          user_id: parseInt(user.user_id),
           issue_id: parseInt(issue_id)
         }
       }

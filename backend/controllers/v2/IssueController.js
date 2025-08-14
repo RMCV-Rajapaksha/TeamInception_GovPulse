@@ -1,6 +1,6 @@
 const { parse } = require("dotenv");
-const { PrismaClient } = require("../generated/prisma");
-const { getUrgencyScore } = require("../utils/GeminiFunctions");
+const { PrismaClient } = require("../../generated/prisma");
+const { getUrgencyScore } = require("../../utils/GeminiFunctions");
 
 const prisma = new PrismaClient();
 

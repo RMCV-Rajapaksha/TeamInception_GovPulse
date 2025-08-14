@@ -12,7 +12,7 @@ const appointmentRouterV1 = require("./routes/v1/AppointmentRouter");
 const AuthorityRouterV1 = require("./routes/v1/AuthorityRouter");
 const generateImageSignatureRouterV1 = require("./routes/v1/GenerateImageSignatureRouter");
 const imageUploadRouterV1 = require("./routes/v1/ImageUploadRouter");
-const upvoteRouterV1 = require("./routes/v1/UpvoteRoute");
+const upvoteRouterV1 = require("./routes/v1/UpvoteRouter");
 
 // v2 routers
 const issueRouterV2 = require("./routes/v2/IssueRouter");
@@ -23,7 +23,7 @@ const appointmentRouterV2 = require("./routes/v2/AppointmentRouter");
 const AuthorityRouterV2 = require("./routes/v2/AuthorityRouter");
 const generateImageSignatureRouterV2 = require("./routes/v2/GenerateImageSignatureRouter");
 const imageUploadRouterV2 = require("./routes/v2/ImageUploadRouter");
-const upvoteRouterV2 = require("./routes/v2/UpvoteRoute");
+const upvoteRouterV2 = require("./routes/v2/UpvoteRouter");
 
 app.use(cors());
 app.use(express.json());
