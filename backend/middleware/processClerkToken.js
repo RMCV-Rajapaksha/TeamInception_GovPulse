@@ -25,7 +25,7 @@ const addRelatedUserFromDatabase = async (req, res, next) => {
     }
 
     // Assuming you have a function to fetch user details from your database
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       where: { clerk_user_id: userIdFromClerk },
     });
 
