@@ -50,6 +50,58 @@ Your Team
   }
 };
 
+
+
+
+
+const sendMeetingReminderEmail = async (userData) => {
+  const { Name, Email, date, timeslot, authority } = userData;
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: Email,
+    subject: `Reminder: Upcoming Meeting with ${authority}`,
+    text: `Hello ${Name},
+
+This is a reminder that you have a meeting scheduled with ${authority} in one hour.
+
+Date: ${date}
+Time Slot: ${timeslot}
+
+If you have any questions or need to reschedule, please contact ${authority}.
+
+Best regards,
+Your Team
+    `,
+    html: `
+      <h1>Meeting Reminder</h1>
+      <p>Hello <strong>${Name}</strong>,</p>
+      <p>This is a reminder that you have a meeting scheduled with <strong>${authority}</strong> in one hour.</p>
+      <h2>Meeting Details:</h2>
+      <ul>
+        <li><strong>Date:</strong> ${date}</li>
+        <li><strong>Time Slot:</strong> ${timeslot}</li>
+      </ul>
+      <p>If you have any questions or need to reschedule, please contact <strong>${authority}</strong>.</p>
+      <p>Best regards,</p>
+      <p>Your Team</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Meeting reminder email sent successfully");
+  } catch (error) {
+    console.error("Error sending meeting reminder email:", error);
+  }
+};
+
 module.exports = {
   sendScheduleConfirmationEmail,
+  sendMeetingReminderEmail,
 };
+
+
+
+
+
