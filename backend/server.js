@@ -14,6 +14,11 @@ const imageUploadRouter = require("./routes/ImageUploadRouter");
 
 app.use(cors());
 app.use(express.json());
+app.use((req,res,next)=>{
+  console.log(`${req.method} request for '${req.url}'`);
+  console.log("Request Headers:", req.headers);
+  next();
+})
 app.use("/api/issues", issueRouter);
 app.use("/api/users", userRouter);
 app.use("/api/officials", officialRouter);

@@ -1,17 +1,8 @@
 const { PrismaClient } = require("../generated/prisma");
 const prisma = new PrismaClient();
-const {getAuth, createClerkClient} = require("@clerk/express");
 
 const getAuthorities = async (req, res) => {
   try {
-    const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
-    console.log("Clerk Client:", clerkClient);
-    const { userId } = getAuth(req);
-    const userFromClerk = await clerkClient.users.getUser(userId);
-    const emailAddressId = userFromClerk.primaryEmailAddressId;
-    const emailAddress = await (await clerkClient.emailAddresses.getEmailAddress(emailAddressId)).emailAddress;
-    console.log("User from Clerk:", userFromClerk);
-    console.log("Email Address:", emailAddress);
     // Fetch all authorities from the database using the Prisma Client
     const authorities = await prisma.authorities.findMany();
 

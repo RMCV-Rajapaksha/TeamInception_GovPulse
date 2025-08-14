@@ -68,7 +68,7 @@ model User {
   profile_image_url String?
   home_address      String?
   dob               DateTime? @db.Date
-  clerk_user_id     String?
+  clerk_user_id     String?   @unique
   // Relations
   Issue       Issue[]
   Upvote      Upvote[]

@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 const addUserIdFromClerk = (req, res, next) => {
   try {
     const { userId } = getAuth(req);
+    console.log("User ID from Clerk:", userId);
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }

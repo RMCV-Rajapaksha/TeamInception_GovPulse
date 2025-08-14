@@ -17,7 +17,7 @@ router.get("/", getIssues);
 router.get("/:issue_id", getIssueById);
 router.get("/test", test);
 router.post("/create", verifyToken, createIssue);
-router.post("/v2/create", clerkMiddleware, addUserIdFromClerk, addRelatedUserFromDatabase, createIssue);
+router.post("/v2/create", clerkMiddleware(), addUserIdFromClerk, addRelatedUserFromDatabase, createIssue);
 router.delete("/delete-issue/:issue_id", verifyToken, deleteIssue);
 router.get("/user-issues", verifyToken, getUserIssues);
 module.exports = router;
