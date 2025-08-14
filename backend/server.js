@@ -5,6 +5,9 @@ const fs = require("fs");
 const YAML = require("yaml");
 require("dotenv").config();
 
+// Initialize notification service
+// const notificationService = require("./utils/NotificationService");
+
 const app = express();
 const port = process.env.BACKEND_PORT || 4000;
 // v1 routers

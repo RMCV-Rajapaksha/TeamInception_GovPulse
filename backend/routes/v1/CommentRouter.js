@@ -3,8 +3,8 @@ const {
   getAppointmentComment,
   updateAppointmentComment,
   deleteAppointmentComment,
-} = require("../controllers/CommentController");
-const { verifyOfficialToken } = require("../middleware/verifyToken");
+} = require("../../controllers/CommentController");
+const { verifyOfficialToken } = require("../../middleware/verifyToken");
 const express = require("express");
 const router = express.Router();
 
