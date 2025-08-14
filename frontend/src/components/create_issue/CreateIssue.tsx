@@ -1,26 +1,64 @@
-import React, { useRef, useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import React, { useEffect, useRef, useState } from "react";
 import IssueSuccessModal from "./IssueSuccessModal";
 import { FiX, FiChevronDown, FiUploadCloud } from "react-icons/fi";
 import ReactModal from "react-modal";
+import axios from "axios";
 
 interface CreateIssueProps {
   isReportedClicked: boolean;
   setIsReportedClicked: React.Dispatch<React.SetStateAction<boolean>>;
 }
+interface SectorOption {
+  authority_id: number;
+  name: string;
+}
 
-const gramaOptions = ["Moratuwa", "Panadura", "Dehiwala", "Maharagama"];
-const cityOptions = ["Moratuwa", "Colombo", "Kandy", "Galle"];
-const districtOptions = ["Colombo", "Gampaha", "Kalutara", "Kandy"];
-const sectorOptions = [
-  "Roads & Transport",
-  "Water Supply",
-  "Electricity",
-  "Waste Management",
-  "Other",
-];
-
+const backendAddress = import.meta.env.VITE_BACKEND_URL;
 
 export default function CreateIssue({ isReportedClicked, setIsReportedClicked }: CreateIssueProps) {
+  const { getToken } = useAuth();
+  const [imageUploadingInProgress, setImageUploadingInProgress] = useState<boolean>(false);
+  const [uploadCancelled, setUploadCancelled] = useState<boolean>(false);
+  const gramaOptions = ["Moratuwa", "Panadura", "Dehiwala", "Maharagama"];
+  const cityOptions = ["Moratuwa", "Colombo", "Kandy", "Galle"];
+  const districtOptions = ["Colombo", "Gampaha", "Kalutara", "Kandy"];
+  // const sectorOptions = [
+  //   "Roads & Transport",
+  //   "Water Supply",
+  //   "Electricity",
+  //   "Waste Management",
+  //   "Other", 
+  // ];
+  const [sectorOptions, setSectorOptions] = useState<SectorOption[]>([]);
+  useEffect(() => {
+    // Fetch sector options from the backend
+    const fetchSectors = async () => {
+      try {
+        const token = await getToken();
+        
+        // get backed address from .env file
+        // Replace with your actual API endpoint
+        await axios.get(`${backendAddress}/api/authorities/get-authorities-by-user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).then((res) => {
+          //  from response array of objects authority_id and name will be appended to sectorOptions
+          const sectorOptionsArray = res.data.map((sector: any) => ({
+            authority_id: sector.authority_id,
+            name: sector.name,
+          }));
+          setSectorOptions(sectorOptionsArray);
+          console.log("Sectors fetched successfully:", sectorOptions);
+        });
+      } catch (error) {
+        console.error("Error fetching sectors:", error);
+      }
+    };
+    fetchSectors();
+  },[])
+
   const [grama, setGrama] = useState(gramaOptions[0]);
   const [city, setCity] = useState(cityOptions[0]);
   const [district, setDistrict] = useState(districtOptions[0]);
@@ -60,8 +98,17 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleCancelUpload = () => {
+    setUploadCancelled(true);
+    setImageUploadingInProgress(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Reset cancel state
+    setUploadCancelled(false);
+    
     const newErrors: {
       grama?: string;
       city?: string;
@@ -78,6 +125,69 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
     if (!sector) newErrors.sector = "Please select a department to continue.";
     setErrors(newErrors);
   if (Object.keys(newErrors).length > 0) return;
+    // authorit_id in sectorOptions of object with name equal to sector
+  const selectedSector = sectorOptions.find((option) => option.name === sector);
+  if (!selectedSector) {
+    setErrors((prev) => ({ ...prev, sector: "Please select a valid government sector." }));
+    return;
+  }
+  const authority_id = selectedSector.authority_id;
+  const token = await getToken();
+  // if photos are present, upload them to backend and get their URLs
+  var image_urls: string[] = [];
+  if (photos.length > 0) {
+    const formData = new FormData();
+    photos.forEach((file) => {
+      formData.append("images", file);
+    });
+    setImageUploadingInProgress(true);
+    
+    try {
+      const res = await axios.post(`${backendAddress}/api/upload-image`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Check if upload was cancelled
+      if (uploadCancelled) {
+        setImageUploadingInProgress(false);
+        return;
+      }
+      
+      // response contains a an array property named images, in each element property called url is present
+      image_urls = res.data.images.map((image: { url: string }) => image.url);
+      console.log("Uploaded image URLs:", image_urls);
+    } catch (error) {
+      console.error("Error uploading photos:", error);
+      setErrors((prev) => ({ ...prev, photos: "Failed to upload photos. Please try again." }));
+      setImageUploadingInProgress(false);
+      return;
+    }
+    
+    setImageUploadingInProgress(false);
+}
+  const dataToSubmit = {
+    title:title,
+    description: description,
+    gs_division: grama,
+    ds_division:district,
+    city: city,
+    status_id: 1,
+    authority_id: authority_id,
+    image_urls: image_urls,
+  };
+
+  // submit for issue creation
+   await axios.post(`${backendAddress}/api/issues/v2/create`, dataToSubmit, {
+    headers: {
+      Authorization: `Bearer ${token}`, 
+      "Content-Type": "application/json",
+    },
+  }).catch((error) => {
+    console.error("Error creating issue:", error);
+    setErrors((prev) => ({ ...prev, submit: "Failed to create issue. Please try again." }));
+  });
   // Simulate successful submit
   setShowSuccess(true);
   };
@@ -324,11 +434,11 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
             <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-48 overflow-auto">
               {sectorOptions.map((option) => (
                 <li
-                  key={option}
-                  className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-black ${option === sector ? 'bg-gray-100 font-semibold' : ''}`}
-                  onClick={() => { setSector(option); setShowSectorDropdown(false); }}
+                  key={option.name}
+                  className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-black ${option.name === sector ? 'bg-gray-100 font-semibold' : ''}`}
+                  onClick={() => { setSector(option.name); setShowSectorDropdown(false); }}
                 >
-                  {option}
+                  {option.name}
                 </li>
               ))}
             </ul>
@@ -344,6 +454,29 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
           Submit issue
         </button>
       </form>
+
+      {/* Image Upload Loading Overlay */}
+      {imageUploadingInProgress && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 mx-4 max-w-sm w-full text-center shadow-xl">
+            <div className="mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Image uploading in progress...
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Please wait while we upload your images
+            </p>
+            <button
+              onClick={handleCancelUpload}
+              className="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+            >
+              Cancel Upload
+            </button>
+          </div>
+        </div>
+      )}
     </ReactModal>
     <IssueSuccessModal
       isOpen={showSuccess}

@@ -1,18 +1,12 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import React, { useId } from "react";
-import {
-  FiSearch,
-  FiBell,
-  FiPlus,
-  FiSettings,
-  FiUser,
-  FiCreditCard,
-  FiX,
-} from "react-icons/fi";
+import React, { useId, useState } from "react";
+import { FiSearch, FiBell, FiPlus, FiSettings, FiX,} from "react-icons/fi";
 import { ScanQrCode } from "lucide-react";
 import CreateIssue from "../create_issue/CreateIssue";
 import QRScanner from "../qr/QRScanner";
+import NotificationPopup from "../ui/NotificationPopup";
+import UserDetails from "../user_details/UserDetails";
 
 export default function Navbar() {
   const searchId = useId();
@@ -20,6 +14,7 @@ export default function Navbar() {
   const [isReportedClicked, setIsReportedClicked] = React.useState(false);
   const [isQrScanOpen, setIsQrScanOpen] = React.useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = React.useState(false);
   const { user } = useUser();
 
   const handleQRScan = (result: string) => {
@@ -28,6 +23,8 @@ export default function Navbar() {
     // You can navigate to a URL, process the data, etc.
     alert(`QR Code Scanned: ${result}`);
   };
+
+  const [userVerifiedStatus, setUserVerifiedStatus] = useState<"Verified" | "Pending" | "Not Verified">("Not Verified");
 
   return (
     <>
@@ -97,13 +94,26 @@ export default function Navbar() {
               </Link>
             )}
 
-            <button
-              type="button"
-              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent"
-              aria-label="Notifications"
-            >
-              <FiBell className="w-5 h-5" />
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent"
+                aria-label="Notifications"
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+              >
+                <FiBell className="w-5 h-5" />
+              </button>
+
+              {isNotificationOpen && (
+                <div className="absolute right-0 top-full mt-2 z-50">
+                  <NotificationPopup
+                    notifications={[]}
+                    onClose={() => setIsNotificationOpen(false)}
+                    onMarkAllRead={() => setIsNotificationOpen(false)}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Auth/Profile - hidden on mobile, visible from sm and up */}
             <div className="pl-2  hidden sm:block">
@@ -117,60 +127,7 @@ export default function Navbar() {
                     labelIcon={<FiSettings />}
                     url="user-details"
                   >
-                    <form>
-                      <div>
-                        <h4 className="font-bold mb-1">User Details</h4>
-                        <hr className="my-4 border-gray-200" />
-                      </div>
-                      <div className="flex flex-col gap-3">
-                        <div>
-                          <div className="flex justify-between gap-2">
-                            {/* First Name with icon */}
-                            <div className="relative flex-1">
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                                <FiUser className="w-5 h-5" />
-                              </span>
-                              <input
-                                type="text"
-                                placeholder="First Name"
-                                className="pl-10 border-gray-300 rounded-lg p-3 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black w-full"
-                              />
-                            </div>
-                            {/* Last Name */}
-                            <div className="relative flex-1">
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                                <FiUser className="w-5 h-5" />
-                              </span>
-                              <input
-                                type="text"
-                                placeholder="Last Name"
-                                className="pl-10 border-gray-300 rounded-lg p-3 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black flex-1"
-                              />
-                            </div>
-                          </div>
-                          <hr className="my-4 border-gray-200" />
-                        </div>
-                        <div className="relative flex-1">
-                          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                            <FiCreditCard className="w-5 h-5" />
-                          </span>
-                          <input
-                            type="text"
-                            placeholder="Nic"
-                            className="pl-10 w-full border-gray-300 rounded-lg p-3 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black"
-                          />
-                        </div>
-                        <hr className="my-4 border-gray-200" />
-                      </div>
-                      <div className="flex justify-center">
-                        <button
-                          type="submit"
-                          className="w-full py-3 rounded-full bg-gradient-to-b from-gray-900 to-black text-white text-lg font-semibold shadow-md hover:from-black hover:to-gray-800 transition"
-                        >
-                          Save
-                        </button>
-                      </div>
-                    </form>
+                    <UserDetails userVerifiedStatus={userVerifiedStatus} />
                   </UserButton.UserProfilePage>
                 </UserButton>
               </SignedIn>
