@@ -136,45 +136,37 @@ model Appointment {
   appointment_id   Int      @id @default(autoincrement())
   user_id          Int
   authority_id     Int
-  issue_id         Int
+  issue_id         Int?
   date             DateTime @db.Date
   time_slot        String?
   official_comment String?
 
   // Relations
-  User                  User?                   @relation(fields: [user_id], references: [user_id], map: "fk_appointment_user", onDelete: Cascade)
-  Authority             Authorities?            @relation(fields: [authority_id], references: [authority_id], map: "fk_appointment_authority")
-  Issue                 Issue?                  @relation(fields: [issue_id], references: [issue_id], map: "fk_appointment_issue", onDelete: Cascade)
-  Appointment_Attendees Appointment_Attendees[]
-  Attachment            Attachment?
-  Feedback              Feedback?
+  User       User?        @relation(fields: [user_id], references: [user_id], map: "fk_appointment_user", onDelete: Cascade)
+  Authority  Authorities? @relation(fields: [authority_id], references: [authority_id], map: "fk_appointment_authority")
+  Issue      Issue?       @relation(fields: [issue_id], references: [issue_id], map: "fk_appointment_issue", onDelete: Cascade)
+  Attendees  Attendees[]
+  Attachment Attachment?
+  Feedback   Feedback?
 
   @@map("APPOINTMENT")
 }
 
 model Attendees {
-  attendee_id Int     @id @default(autoincrement())
-  nic         String?
-  name        String?
-  phone_no    String? @db.VarChar(20)
+  attendee_id    Int     @id @default(autoincrement())
+  nic            String?
+  name           String?
+  added_by       String?
+  phone_no       String? @db.VarChar(20)
+  appointment_id Int?
 
   // Relations
-  Appointment_Attendees Appointment_Attendees[]
+  Appointment Appointment? @relation(fields: [appointment_id], references: [appointment_id], map: "fk_attendee_appointment", onDelete: Cascade)
 
   @@map("ATTENDEES")
 }
 
-model Appointment_Attendees {
-  appointment_id Int
-  attendee_id    Int
-
-  // Relations
-  Appointment Appointment @relation(fields: [appointment_id], references: [appointment_id], map: "fk_appointment_attendees_appointment")
-  Attendee    Attendees   @relation(fields: [attendee_id], references: [attendee_id], map: "fk_appointment_attendees_attendee")
-
-  @@id([appointment_id, attendee_id])
-  @@map("APPOINTMENT_ATTENDEES")
-}
+// The Appointment_Attendees junction model has been removed.
 
 model Free_Times {
   authority_id Int
