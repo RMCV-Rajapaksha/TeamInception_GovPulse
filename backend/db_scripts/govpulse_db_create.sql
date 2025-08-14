@@ -69,7 +69,8 @@ CREATE TABLE "USER" (
     "nic" VARCHAR(255),
     "profile_image_url" TEXT,
     "home_address" TEXT,
-    "dob" DATE
+    "dob" DATE,
+    "clerk_user_id" VARCHAR(255) UNIQUE -- This is used to link the user to Clerk
 );
 
 -- Create the ISSUE table
