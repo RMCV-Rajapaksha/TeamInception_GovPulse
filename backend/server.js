@@ -21,6 +21,7 @@ const generateImageSignatureRouterV1 = require("./routes/v1/GenerateImageSignatu
 const imageUploadRouterV1 = require("./routes/v1/ImageUploadRouter");
 const upvoteRouterV1 = require("./routes/v1/UpvoteRouter");
 const commentRouterV1 = require("./routes/v1/CommentRouter");
+const feedbackRouterV1 = require("./routes/v1/FeedbackRouter");
 
 // v2 routers
 const issueRouterV2 = require("./routes/v2/IssueRouter");
@@ -33,19 +34,21 @@ const generateImageSignatureRouterV2 = require("./routes/v2/GenerateImageSignatu
 const imageUploadRouterV2 = require("./routes/v2/ImageUploadRouter");
 const upvoteRouterV2 = require("./routes/v2/UpvoteRouter");
 const commentRouterV2 = require("./routes/v2/CommentRouter");
+const feedbackRouterV2 = require("./routes/v2/FeedbackRouter");
 
 // Load OpenAPI specification
-const swaggerDocument = YAML.parse(fs.readFileSync("./openapi-spec-v1.yaml", "utf8"));
-
+const swaggerDocument = YAML.parse(
+  fs.readFileSync("./openapi-spec-v1.yaml", "utf8")
+);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use((req,res,next)=>{
+app.use((req, res, next) => {
   console.log(`${req.method} request for '${req.url}'`);
   console.log("Request Headers:", req.headers);
   next();
-})
+});
 // v1 routes
 app.use("/api/v1/issues", issueRouterV1);
 app.use("/api/v1/users", userRouterV1);
@@ -57,6 +60,7 @@ app.use("/api/v1/generate-image-signature", generateImageSignatureRouterV1);
 app.use("/api/v1/upload-image", imageUploadRouterV1);
 app.use("/api/v1/upvotes", upvoteRouterV1);
 app.use("/api/v1/comments", commentRouterV1);
+app.use("/api/v1/feedback", feedbackRouterV1);
 
 // v2 routes
 app.use("/api/v2/issues", issueRouterV2);
@@ -69,6 +73,7 @@ app.use("/api/v2/generate-image-signature", generateImageSignatureRouterV2);
 app.use("/api/v2/upload-image", imageUploadRouterV2);
 app.use("/api/v2/upvotes", upvoteRouterV2);
 app.use("/api/v2/comments", commentRouterV2);
+app.use("/api/v2/feedback", feedbackRouterV2);
 
 // Swagger UI route
 app.use(
