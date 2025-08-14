@@ -2,8 +2,8 @@ const {
   signup,
   login,
   removeAccount,
-} = require("../controllers/UserController");
-const {verifyToken} = require("../middleware/verifyToken");
+} = require("../../controllers/v1/UserController");
+const {verifyToken} = require("../../middleware/verifyToken");
 const express = require("express");
 const router = express.Router();
 

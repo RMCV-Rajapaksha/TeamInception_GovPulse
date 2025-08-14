@@ -1,5 +1,4 @@
 const { PrismaClient } = require("../generated/prisma");
-const { get } = require("../routes/AppointmentRouter");
 const notificationService = require("../utils/NotificationService");
 
 const prisma = new PrismaClient();
@@ -98,12 +97,10 @@ const bookAppointment = async (req, res) => {
       // Don't fail the appointment booking if email fails
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Appointment booked successfully",
-        appointment_data: newAppointment,
-      });
+    res.status(200).json({
+      message: "Appointment booked successfully",
+      appointment_data: newAppointment,
+    });
   } catch (error) {
     console.error("Error booking appointment:", error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -200,12 +197,10 @@ const cancelAppointment = async (req, res) => {
       reason_to_be_stored = `Cancelled by user: ${reason}`;
     }
     if (reason_to_be_stored === "") {
-      return res
-        .status(400)
-        .json({
-          error:
-            "you need to be logged in as a user of official to cancel appointment",
-        });
+      return res.status(400).json({
+        error:
+          "you need to be logged in as a user of official to cancel appointment",
+      });
     }
 
     if (!appointment_id) {
@@ -301,12 +296,9 @@ const addAttendeeToAppointment = async (req, res) => {
       added_by = "user";
     }
     if (added_by === "") {
-      return res
-        .status(400)
-        .json({
-          error:
-            "you need to be logged in as a user of official to add attendee",
-        });
+      return res.status(400).json({
+        error: "you need to be logged in as a user of official to add attendee",
+      });
     }
 
     if (!appointment_id || !nic || !name) {
@@ -339,12 +331,10 @@ const addAttendeeToAppointment = async (req, res) => {
       },
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Attendee added successfully",
-        attendee_data: newAttendee,
-      });
+    res.status(200).json({
+      message: "Attendee added successfully",
+      attendee_data: newAttendee,
+    });
   } catch (error) {
     console.error("Error adding attendees:", error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -433,12 +423,10 @@ const addAttachmentFile = async (req, res) => {
         },
       });
 
-      return res
-        .status(200)
-        .json({
-          message: "Attachment updated successfully",
-          attachment: updatedAttachment,
-        });
+      return res.status(200).json({
+        message: "Attachment updated successfully",
+        attachment: updatedAttachment,
+      });
     } else {
       // If no attachment exists, create a new one
       const newAttachment = await prisma.attachment.create({
@@ -450,12 +438,10 @@ const addAttachmentFile = async (req, res) => {
         },
       });
 
-      return res
-        .status(200)
-        .json({
-          message: "Attachment added successfully",
-          attachment_data: newAttachment,
-        });
+      return res.status(200).json({
+        message: "Attachment added successfully",
+        attachment_data: newAttachment,
+      });
     }
   } catch (error) {
     console.error("Error adding attachment:", error);
@@ -521,13 +507,11 @@ const removefileFromAttachment = async (req, res) => {
           attachment_id: parseInt(attachment_id),
         },
       });
-      return res
-        .status(200)
-        .json({
-          message:
-            "Attachment deleted successfully, last file url was also deleted therefore entire attachment record was deleted",
-          attachment_data: {},
-        });
+      return res.status(200).json({
+        message:
+          "Attachment deleted successfully, last file url was also deleted therefore entire attachment record was deleted",
+        attachment_data: {},
+      });
     } else {
       const updatedAttachment = await prisma.attachment.update({
         where: {
@@ -539,12 +523,10 @@ const removefileFromAttachment = async (req, res) => {
           },
         },
       });
-      res
-        .status(200)
-        .json({
-          message: "File removed successfully",
-          attachment_data: updatedAttachment,
-        });
+      res.status(200).json({
+        message: "File removed successfully",
+        attachment_data: updatedAttachment,
+      });
     }
   } catch (error) {
     console.error("Error removing file from attachment:", error);
@@ -565,22 +547,18 @@ const sendOfficialUpdate = async (req, res) => {
     }
 
     if (!appointment_id || !message || !update_type) {
-      return res
-        .status(400)
-        .json({
-          error: "Appointment ID, message, and update type are required",
-        });
+      return res.status(400).json({
+        error: "Appointment ID, message, and update type are required",
+      });
     }
 
     // Validate update_type
     const validUpdateTypes = ["comment", "request", "completion"];
     if (!validUpdateTypes.includes(update_type)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Invalid update type. Must be 'comment', 'request', or 'completion'",
-        });
+      return res.status(400).json({
+        error:
+          "Invalid update type. Must be 'comment', 'request', or 'completion'",
+      });
     }
 
     // Verify appointment exists and belongs to the official's authority
@@ -669,12 +647,10 @@ const rescheduleAppointment = async (req, res) => {
     }
 
     if (!appointment_id || !new_date || !new_time_slot || !reason) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Appointment ID, new date, new time slot, and reason are required",
-        });
+      return res.status(400).json({
+        error:
+          "Appointment ID, new date, new time slot, and reason are required",
+      });
     }
 
     // Verify appointment exists and belongs to the official's authority

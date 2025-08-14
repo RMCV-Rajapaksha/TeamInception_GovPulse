@@ -12,28 +12,54 @@ const {
   removefileFromAttachment,
   sendOfficialUpdate,
   rescheduleAppointment,
-} = require("../controllers/AppointmentController");
+} = require("../../controllers/v2/AppointmentController");
+const { verifyOfficialToken } = require("../../middleware/verifyToken");
+const { clerkMiddleware } = require("@clerk/express");
 const {
-  verifyToken,
-  verifyOfficialToken,
-} = require("../middleware/verifyToken");
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
+} = require("../../middleware/processClerkToken");
 const express = require("express");
 const router = express.Router();
-router.post("/book-appointment", verifyToken, bookAppointment);
+router.post(
+  "/book-appointment",
+  clerkMiddleware(),
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
+  bookAppointment
+);
 router.get("/appointment-by-id/:appointment_id", getAppointmentById);
-router.get("/user-appointments", verifyToken, getUsersAppointments);
+router.get(
+  "/user-appointments",
+  clerkMiddleware(),
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
+  getUsersAppointments
+);
 router.get(
   "/authority-appointments/",
   verifyOfficialToken,
   getAuthorityAppointments
 );
-router.post("/cancel-appointment-by-user", verifyToken, cancelAppointment);
+router.post(
+  "/cancel-appointment-by-user",
+  clerkMiddleware(),
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
+  cancelAppointment
+);
 router.post(
   "/cancel-appointment-by-official",
   verifyOfficialToken,
   cancelAppointment
 );
-router.post("/add-attendee-by-user", verifyToken, addAttendeeToAppointment);
+router.post(
+  "/add-attendee-by-user",
+  clerkMiddleware(),
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
+  addAttendeeToAppointment
+);
 router.post(
   "/add-attendee-by-official",
   verifyOfficialToken,
@@ -45,7 +71,9 @@ router.get(
 );
 router.delete(
   "/remove-attendee-from-appointment-by-user/:attendee_id",
-  verifyToken,
+  clerkMiddleware(),
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
   removeAttendeeFromAppointment
 );
 router.delete(
@@ -53,14 +81,22 @@ router.delete(
   verifyOfficialToken,
   removeAttendeeFromAppointment
 );
-router.post("/add-attachment-file", verifyToken, addAttachmentFile);
+router.post(
+  "/add-attachment-file",
+  clerkMiddleware(),
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
+  addAttachmentFile
+);
 router.get(
   "/get-attachment-for-appointment/:appointment_id",
   getAttachmentByAppointmentId
 );
 router.post(
   "/remove-file-from-attachment/",
-  verifyToken,
+  clerkMiddleware(),
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
   removefileFromAttachment
 );
 
@@ -71,5 +107,4 @@ router.post(
   verifyOfficialToken,
   rescheduleAppointment
 );
-
 module.exports = router;
