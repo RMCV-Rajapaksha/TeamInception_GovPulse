@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import React, { useId, useState } from "react";
-import { FiSearch, FiBell, FiPlus, FiSettings, FiX,} from "react-icons/fi";
+import { FiSearch, FiBell, FiPlus, FiSettings, FiX } from "react-icons/fi";
 import { ScanQrCode } from "lucide-react";
 import CreateIssue from "../create_issue/CreateIssue";
 import QRScanner from "../qr/QRScanner";
@@ -24,7 +24,9 @@ export default function Navbar() {
     alert(`QR Code Scanned: ${result}`);
   };
 
-  const [userVerifiedStatus, setUserVerifiedStatus] = useState<"Verified" | "Pending" | "Not Verified">("Not Verified");
+  const [userVerifiedStatus, setUserVerifiedStatus] = useState<
+    "Verified" | "Pending" | "Not Verified"
+  >("Not Verified");
 
   return (
     <>
@@ -39,40 +41,56 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Search - Full search bar on desktop, icon only on mobile */}
-          <div className="flex-1 max-w-[916px] hidden sm:flex min-w-0">
-            <label htmlFor={searchId} className="sr-only">
-              Search
-            </label>
-            <div className="flex-1 h-10 px-3 md:px-4 rounded-2xl ring-1 ring-gray-300 bg-white/70 flex items-center gap-2 min-w-0">
-              <input
-                id={searchId}
-                placeholder="Search"
-                className="flex-1 min-w-0 bg-transparent outline-none text-gray-700 placeholder:text-gray-500 text-base"
-              />
-              <FiSearch className="w-5 h-5 text-gray-500" aria-hidden />
+          {/* Search Bar and QR Scanner Container */}
+          <div className="flex-1 max-w-[916px] hidden sm:flex items-center gap-2 min-w-0">
+            {/* Search Bar */}
+            <div className="flex-1 min-w-0">
+              <label htmlFor={searchId} className="sr-only">
+                Search
+              </label>
+              <div className="flex-1 h-10 px-3 md:px-4 rounded-2xl ring-1 ring-gray-300 bg-white/70 flex items-center gap-2 min-w-0">
+                <input
+                  id={searchId}
+                  placeholder="Search"
+                  className="flex-1 min-w-0 bg-transparent outline-none text-gray-700 placeholder:text-gray-500 text-base"
+                />
+                <FiSearch className="w-5 h-5 text-gray-500" aria-hidden />
+              </div>
             </div>
+
+            {/* QR Scan Button - Desktop */}
+            <button
+              type="button"
+              onClick={() => setIsQrScanOpen(true)}
+              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent shrink-0"
+              aria-label="Scan QR Code"
+            >
+              <ScanQrCode className="w-5 h-5" />
+            </button>
           </div>
 
-          {/* Mobile Search Icon */}
-          <button
-            type="button"
-            onClick={() => setIsMobileSearchOpen(true)}
-            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent sm:hidden"
-            aria-label="Search"
-          >
-            <FiSearch className="w-5 h-5" />
-          </button>
+          {/* Mobile Search and QR Container */}
+          <div className="flex items-center gap-2 sm:hidden">
+            {/* Mobile Search Icon */}
+            <button
+              type="button"
+              onClick={() => setIsMobileSearchOpen(true)}
+              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent"
+              aria-label="Search"
+            >
+              <FiSearch className="w-5 h-5" />
+            </button>
 
-          {/* QR Scan Button - Visible on all screen sizes */}
-          <button
-            type="button"
-            onClick={() => setIsQrScanOpen(true)}
-            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent"
-            aria-label="Scan QR Code"
-          >
-            <ScanQrCode className="w-5 h-5" />
-          </button>
+            {/* QR Scan Button - Mobile */}
+            <button
+              type="button"
+              onClick={() => setIsQrScanOpen(true)}
+              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent"
+              aria-label="Scan QR Code"
+            >
+              <ScanQrCode className="w-5 h-5" />
+            </button>
+          </div>
 
           {/* Actions */}
           <div className="ml-auto flex items-center gap-2 md:gap-4 shrink-0">
@@ -177,8 +195,6 @@ export default function Navbar() {
                   Start typing to search for issues
                 </p>
               </div>
-
-              
             </div>
           </div>
         </div>
