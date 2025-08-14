@@ -16,8 +16,10 @@ import QRScanner from "../qr/QRScanner";
 
 export default function Navbar() {
   const searchId = useId();
+  const mobileSearchId = useId();
   const [isReportedClicked, setIsReportedClicked] = React.useState(false);
   const [isQrScanOpen, setIsQrScanOpen] = React.useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false);
   const { user } = useUser();
 
   const handleQRScan = (result: string) => {
@@ -58,6 +60,7 @@ export default function Navbar() {
           {/* Mobile Search Icon */}
           <button
             type="button"
+            onClick={() => setIsMobileSearchOpen(true)}
             className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent sm:hidden"
             aria-label="Search"
           >
@@ -175,6 +178,54 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Search Popup */}
+      {isMobileSearchOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm sm:hidden flex items-start justify-center pt-20">
+          <div className="w-full max-w-md mx-4 bg-white rounded-2xl shadow-xl">
+            {/* Header with close button */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">Search</h3>
+              <button
+                type="button"
+                onClick={() => setIsMobileSearchOpen(false)}
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+                aria-label="Close search"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Search input */}
+            <div className="p-4">
+              <label htmlFor={mobileSearchId} className="sr-only">
+                Search
+              </label>
+              <div className="h-12 px-4 rounded-2xl ring-1 ring-gray-300 bg-gray-50 flex items-center gap-3">
+                <FiSearch className="w-5 h-5 text-gray-500" aria-hidden />
+                <input
+                  id={mobileSearchId}
+                  placeholder="Search for issues, locations..."
+                  className="flex-1 bg-transparent outline-none text-gray-700 placeholder:text-gray-500 text-base"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Search results/content area */}
+            <div className="px-4 pb-6">
+              <div className="text-center py-8">
+                <FiSearch className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500 text-sm">
+                  Start typing to search for issues
+                </p>
+              </div>
+
+              
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* QR Scanner Component */}
       <QRScanner
