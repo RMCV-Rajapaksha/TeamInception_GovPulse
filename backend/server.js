@@ -31,14 +31,14 @@ app.use((req,res,next)=>{
   next();
 })
 // v1 routes
-app.use("/api/issues", issueRouter);
-app.use("/api/users", userRouter);
-app.use("/api/officials", officialRouter);
-app.use("/api/time-slots", timeSlotRouter);
-app.use("/api/appointments", appointmentRouter);
-app.use("/api/authorities", AuthorityRouter);
-app.use("/api/generate-image-signature", generateImageSignatureRouter);
-app.use("/api/upload-image", imageUploadRouter);
+app.use("/api/v1/issues", issueRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/officials", officialRouter);
+app.use("/api/v1/time-slots", timeSlotRouter);
+app.use("/api/v1/appointments", appointmentRouter);
+app.use("/api/v1/authorities", AuthorityRouter);
+app.use("/api/v1/generate-image-signature", generateImageSignatureRouter);
+app.use("/api/v1/upload-image", imageUploadRouter);
 
 // v2 routes
 app.use("/api/v2/issues", issueRouter);
