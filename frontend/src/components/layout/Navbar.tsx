@@ -10,10 +10,12 @@ import {
   FiCreditCard,
 } from "react-icons/fi";
 import CreateIssue from "../create_issue/CreateIssue";
+import NotificationPopup from "../ui/NotificationPopup";
 
 export default function Navbar() {
   const searchId = useId();
   const [isReportedClicked, setIsReportedClicked] = React.useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = React.useState(false);
   const { user } = useUser();
   return (
     <>
@@ -63,13 +65,26 @@ export default function Navbar() {
               </Link>
             )}
 
-            <button
-              type="button"
-              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent"
-              aria-label="Notifications"
-            >
-              <FiBell className="w-5 h-5" />
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent"
+                aria-label="Notifications"
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+              >
+                <FiBell className="w-5 h-5" />
+              </button>
+              
+              {isNotificationOpen && (
+                <div className="absolute right-0 top-full mt-2 z-50">
+                  <NotificationPopup
+                    notifications={[]}
+                    onClose={() => setIsNotificationOpen(false)}
+                    onMarkAllRead={() => setIsNotificationOpen(false)}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Auth/Profile - hidden on mobile, visible from sm and up */}
             <div className="pl-2  hidden sm:block">

@@ -378,6 +378,113 @@ paths:
                 example: Internal Server Error
       deprecated: false
       security: []
+  /api/v2/issues/authority-issues:
+    get:
+      summary: Get authority issues
+      operationId: getAuthorityIssues
+      description: Retrieves all issues assigned to the authenticated official's authority. Only authenticated officials can access this endpoint.
+      tags:
+        - issues-related
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.authorityIssuesResponse"
+        "401":
+          description: Unauthorized - Official access required
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Official access required
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+
+  /api/v2/issues/update-status/{issue_id}:
+    put:
+      summary: Update issue status
+      operationId: updateIssueStatus
+      description: Allows a government official to update the status of an issue. Officials can only update issues assigned to their authority.
+      tags:
+        - issues-related
+      parameters:
+        - name: issue_id
+          in: path
+          required: true
+          description: The ID of the issue whose status is to be updated
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      requestBody:
+        description: Contains the new status ID for the issue
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.updateIssueStatusReqObj"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Issue status updated successfully
+                  issue:
+                    $ref: "#/components/schemas/models.issuedata"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request - Issue ID and Status ID are required
+        "401":
+          description: Unauthorized - Official access required
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unauthorized - Official access required
+        "403":
+          description: Forbidden - Can only update issues assigned to your authority
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden - You can only update issues assigned to your authority
+        "404":
+          description: Not Found - Issue not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found - Issue not found
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal Server Error
+      deprecated: false
+      security:
+        - BearerAuth: []
+
   /api/v2/upvotes/add:
     post:
       summary: Add an upvote to an issue
@@ -1830,6 +1937,39 @@ components:
               type: integer
               format: int64
               example: 1
+    models.authorityIssuesResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Found 5 issues for authority ID 2"
+        authority_id:
+          type: integer
+          format: int64
+          example: 2
+        total_issues:
+          type: integer
+          example: 5
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/models.issuedata"
+      required:
+        - message
+        - authority_id
+        - total_issues
+        - issues
+
+    models.updateIssueStatusReqObj:
+      type: object
+      properties:
+        status_id:
+          type: integer
+          format: int64
+          example: 2
+          description: "Status ID: 1=Pending Review, 2=Assigned to Team, 3=Completed"
+      required:
+        - status_id
     models.addUpvoteReqObj:
       type: object
       properties:

@@ -1,6 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const fs = require("fs");
+const YAML = require("yaml");
 require("dotenv").config();
+
 const app = express();
 const port = process.env.BACKEND_PORT || 4000;
 // v1 routers
@@ -13,6 +17,7 @@ const AuthorityRouterV1 = require("./routes/v1/AuthorityRouter");
 const generateImageSignatureRouterV1 = require("./routes/v1/GenerateImageSignatureRouter");
 const imageUploadRouterV1 = require("./routes/v1/ImageUploadRouter");
 const upvoteRouterV1 = require("./routes/v1/UpvoteRouter");
+const commentRouterV1 = require("./routes/v1/CommentRouter");
 
 // v2 routers
 const issueRouterV2 = require("./routes/v2/IssueRouter");
@@ -24,7 +29,13 @@ const AuthorityRouterV2 = require("./routes/v2/AuthorityRouter");
 const generateImageSignatureRouterV2 = require("./routes/v2/GenerateImageSignatureRouter");
 const imageUploadRouterV2 = require("./routes/v2/ImageUploadRouter");
 const upvoteRouterV2 = require("./routes/v2/UpvoteRouter");
+const commentRouterV2 = require("./routes/v2/CommentRouter");
 
+// Load OpenAPI specification
+const swaggerDocument = YAML.parse(fs.readFileSync("./openapi-spec-v1.yaml", "utf8"));
+
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use((req,res,next)=>{
@@ -42,6 +53,7 @@ app.use("/api/v1/authorities", AuthorityRouterV1);
 app.use("/api/v1/generate-image-signature", generateImageSignatureRouterV1);
 app.use("/api/v1/upload-image", imageUploadRouterV1);
 app.use("/api/v1/upvotes", upvoteRouterV1);
+app.use("/api/v1/comments", commentRouterV1);
 
 // v2 routes
 app.use("/api/v2/issues", issueRouterV2);
@@ -53,6 +65,35 @@ app.use("/api/v2/authorities", AuthorityRouterV2);
 app.use("/api/v2/generate-image-signature", generateImageSignatureRouterV2);
 app.use("/api/v2/upload-image", imageUploadRouterV2);
 app.use("/api/v2/upvotes", upvoteRouterV2);
+app.use("/api/v2/comments", commentRouterV2);
+
+// Swagger UI route
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    explorer: true,
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "GovPulse API Documentation",
+  })
+);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", message: "Server is running" });
+});
+
+// Root endpoint
+app.get("/", (req, res) => {
+  res.json({
+    message: "GovPulse Backend API",
+    documentation: "Visit /api-docs for interactive API documentation",
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+  console.log(
+    `API Documentation available at http://localhost:${port}/api-docs`
+  );
 });
