@@ -16,6 +16,8 @@ tags:
     description: endpoints related to time slots for appointments
   - name: appointment-related
     description: endpoints related to appointments
+  - name: feedback-related
+    description: endpoints related to appointment feedback
   - name: images-related
     description: endpoints related to image generation and signatures
   - name: v2-clerk-supported
@@ -1607,6 +1609,270 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
+
+  /api/v2/feedback/create-feedback:
+    post:
+      summary: Create feedback for appointment
+      operationId: createFeedback
+      description: Allows anyone to create feedback for an appointment without authentication
+      tags:
+        - feedback-related
+      requestBody:
+        description: Contains the feedback details for an appointment
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.createFeedbackReqObj"
+      responses:
+        "201":
+          description: Feedback created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Feedback created successfully"
+                  feedback:
+                    $ref: "#/components/schemas/models.feedbackData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Bad Request - Rating is required"
+        "404":
+          description: Not Found - Appointment not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Appointment not found"
+        "409":
+          description: Conflict - Feedback already exists for this appointment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Feedback already exists for this appointment"
+                  existing_feedback:
+                    $ref: "#/components/schemas/models.feedbackData"
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal Server Error"
+      deprecated: false
+      security: []
+
+  /api/v2/feedback/appointment/{appointment_id}:
+    get:
+      summary: Get feedback by appointment ID
+      operationId: getFeedbackByAppointmentId
+      description: Retrieves feedback for a specific appointment by its ID
+      tags:
+        - feedback-related
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          description: The ID of the appointment whose feedback is to be retrieved
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feedback:
+                    $ref: "#/components/schemas/models.feedbackDataWithDetails"
+        "404":
+          description: Not Found - Feedback not found for this appointment
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Feedback not found for this appointment"
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal Server Error"
+      deprecated: false
+      security: []
+
+    put:
+      summary: Update feedback by appointment ID
+      operationId: updateFeedbackByAppointmentId
+      description: Updates existing feedback for a specific appointment by its ID
+      tags:
+        - feedback-related
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          description: The ID of the appointment whose feedback is to be updated
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      requestBody:
+        description: Contains the updated feedback details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.updateFeedbackReqObj"
+      responses:
+        "200":
+          description: Feedback updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Feedback updated successfully"
+                  feedback:
+                    $ref: "#/components/schemas/models.feedbackData"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Rating must be between 1 and 5"
+        "404":
+          description: Not Found - Feedback not found for this appointment
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Feedback not found for this appointment"
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal Server Error"
+      deprecated: false
+      security: []
+
+    delete:
+      summary: Delete feedback by appointment ID
+      operationId: deleteFeedbackByAppointmentId
+      description: Deletes feedback for a specific appointment by its ID
+      tags:
+        - feedback-related
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          description: The ID of the appointment whose feedback is to be deleted
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      responses:
+        "200":
+          description: Feedback deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Feedback deleted successfully"
+        "404":
+          description: Not Found - Feedback not found for this appointment
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Feedback not found for this appointment"
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal Server Error"
+      deprecated: false
+      security: []
+
+  /api/v2/feedback/all:
+    get:
+      summary: Get all feedback
+      operationId: getAllFeedback
+      description: Retrieves all feedback, optionally filtered by authority ID
+      tags:
+        - feedback-related
+      parameters:
+        - name: authority_id
+          in: query
+          required: false
+          description: Filter feedback by authority ID
+          schema:
+            type: integer
+            format: int64
+            example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of feedback records to return
+          schema:
+            type: integer
+            example: 10
+        - name: offset
+          in: query
+          required: false
+          description: Number of feedback records to skip
+          schema:
+            type: integer
+            example: 0
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feedbacks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/models.feedbackDataWithDetails"
+                  count:
+                    type: integer
+                    example: 25
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Internal Server Error"
+      deprecated: false
+      security: []
+
   /api/v2/authoauthorities/get-authorities-by-user:
     get:
       summary: Get authorities by user
@@ -2189,3 +2455,136 @@ components:
           format: int64
           nullable: true
           example: null
+
+    models.createFeedbackReqObj:
+      type: object
+      properties:
+        appointment_id:
+          type: integer
+          format: int64
+          example: 12345
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          nullable: true
+          example: "Great service, very helpful staff"
+      required:
+        - appointment_id
+        - rating
+
+    models.updateFeedbackReqObj:
+      type: object
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          nullable: true
+          example: "Updated: Excellent service!"
+
+    models.feedbackData:
+      type: object
+      properties:
+        feedback_id:
+          type: integer
+          format: int64
+          example: 1
+        appointment_id:
+          type: integer
+          format: int64
+          example: 12345
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          nullable: true
+          example: "Great service, very helpful staff"
+      required:
+        - feedback_id
+        - appointment_id
+        - rating
+
+    models.feedbackDataWithDetails:
+      type: object
+      properties:
+        feedback_id:
+          type: integer
+          format: int64
+          example: 1
+        appointment_id:
+          type: integer
+          format: int64
+          example: 12345
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          nullable: true
+          example: "Great service, very helpful staff"
+        Appointment:
+          type: object
+          properties:
+            appointment_id:
+              type: integer
+              format: int64
+              example: 12345
+            date:
+              type: string
+              format: date-time
+              example: "2025-08-15T00:00:00.000Z"
+            time_slot:
+              type: string
+              example: "10:00 - 11:00"
+            User:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  format: int64
+                  example: 1
+                first_name:
+                  type: string
+                  example: "John"
+                last_name:
+                  type: string
+                  example: "Doe"
+                name:
+                  type: string
+                  nullable: true
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john.doe@example.com"
+            Authority:
+              type: object
+              properties:
+                authority_id:
+                  type: integer
+                  format: int64
+                  example: 1
+                name:
+                  type: string
+                  example: "Colombo Municipal Council"
+                ministry:
+                  type: string
+                  nullable: true
+                  example: "Local Government"
+      required:
+        - feedback_id
+        - appointment_id
+        - rating
+        - Appointment
