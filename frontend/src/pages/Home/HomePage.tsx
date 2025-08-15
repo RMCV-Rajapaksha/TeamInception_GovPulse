@@ -85,9 +85,9 @@ export default function HomePage() {
   // Loading state
   if (loading) {
     return (
-      <div className="pb-24 md:ml-[14rem] px-10 md:px-0 md:pl-[5rem] md:pr-[15rem]">
+      <div className="pb-24 md:ml-72 px-10 md:px-0 md:pl-20 md:pr-60">
         <Trending items={trendingItems} />
-        <div className=" w-full mt-10 h-1">
+        <div className="w-full mt-10 h-px">
           <div className="border-t border-gray-200" />
         </div>
         <div className="mt-6 flex justify-center items-center py-12">
@@ -103,9 +103,9 @@ export default function HomePage() {
   // Error state
   if (error) {
     return (
-      <div className="pb-24 md:ml-[14rem] px-10 md:px-0 md:pl-[5rem] md:pr-[15rem]">
+      <div className="pb-24 md:ml-72 px-10 md:px-0 md:pl-20 md:pr-60">
         <Trending items={trendingItems} />
-        <div className=" w-full mt-10 h-1">
+        <div className="w-full mt-10 h-px">
           <div className="border-t border-gray-200" />
         </div>
         <div className="mt-6 flex justify-center items-center py-12">
@@ -116,6 +116,7 @@ export default function HomePage() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
@@ -128,7 +129,7 @@ export default function HomePage() {
             <p className="text-gray-600 mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
             >
               Try Again
             </button>
@@ -139,9 +140,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="pb-24 md:ml-[14rem] px-10 md:px-0 md:pl-[5rem] md:pr-[15rem]">
+    <div className="pb-24 md:ml-72 px-10 md:px-0 md:pl-20 md:pr-60">
       <Trending items={trendingItems} />
-      <div className=" w-full mt-10 h-1">
+      <div className="w-full mt-10 h-px">
         <div className="border-t border-gray-200" />
       </div>
 
@@ -154,6 +155,7 @@ export default function HomePage() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
@@ -163,7 +165,7 @@ export default function HomePage() {
                 />
               </svg>
             </div>
-            <p className="text-gray-600 text-lg">No issues found</p>
+            <p className="text-gray-600 text-lg font-medium">No issues found</p>
             <p className="text-gray-500 text-sm mt-2">
               Be the first to report an issue in your community!
             </p>

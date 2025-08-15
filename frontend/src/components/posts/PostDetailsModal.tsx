@@ -20,8 +20,8 @@ export default function PostDetailsModal({
     <ReactModal
       isOpen={isOpen}
       onRequestClose={onClose}
-      overlayClassName="fixed inset-0 bg-black/60 z-[1000]"
-      className="fixed inset-0 w-screen h-screen bg-white rounded-none shadow-xl outline-none flex flex-col md:absolute md:left-1/2 md:top-6 md:-translate-x-1/2 md:inset-auto md:w-[min(92vw,52rem)] md:h-auto md:max-h-[90vh] md:rounded-2xl"
+      overlayClassName="fixed inset-0 bg-black/60 z-50"
+      className="fixed inset-0 w-screen h-screen bg-white rounded-none shadow-xl outline-none flex flex-col md:absolute md:left-1/2 md:top-6 md:-translate-x-1/2 md:inset-auto md:w-full md:max-w-4xl md:h-auto md:max-h-screen md:rounded-2xl"
       bodyOpenClassName="overflow-hidden"
     >
       {/* Header */}
@@ -30,7 +30,7 @@ export default function PostDetailsModal({
         <button
           aria-label="Close"
           onClick={onClose}
-          className="p-1 rounded-lg hover:bg-gray-100"
+          className="p-1 rounded-lg hover:bg-gray-100 transition-colors duration-200"
         >
           <FiX className="h-5 w-5 text-gray-700" />
         </button>
@@ -43,7 +43,7 @@ export default function PostDetailsModal({
             <img
               src={post.imageUrl}
               alt="Post media"
-              className="w-full aspect-[16/9] object-cover"
+              className="w-full aspect-video object-cover"
             />
             {/* Status pill */}
             <div className="absolute top-3 right-3">
@@ -64,7 +64,7 @@ export default function PostDetailsModal({
               <span className="inline-flex items-center gap-1">
                 <FiMapPin className="h-3.5 w-3.5" /> {post.location}
               </span>
-              <span className="ml-auto px-3 py-1.5 rounded-2xl ring-1 ring-gray-200 inline-flex items-center gap-1 text-xs text-gray-600">
+              <span className="ml-auto px-3 py-1.5 rounded-2xl border border-gray-200 inline-flex items-center gap-1 text-xs text-gray-600">
                 <span className="h-4 w-4 rounded-sm bg-gray-400" /> {post.votes}
               </span>
             </div>
@@ -72,7 +72,7 @@ export default function PostDetailsModal({
             {/* Sector */}
             <div className="mt-3 flex items-center gap-3">
               <div className="text-xs font-semibold text-gray-900">Sector:</div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl ring-1 ring-gray-200 text-xs text-gray-600">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-gray-200 text-xs text-gray-600">
                 <span className="h-4 w-4 bg-gray-400 rounded-sm" /> Roads &
                 Infrastructure
               </div>
@@ -85,7 +85,7 @@ export default function PostDetailsModal({
               </h3>
               <button
                 aria-label="Share"
-                className="p-2 rounded-lg hover:bg-gray-100"
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
               >
                 <FiShare2 className="h-5 w-5 text-gray-600" />
               </button>
