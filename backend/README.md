@@ -23,11 +23,51 @@ GOOGLE_API_KEY=
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
-EMAIL_USER=
-EMAIL_PASS=
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
 ```
 
 note that here the default "postgres" user with a password "admin" is used to connect to the local postgreSQL instance running on port 5432. You can change this according to the way you have setup you user.
+
+## 📧 Email Configuration for Issue Status Notifications
+
+The system automatically sends email notifications to users when issue statuses are updated. To set up email notifications:
+
+### Quick Setup
+Run the setup script to configure email interactively:
+```bash
+node setup-email-config.js
+```
+
+### Manual Setup
+1. **For Gmail** (recommended):
+   - Enable 2-Factor Authentication on your Google account
+   - Go to Google Account Settings > Security > App Passwords
+   - Generate a new App Password for "Mail"
+   - Use your Gmail address for `EMAIL_USER`
+   - Use the 16-character App Password for `EMAIL_PASS`
+
+2. **For other email providers**:
+   - Update the transporter configuration in `/utils/EmailFunctions.js`
+   - Set appropriate SMTP settings
+
+### Testing Email System
+```bash
+# Test email functionality
+node test-issue-status-email.js
+
+# Test with different status scenarios
+node test-issue-status-email.js --all-scenarios
+```
+
+### Email Features
+- ✅ Automatic notifications when issue status changes
+- 🎨 Professional HTML email templates with responsive design
+- 📊 Status-specific messaging and color coding
+- 📋 Complete issue information and next steps
+- 🔔 Urgency-based styling and notifications
+
+For detailed information about the email system, see `ISSUE_STATUS_EMAIL_SYSTEM.md`.
 
 # How to start the server
 

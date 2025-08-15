@@ -121,6 +121,14 @@ The GovPulse platform uses a comprehensive database schema designed to handle co
 - **TimeSlots**: Available appointment scheduling windows
 - **Government Sectors**: Organizational structure for issue categorization
 
+## 🔄 System Flow & Sequence Diagrams
+
+The following sequence diagrams illustrate the key workflows and interactions within the GovPulse platform, showing how different components communicate and process user requests:
+
+![GovPulse Sequence Diagrams](docs/sequence-diagrams.svg)
+
+*Sequence diagrams showing the flow of operations including issue reporting, AI processing, appointment booking, and inter-service communication patterns in the GovPulse ecosystem*
+
 ## �🛠️ Technology Stack
 
 ### **Frontend**

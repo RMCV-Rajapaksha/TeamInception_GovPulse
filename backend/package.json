@@ -11,17 +11,30 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@clerk/express": "^1.7.19",
     "@prisma/client": "^6.13.0",
     "bcrypt": "^6.0.0",
+    "binary-extensions": "^3.1.0",
+    "canvas": "^3.1.2",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+
+    "face-api.js": "^0.22.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
+    "node-cron": "^3.0.3",
     "nodemailer": "^7.0.5",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
-    "prisma": "^6.13.0"
+    "prisma": "^6.13.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.8.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
+    "qrcode": "^1.5.4"
+
   }
 }
