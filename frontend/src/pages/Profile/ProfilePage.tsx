@@ -1,4 +1,4 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
 import { FiFolder, FiCalendar } from "react-icons/fi"
 import { BiUpvote } from "react-icons/bi"
 import { GoPulse } from "react-icons/go";

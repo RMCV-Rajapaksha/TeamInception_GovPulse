@@ -87,7 +87,7 @@ export default function MobileTabBar() {
         type="button"
         onClick={() => setIsChatbotOpen(true)}
         aria-label="Open AI Chatbot"
-        className="fixed bottom-24 right-4 z-40 w-14 h-14 bg-yellow-300 hover:bg-yellow-400 rounded-2xl shadow-lg items-center justify-center border-2 border-yellow-400 transition-colors flex sm:bottom-8 sm:right-8"
+        className="fixed bottom-24 right-4 z-40 w-14 h-14 bg-yellow-200/80 hover:bg-yellow-300 rounded-full shadow-lg items-center justify-center border-2 border-yellow-400 transition-colors flex sm:bottom-8 sm:right-8"
         style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.10)" }}
       >
         <FiMessageCircle className="w-7 h-7 text-gray-900" />
