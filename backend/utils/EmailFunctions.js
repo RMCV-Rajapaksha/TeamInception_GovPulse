@@ -608,9 +608,365 @@ GovPulse Team
   }
 };
 
+// 4. Issue Status Update Email
+const sendIssueStatusUpdateEmail = async (issueData) => {
+  const {
+    userEmail,
+    userName,
+    userFirstName,
+    userLastName,
+    issueId,
+    issueTitle,
+    issueDescription,
+    previousStatus,
+    newStatus,
+    authorityName,
+    categoryName,
+    urgencyScore,
+    updatedAt,
+    issueCreatedAt,
+  } = issueData;
+  console.log("print email------------------------");
+  // Use full name if available, otherwise use email
+  const displayName =
+    userFirstName && userLastName
+      ? `${userFirstName} ${userLastName}`
+      : userName || userEmail;
+
+  const getStatusColor = (status) => {
+    const statusLower = status.toLowerCase();
+    if (
+      statusLower.includes("completed") ||
+      statusLower.includes("resolved") ||
+      statusLower.includes("closed")
+    ) {
+      return "#16a34a"; // green
+    } else if (
+      statusLower.includes("assigned") ||
+      statusLower.includes("progress") ||
+      statusLower.includes("working")
+    ) {
+      return "#2563eb"; // blue
+    } else if (
+      statusLower.includes("pending") ||
+      statusLower.includes("review")
+    ) {
+      return "#ea580c"; // orange
+    } else if (
+      statusLower.includes("rejected") ||
+      statusLower.includes("cancelled")
+    ) {
+      return "#dc2626"; // red
+    } else {
+      return "#64748b"; // gray
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    const statusLower = status.toLowerCase();
+    if (
+      statusLower.includes("completed") ||
+      statusLower.includes("resolved") ||
+      statusLower.includes("closed")
+    ) {
+      return "✅";
+    } else if (
+      statusLower.includes("assigned") ||
+      statusLower.includes("progress") ||
+      statusLower.includes("working")
+    ) {
+      return "🔄";
+    } else if (
+      statusLower.includes("pending") ||
+      statusLower.includes("review")
+    ) {
+      return "⏳";
+    } else if (
+      statusLower.includes("rejected") ||
+      statusLower.includes("cancelled")
+    ) {
+      return "❌";
+    } else {
+      return "📋";
+    }
+  };
+
+  const getUrgencyLabel = (urgency) => {
+    if (urgency >= 8) return { label: "Critical", color: "#dc2626" };
+    if (urgency >= 6) return { label: "High", color: "#ea580c" };
+    if (urgency >= 4) return { label: "Medium", color: "#ca8a04" };
+    return { label: "Low", color: "#65a30d" };
+  };
+
+  const urgencyInfo = getUrgencyLabel(urgencyScore);
+  const statusColor = getStatusColor(newStatus);
+  const statusIcon = getStatusIcon(newStatus);
+
+  const formattedCreatedDate = new Date(issueCreatedAt).toLocaleDateString(
+    "en-US",
+    {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+
+  const formattedUpdatedDate = new Date(updatedAt).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: userEmail,
+    subject: `Issue Status Updated: ${issueTitle} - #${issueId}`,
+    text: `Hello ${displayName},
+
+Your issue status has been updated by ${authorityName}.
+
+${statusIcon} Status Update: ${newStatus}
+
+Issue Details:
+- Issue ID: #${issueId}
+- Title: ${issueTitle}
+- Category: ${categoryName}
+- Authority: ${authorityName}
+- Urgency Level: ${urgencyInfo.label} (${urgencyScore}/10)
+- Previous Status: ${previousStatus}
+- New Status: ${newStatus}
+- Updated: ${formattedUpdatedDate}
+
+Issue Description:
+${issueDescription}
+
+What this means:
+${
+  newStatus.toLowerCase().includes("completed") ||
+  newStatus.toLowerCase().includes("resolved")
+    ? `✅ Great news! Your issue has been resolved. The authority has completed the necessary actions for your concern.`
+    : newStatus.toLowerCase().includes("assigned") ||
+      newStatus.toLowerCase().includes("progress") ||
+      newStatus.toLowerCase().includes("working")
+    ? `🔄 Your issue is now being actively worked on by the assigned team. You should expect further updates soon.`
+    : newStatus.toLowerCase().includes("pending") ||
+      newStatus.toLowerCase().includes("review")
+    ? `⏳ Your issue is under review. The authority is evaluating your request and will provide updates as they become available.`
+    : newStatus.toLowerCase().includes("rejected") ||
+      newStatus.toLowerCase().includes("cancelled")
+    ? `❌ Your issue request has been declined. If you believe this is an error, please contact the authority directly for clarification.`
+    : `📋 Your issue status has been updated. Please check the GovPulse platform for more details.`
+}
+
+Next Steps:
+${
+  newStatus.toLowerCase().includes("completed") ||
+  newStatus.toLowerCase().includes("resolved")
+    ? `- If you're satisfied with the resolution, no further action is needed.
+- If you have additional concerns, you may submit a new issue.
+- Consider providing feedback about your experience.`
+    : newStatus.toLowerCase().includes("assigned") ||
+      newStatus.toLowerCase().includes("progress") ||
+      newStatus.toLowerCase().includes("working")
+    ? `- Monitor your issue for further updates.
+- Be prepared to provide additional information if requested.
+- You may receive a request for an appointment to discuss details.`
+    : newStatus.toLowerCase().includes("pending") ||
+      newStatus.toLowerCase().includes("review")
+    ? `- Please be patient while your issue is being reviewed.
+- Ensure all required information was provided in your original submission.
+- Additional documentation may be requested.`
+    : `- Check the GovPulse platform for detailed updates.
+- Contact ${authorityName} if you have questions about this status change.`
+}
+
+You can track your issue progress by logging into the GovPulse platform and viewing your submitted issues.
+
+For any questions regarding this update, please contact ${authorityName} directly.
+
+Best regards,
+GovPulse Team
+    `,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: ${statusColor}; text-align: center;">
+          ${statusIcon} Issue Status Updated
+        </h1>
+        
+        <div style="background-color: #f8fafc; border-left: 4px solid ${statusColor}; padding: 20px; margin: 20px 0;">
+          <p>Hello <strong>${displayName}</strong>,</p>
+          <p>Your issue status has been updated by <strong>${authorityName}</strong>.</p>
+        </div>
+
+        <div style="background-color: ${statusColor}15; border: 1px solid ${statusColor}; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+          <h2 style="color: ${statusColor}; margin: 0; font-size: 24px;">
+            ${statusIcon} ${newStatus}
+          </h2>
+          <p style="margin: 8px 0 0 0; color: #64748b;">New Status</p>
+        </div>
+
+        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <h2 style="color: #1e40af; margin-top: 0;">Issue Information</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569; width: 140px;">Issue ID:</td>
+              <td style="padding: 8px 0;">#${issueId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569;">Title:</td>
+              <td style="padding: 8px 0; font-weight: bold;">${issueTitle}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569;">Category:</td>
+              <td style="padding: 8px 0;">${categoryName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569;">Authority:</td>
+              <td style="padding: 8px 0;">${authorityName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569;">Urgency Level:</td>
+              <td style="padding: 8px 0;">
+                <span style="background-color: ${urgencyInfo.color}20; color: ${
+      urgencyInfo.color
+    }; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
+                  ${urgencyInfo.label} (${urgencyScore}/10)
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569;">Previous Status:</td>
+              <td style="padding: 8px 0; color: #64748b;">${previousStatus}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569;">New Status:</td>
+              <td style="padding: 8px 0; color: ${statusColor}; font-weight: bold;">${newStatus}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569;">Created:</td>
+              <td style="padding: 8px 0;">${formattedCreatedDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #475569;">Last Updated:</td>
+              <td style="padding: 8px 0; font-weight: bold;">${formattedUpdatedDate}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <h3 style="color: #334155; margin-top: 0;">Issue Description</h3>
+          <p style="background-color: white; padding: 15px; border-radius: 4px; margin: 0; line-height: 1.6;">${issueDescription}</p>
+        </div>
+
+        <div style="background-color: ${
+          newStatus.toLowerCase().includes("completed") ||
+          newStatus.toLowerCase().includes("resolved")
+            ? "#f0fdf4"
+            : newStatus.toLowerCase().includes("assigned") ||
+              newStatus.toLowerCase().includes("progress") ||
+              newStatus.toLowerCase().includes("working")
+            ? "#eff6ff"
+            : newStatus.toLowerCase().includes("pending") ||
+              newStatus.toLowerCase().includes("review")
+            ? "#fff7ed"
+            : "#fef2f2"
+        }; 
+          border: 1px solid ${
+            newStatus.toLowerCase().includes("completed") ||
+            newStatus.toLowerCase().includes("resolved")
+              ? "#bbf7d0"
+              : newStatus.toLowerCase().includes("assigned") ||
+                newStatus.toLowerCase().includes("progress") ||
+                newStatus.toLowerCase().includes("working")
+              ? "#bfdbfe"
+              : newStatus.toLowerCase().includes("pending") ||
+                newStatus.toLowerCase().includes("review")
+              ? "#fed7aa"
+              : "#fecaca"
+          }; 
+          border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <h3 style="color: ${statusColor}; margin-top: 0;">What this means</h3>
+          <p style="margin: 0; color: #374151; line-height: 1.6;">
+            ${
+              newStatus.toLowerCase().includes("completed") ||
+              newStatus.toLowerCase().includes("resolved")
+                ? `✅ <strong>Great news!</strong> Your issue has been resolved. The authority has completed the necessary actions for your concern.`
+                : newStatus.toLowerCase().includes("assigned") ||
+                  newStatus.toLowerCase().includes("progress") ||
+                  newStatus.toLowerCase().includes("working")
+                ? `🔄 <strong>In Progress:</strong> Your issue is now being actively worked on by the assigned team. You should expect further updates soon.`
+                : newStatus.toLowerCase().includes("pending") ||
+                  newStatus.toLowerCase().includes("review")
+                ? `⏳ <strong>Under Review:</strong> Your issue is under review. The authority is evaluating your request and will provide updates as they become available.`
+                : newStatus.toLowerCase().includes("rejected") ||
+                  newStatus.toLowerCase().includes("cancelled")
+                ? `❌ <strong>Request Declined:</strong> Your issue request has been declined. If you believe this is an error, please contact the authority directly for clarification.`
+                : `📋 <strong>Status Updated:</strong> Your issue status has been updated. Please check the GovPulse platform for more details.`
+            }
+          </p>
+        </div>
+
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <h3 style="color: #1e40af; margin-top: 0;">📋 Next Steps</h3>
+          <ul style="color: #374151; margin: 0; padding-left: 20px; line-height: 1.8;">
+            ${
+              newStatus.toLowerCase().includes("completed") ||
+              newStatus.toLowerCase().includes("resolved")
+                ? `<li>If you're satisfied with the resolution, no further action is needed.</li>
+                 <li>If you have additional concerns, you may submit a new issue.</li>
+                 <li>Consider providing feedback about your experience.</li>`
+                : newStatus.toLowerCase().includes("assigned") ||
+                  newStatus.toLowerCase().includes("progress") ||
+                  newStatus.toLowerCase().includes("working")
+                ? `<li>Monitor your issue for further updates.</li>
+                 <li>Be prepared to provide additional information if requested.</li>
+                 <li>You may receive a request for an appointment to discuss details.</li>`
+                : newStatus.toLowerCase().includes("pending") ||
+                  newStatus.toLowerCase().includes("review")
+                ? `<li>Please be patient while your issue is being reviewed.</li>
+                 <li>Ensure all required information was provided in your original submission.</li>
+                 <li>Additional documentation may be requested.</li>`
+                : `<li>Check the GovPulse platform for detailed updates.</li>
+                 <li>Contact ${authorityName} if you have questions about this status change.</li>`
+            }
+          </ul>
+        </div>
+
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+          <p style="margin: 0; color: #1d4ed8;">
+            <strong>💻 Track Your Progress:</strong> Log into the GovPulse platform to view detailed updates and manage your issues.
+          </p>
+        </div>
+
+        <p style="color: #64748b;">For any questions regarding this update, please contact <strong>${authorityName}</strong> directly.</p>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+          <p style="color: #64748b;">Best regards,<br><strong>GovPulse Team</strong></p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(
+      `Issue status update email sent to ${userEmail} for issue #${issueId}`
+    );
+    return true;
+  } catch (error) {
+    console.error("Error sending issue status update email:", error);
+    return false;
+  }
+};
+
 module.exports = {
   sendScheduleConfirmationEmail,
   sendAppointmentConfirmationEmail,
   sendAppointmentReminderEmail,
   sendStatusUpdateEmail,
+  sendIssueStatusUpdateEmail,
 };

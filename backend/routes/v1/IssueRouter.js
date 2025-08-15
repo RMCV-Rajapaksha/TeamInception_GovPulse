@@ -7,6 +7,7 @@ const {
   getIssueById,
   updateIssueStatus,
   getAuthorityIssues,
+  getAvailableIssueStatuses,
 } = require("../../controllers/v1/IssueController");
 const {
   verifyToken,
@@ -17,6 +18,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", getIssues);
+router.get("/available-statuses", getAvailableIssueStatuses);
 router.get("/authority-issues", verifyOfficialToken, getAuthorityIssues);
 router.get("/:issue_id", getIssueById);
 router.get("/test", test);
