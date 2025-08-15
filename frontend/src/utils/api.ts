@@ -90,6 +90,19 @@ export const apiService = {
     await Promise.all(promises);
     return upvoteCounts;
   },
+
+  // Fetch issues for the logged-in user
+  async getUserIssues(): Promise<Issue[]> {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/user-issues`, {
+        withCredentials: true, // in case cookies/session are used
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user issues:", error);
+      throw error;
+    }
+  },
 };
 
 // Helper function to transform backend issue to frontend post format
