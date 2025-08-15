@@ -4,28 +4,37 @@ DROP DATABASE IF EXISTS govpulse;
 -- Create the new database named govpulse
 CREATE DATABASE govpulse;
 -- Connect to the newly created database
-\ c govpulse -- Drop tables if they exist to allow for a clean creation
--- Using CASCADE ensures that foreign key constraints are dropped along with the tables.
+\c govpulse
+-- Drop tables if they exist to allow for a clean creation
+-- Tables are dropped in a dependency-aware order to prevent errors.
 DROP TABLE IF EXISTS "FREE_TIMES" CASCADE;
--- The APPOINTMENT_ATTENDEES junction table is removed
 DROP TABLE IF EXISTS "ATTENDEES" CASCADE;
 DROP TABLE IF EXISTS "UPVOTE" CASCADE;
-DROP TABLE IF EXISTS "APPOINTMENT" CASCADE;
 DROP TABLE IF EXISTS "EMBEDDING" CASCADE;
-DROP TABLE IF EXISTS "ISSUE" CASCADE;
-DROP TABLE IF EXISTS "USER" CASCADE;
-DROP TABLE IF EXISTS "CATEGORIES" CASCADE;
-DROP TABLE IF EXISTS "AUTHORITIES" CASCADE;
-DROP TABLE IF EXISTS "ISSUE_STATUS" CASCADE;
 DROP TABLE IF EXISTS "ATTACHMENT" CASCADE;
 DROP TABLE IF EXISTS "FEEDBACK" CASCADE;
+DROP TABLE IF EXISTS "APPOINTMENT" CASCADE;
 DROP TABLE IF EXISTS "OFFICIAL" CASCADE;
--- Create the ISSUE_STATUS table
--- This table holds different statuses for issues and is linked to authorities.
-CREATE TABLE "ISSUE_STATUS" (
-    "status_id" SERIAL PRIMARY KEY,
-    "status_name" VARCHAR(255) NOT NULL,
-    "authority_id" INTEGER
+DROP TABLE IF EXISTS "ISSUE" CASCADE;
+DROP TABLE IF EXISTS "ISSUE_STATUS" CASCADE;
+DROP TABLE IF EXISTS "AUTHORITIES" CASCADE;
+DROP TABLE IF EXISTS "CATEGORIES" CASCADE;
+DROP TABLE IF EXISTS "USER" CASCADE;
+-- Create the USER table
+-- This table holds user information. The 'role' attribute has been removed.
+-- New attributes 'home_address' and 'dob' have been added.
+CREATE TABLE "USER" (
+    "user_id" SERIAL PRIMARY KEY,
+    "first_name" VARCHAR(255),
+    "last_name" VARCHAR(255),
+    "name" VARCHAR(255),
+    "email" VARCHAR(255) UNIQUE NOT NULL,
+    "password" TEXT NOT NULL,
+    "nic" VARCHAR(255),
+    "profile_image_url" TEXT,
+    "home_address" TEXT,
+    "dob" DATE,
+    "clerk_user_id" VARCHAR(255) UNIQUE -- This is used to link the user to Clerk
 );
 -- Create the CATEGORIES table
 -- This table defines different categories for issues.
@@ -46,21 +55,12 @@ CREATE TABLE "AUTHORITIES" (
     "description" TEXT,
     "category_id" INTEGER UNIQUE
 );
--- Create the USER table
--- This table holds user information. The 'role' attribute has been removed.
--- New attributes 'home_address' and 'dob' have been added.
-CREATE TABLE "USER" (
-    "user_id" SERIAL PRIMARY KEY,
-    "first_name" VARCHAR(255),
-    "last_name" VARCHAR(255),
-    "name" VARCHAR(255),
-    "email" VARCHAR(255) UNIQUE NOT NULL,
-    "password" TEXT NOT NULL,
-    "nic" VARCHAR(255),
-    "profile_image_url" TEXT,
-    "home_address" TEXT,
-    "dob" DATE,
-    "clerk_user_id" VARCHAR(255) UNIQUE -- This is used to link the user to Clerk
+-- Create the ISSUE_STATUS table
+-- This table holds different statuses for issues and is linked to authorities.
+CREATE TABLE "ISSUE_STATUS" (
+    "status_id" SERIAL PRIMARY KEY,
+    "status_name" VARCHAR(255) NOT NULL,
+    "authority_id" INTEGER
 );
 -- Create the ISSUE table
 -- This is the core table that stores details about a reported issue.
