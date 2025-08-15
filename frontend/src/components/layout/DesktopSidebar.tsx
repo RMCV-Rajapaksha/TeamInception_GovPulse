@@ -1,7 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { FiCompass, FiBarChart2, FiFolder, FiCalendar } from "react-icons/fi";
-import { BiUpvote } from "react-icons/bi";
-import { Compass, TrendUp, SquaresFour } from "@phosphor-icons/react";
+import {
+  Compass,
+  TrendUp,
+  SquaresFour,
+  Folder,
+  ThumbsUp,
+  Calendar,
+} from "@phosphor-icons/react";
 
 export default function DesktopSidebar() {
   // Replace this with your actual authentication logic
@@ -112,10 +117,22 @@ export default function DesktopSidebar() {
                 ].join(" ")
               }
             >
-              <FiFolder className="w-5 h-5" />
-              <span className="text-base leading-tight tracking-tight">
-                My Reports
-              </span>
+              {({ isActive }) => (
+                <>
+                  <Folder
+                    size={20}
+                    weight={isActive ? "fill" : "regular"}
+                    className={isActive ? "text-white" : "text-gray-600"}
+                  />
+                  <span
+                    className={`text-base leading-tight tracking-tight ${
+                      isActive ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    My Reports
+                  </span>
+                </>
+              )}
             </NavLink>
 
             <NavLink
@@ -129,10 +146,22 @@ export default function DesktopSidebar() {
                 ].join(" ")
               }
             >
-              <BiUpvote className="w-5 h-5" />
-              <span className="text-base leading-tight tracking-tight">
-                Upvoted
-              </span>
+              {({ isActive }) => (
+                <>
+                  <ThumbsUp
+                    size={20}
+                    weight={isActive ? "fill" : "regular"}
+                    className={isActive ? "text-white" : "text-gray-600"}
+                  />
+                  <span
+                    className={`text-base leading-tight tracking-tight ${
+                      isActive ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    Upvoted
+                  </span>
+                </>
+              )}
             </NavLink>
 
             <NavLink
@@ -146,10 +175,22 @@ export default function DesktopSidebar() {
                 ].join(" ")
               }
             >
-              <FiCalendar className="w-5 h-5" />
-              <span className="text-base leading-tight tracking-tight">
-                Appointments
-              </span>
+              {({ isActive }) => (
+                <>
+                  <Calendar
+                    size={20}
+                    weight={isActive ? "fill" : "regular"}
+                    className={isActive ? "text-white" : "text-gray-600"}
+                  />
+                  <span
+                    className={`text-base leading-tight tracking-tight ${
+                      isActive ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    Appointments
+                  </span>
+                </>
+              )}
             </NavLink>
           </>
         )}
