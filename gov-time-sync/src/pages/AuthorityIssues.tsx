@@ -9,7 +9,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { RefreshCw, Search, FileText, Calendar, User, MapPin, Tag, BarChart3, TrendingUp, AlertTriangle, CheckCircle, Clock, Eye } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { useToast } from "@/hooks/use-toast";
-import { apiClient, type Issue, type AuthorityIssuesResponse } from "@/lib/api";
+import { apiClient, type Issue, type AuthorityIssuesResponse, type IssueStatus } from "@/lib/api";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 
 const getUrgencyColor = (urgency: number): "default" | "destructive" | "secondary" | "outline" => {
@@ -26,17 +26,9 @@ const getUrgencyLabel = (urgency: number) => {
   return "Low";
 };
 
-const getStatusLabel = (statusId: number) => {
-  switch (statusId) {
-    case 1:
-      return "Pending Review";
-    case 2:
-      return "Assigned to Team";
-    case 3:
-      return "Completed";
-    default:
-      return "Unknown";
-  }
+const getStatusLabel = (statusId: number, availableStatuses: IssueStatus[]) => {
+  const status = availableStatuses.find(s => s.status_id === statusId);
+  return status ? status.status_name : "Unknown";
 };
 
 const AuthorityIssues = () => {
@@ -50,6 +42,7 @@ const AuthorityIssues = () => {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("overview");
+  const [availableStatuses, setAvailableStatuses] = useState<IssueStatus[]>([]);
   const { toast } = useToast();
 
   // Data processing functions for charts
@@ -70,15 +63,15 @@ const AuthorityIssues = () => {
   const getStatusDistribution = () => {
     const statusCounts = issues.reduce((acc, issue) => {
       const statusId = issue.Issue_Status.status_id;
-      const statusName = getStatusLabel(statusId);
+      const statusName = getStatusLabel(statusId, availableStatuses);
       acc[statusName] = (acc[statusName] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     return Object.entries(statusCounts).map(([name, value]) => {
-      let color = '#10b981'; // default green for completed
-      if (name === 'Pending Review') color = '#f59e0b';
-      else if (name === 'Assigned to Team') color = '#3b82f6';
+      let color = '#10b981'; // default green
+      if (name.toLowerCase().includes('pending')) color = '#f59e0b';
+      else if (name.toLowerCase().includes('assigned') || name.toLowerCase().includes('progress')) color = '#3b82f6';
       
       return { name, value, color };
     });
@@ -114,8 +107,23 @@ const AuthorityIssues = () => {
 
   const getPerformanceMetrics = () => {
     const total = issues.length;
-    const completed = issues.filter(issue => issue.Issue_Status.status_id === 3).length;
-    const assigned = issues.filter(issue => issue.Issue_Status.status_id === 2).length;
+    const completedStatuses = availableStatuses.filter(s => 
+      s.status_name.toLowerCase().includes('completed') || 
+      s.status_name.toLowerCase().includes('resolved') ||
+      s.status_name.toLowerCase().includes('closed')
+    );
+    const assignedStatuses = availableStatuses.filter(s => 
+      s.status_name.toLowerCase().includes('assigned') || 
+      s.status_name.toLowerCase().includes('progress') ||
+      s.status_name.toLowerCase().includes('working')
+    );
+    
+    const completed = issues.filter(issue => 
+      completedStatuses.some(s => s.status_id === issue.Issue_Status.status_id)
+    ).length;
+    const assigned = issues.filter(issue => 
+      assignedStatuses.some(s => s.status_id === issue.Issue_Status.status_id)
+    ).length;
     const critical = issues.filter(issue => issue.urgency_score >= 8).length;
     
     return {
@@ -124,6 +132,26 @@ const AuthorityIssues = () => {
       criticalIssues: critical,
       avgResponseTime: '2.3 days' // This would typically come from backend calculation
     };
+  };
+
+  const fetchAvailableStatuses = async () => {
+    try {
+      const statuses = await apiClient.getAvailableIssueStatuses();
+      setAvailableStatuses(statuses);
+    } catch (error) {
+      console.error("Failed to fetch available statuses:", error);
+      toast({
+        title: "Warning",
+        description: "Failed to load available statuses. Using default statuses.",
+        variant: "destructive",
+      });
+      // Fallback to default statuses if API fails
+      setAvailableStatuses([
+        { status_id: 1, status_name: "Pending Review" },
+        { status_id: 2, status_name: "Assigned to Team" },
+        { status_id: 3, status_name: "Completed" }
+      ]);
+    }
   };
 
   const fetchAuthorityIssues = async () => {
@@ -173,7 +201,11 @@ const AuthorityIssues = () => {
   };
 
   useEffect(() => {
-    fetchAuthorityIssues();
+    const initializeData = async () => {
+      await fetchAvailableStatuses();
+      await fetchAuthorityIssues();
+    };
+    initializeData();
   }, []);
 
   useEffect(() => {
@@ -507,9 +539,11 @@ const AuthorityIssues = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="1">Pending Review</SelectItem>
-                      <SelectItem value="2">Assigned to Team</SelectItem>
-                      <SelectItem value="3">Completed</SelectItem>
+                      {availableStatuses.map((status) => (
+                        <SelectItem key={status.status_id} value={status.status_id.toString()}>
+                          {status.status_name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
@@ -563,7 +597,17 @@ const AuthorityIssues = () => {
                         <div className="flex-1">
                           <CardTitle className="text-lg mb-2 flex items-center">
                             {issue.title}
-                            {issue.image_urls && <Eye className="h-4 w-4 ml-2 text-muted-foreground" />}
+                            {(() => {
+                              // Check if there are any images to show the eye icon
+                              if (issue.image_urls) {
+                                if (Array.isArray(issue.image_urls) && issue.image_urls.length > 0) {
+                                  return <Eye className="h-4 w-4 ml-2 text-muted-foreground" />;
+                                } else if (typeof issue.image_urls === 'string' && issue.image_urls.trim()) {
+                                  return <Eye className="h-4 w-4 ml-2 text-muted-foreground" />;
+                                }
+                              }
+                              return null;
+                            })()}
                           </CardTitle>
                           <CardDescription className="text-sm">
                             {issue.description.length > 150 
@@ -577,7 +621,7 @@ const AuthorityIssues = () => {
                             {getUrgencyLabel(issue.urgency_score)} ({issue.urgency_score.toFixed(1)})
                           </Badge>
                           <Badge variant="outline">
-                            {getStatusLabel(issue.Issue_Status.status_id)}
+                            {getStatusLabel(issue.Issue_Status.status_id, availableStatuses)}
                           </Badge>
                         </div>
                       </div>
@@ -621,11 +665,79 @@ const AuthorityIssues = () => {
                         </div>
                       </div>
                       
-                      <div className="flex justify-between items-center">
+                      {/* Display Images */}
+                      {(() => {
+                        // Safely handle image_urls - it might be null, undefined, string, or array
+                        let imageUrls: string[] = [];
+                        
+                        if (issue.image_urls) {
+                          if (Array.isArray(issue.image_urls)) {
+                            imageUrls = issue.image_urls;
+                          } else if (typeof issue.image_urls === 'string') {
+                            try {
+                              // Try to parse as JSON if it's a string
+                              const parsed = JSON.parse(issue.image_urls);
+                              imageUrls = Array.isArray(parsed) ? parsed : [issue.image_urls];
+                            } catch {
+                              // If parsing fails, treat as single URL
+                              imageUrls = [issue.image_urls];
+                            }
+                          }
+                        }
+                        
+                        return imageUrls.length > 0 ? (
+                          <div className="mt-4">
+                            <div className="text-sm font-medium mb-2 flex items-center">
+                              <Eye className="h-4 w-4 mr-2" />
+                              Attached Images ({imageUrls.length})
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                              {imageUrls.map((imageUrl, index) => (
+                                <div key={index} className="relative group">
+                                  <img
+                                    src={imageUrl}
+                                    alt={`Issue attachment ${index + 1}`}
+                                    className="w-full h-24 object-cover rounded-lg border shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                                    onClick={() => window.open(imageUrl, '_blank')}
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = '/placeholder.svg';
+                                      target.alt = 'Failed to load image';
+                                    }}
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 rounded-lg transition-all duration-200 flex items-center justify-center">
+                                    <Eye className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
+                      
+                      <div className="flex justify-between items-center mt-4">
                         <div className="flex gap-2">
-                          {issue.image_urls && (
-                            <Badge variant="secondary">Has Images</Badge>
-                          )}
+                          {(() => {
+                            // Safely calculate image count for badge
+                            let imageCount = 0;
+                            
+                            if (issue.image_urls) {
+                              if (Array.isArray(issue.image_urls)) {
+                                imageCount = issue.image_urls.length;
+                              } else if (typeof issue.image_urls === 'string') {
+                                try {
+                                  const parsed = JSON.parse(issue.image_urls);
+                                  imageCount = Array.isArray(parsed) ? parsed.length : 1;
+                                } catch {
+                                  imageCount = 1;
+                                }
+                              }
+                            }
+                            
+                            return imageCount > 0 ? (
+                              <Badge variant="secondary">{imageCount} Image{imageCount > 1 ? 's' : ''}</Badge>
+                            ) : null;
+                          })()}
                         </div>
                         <Button
                           onClick={() => {
@@ -661,7 +773,7 @@ const AuthorityIssues = () => {
                   <div>
                     <div className="text-sm font-medium">Current Status</div>
                     <p className="text-sm text-muted-foreground">
-                      {getStatusLabel(selectedIssue.Issue_Status.status_id)}
+                      {getStatusLabel(selectedIssue.Issue_Status.status_id, availableStatuses)}
                     </p>
                   </div>
                   <div>
@@ -671,9 +783,11 @@ const AuthorityIssues = () => {
                         <SelectValue placeholder="Select new status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">Pending Review</SelectItem>
-                        <SelectItem value="2">Assigned to Team</SelectItem>
-                        <SelectItem value="3">Completed</SelectItem>
+                        {availableStatuses.map((status) => (
+                          <SelectItem key={status.status_id} value={status.status_id.toString()}>
+                            {status.status_name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

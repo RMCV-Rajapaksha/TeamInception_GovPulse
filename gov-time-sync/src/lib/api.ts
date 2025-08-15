@@ -89,6 +89,12 @@ export interface Issue {
   };
 }
 
+export interface IssueStatus {
+  status_id: number;
+  status_name: string;
+  authority_id?: number;
+}
+
 export interface Feedback {
   feedback_id: number;
   appointment_id: number;
@@ -417,6 +423,22 @@ class ApiClient {
         ...this.getAuthHeaders(),
       },
       body: JSON.stringify({ status_id: statusId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    return response.json();
+  }
+
+  async getAvailableIssueStatuses(): Promise<IssueStatus[]> {
+    const response = await fetch(`${API_BASE_URL}/authorities/get-available-issue-status-of-authority`, {
+      method: 'GET',
+      headers: {
+        ...this.getAuthHeaders(),
+      },
     });
 
     if (!response.ok) {
