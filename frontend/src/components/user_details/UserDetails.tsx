@@ -1,4 +1,6 @@
+import { useUser } from "@clerk/clerk-react";
 import React, { useRef, useState } from "react";
+import toast from "react-hot-toast";
 import {
   FiCheck,
   FiClock,
@@ -19,6 +21,9 @@ export default function UserDetails({
 
   const [photos, setPhotos] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isSignedIn, isLoaded, user } = useUser();
+  const [firstName, setFirstName] = useState(user?.firstName || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
 
   const handlePhotoDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -36,8 +41,31 @@ export default function UserDetails({
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
   };
+  // console.log(user);
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const updatedDetails = {
+      ...(firstName && { firstName }),
+      ...(lastName && { lastName }),
+    };
+    console.log("updated", updatedDetails);
+    try {
+      if (user) {
+        await user.update({
+          firstName: firstName || undefined,
+          lastName: lastName || undefined,
+        });
+        toast.success("Profile updated successfully!");
+      }
+    } catch (err) {
+      console.error("Failed to update user:", err);
+      toast.error("Failed to update profile. Please try again.");
+    }
+  };
+
   return (
-    <form>
+    <form onSubmit={handleUpdate}>
       <div>
         <h4 className="font-bold mb-1">User Details</h4>
         <hr className="my-4 border-gray-200" />
@@ -53,6 +81,8 @@ export default function UserDetails({
               <input
                 type="text"
                 placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 className="pl-10 border-gray-300 rounded-lg p-3 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black w-full"
               />
             </div>
@@ -64,6 +94,8 @@ export default function UserDetails({
               <input
                 type="text"
                 placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 className="pl-10 border-gray-300 rounded-lg p-3 bg-gray-100 text-black focus:outline-none focus:ring-2 focus:ring-black flex-1"
               />
             </div>
