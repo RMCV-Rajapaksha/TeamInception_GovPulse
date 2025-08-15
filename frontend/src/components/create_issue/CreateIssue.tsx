@@ -151,7 +151,7 @@ export default function CreateIssue({
     setImageUploadingInProgress(true);
     
     try {
-      const res = await axios.post(`${backendAddress}/api/v2/upload-image`, formData, {
+      const res = await axios.post(`${backendAddress}/upload-image`, formData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -187,7 +187,7 @@ export default function CreateIssue({
   };
 
   // submit for issue creation
-   await axios.post(`${backendAddress}/api/v2/issues/create`, dataToSubmit, {
+   await axios.post(`${backendAddress}/issues/create`, dataToSubmit, {
     headers: {
       Authorization: `Bearer ${token}`, 
       "Content-Type": "application/json",
