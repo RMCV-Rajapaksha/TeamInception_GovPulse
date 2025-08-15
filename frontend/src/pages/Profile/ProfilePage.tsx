@@ -10,7 +10,6 @@ import { GoPulse } from "react-icons/go";
 import { BsSliders } from "react-icons/bs";
 import ProfileListButton from "./ProfileListButton";
 import { SignedIn, SignOutButton, UserButton } from "@clerk/clerk-react";
-import { useState } from "react";
 
 export default function ProfilePage() {
   return (

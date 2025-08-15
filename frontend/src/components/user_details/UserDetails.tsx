@@ -15,13 +15,13 @@ export default function UserDetails({
 }: {
   userVerifiedStatus: "Verified" | "Pending" | "Not Verified";
 }) {
-  const [userVerifiedStatus, setUserVerifiedStatus] = useState<
+  const [userVerifiedStatus] = useState<
     "Verified" | "Pending" | "Not Verified"
   >(initialStatus);
 
   const [photos, setPhotos] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isSignedIn, isLoaded, user } = useUser();
+  const { user } = useUser();
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
 

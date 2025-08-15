@@ -4,7 +4,7 @@ import { FiSettings } from "react-icons/fi";
 import UserDetails from "@/components/user_details/UserDetails";
 
 const UserProfilePage = () => {
-  const [userVerifiedStatus, setUserVerifiedStatus] = useState<
+  const [userVerifiedStatus] = useState<
     "Verified" | "Pending" | "Not Verified"
   >("Not Verified");
   return (
