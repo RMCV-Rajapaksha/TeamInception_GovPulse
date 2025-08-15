@@ -9,6 +9,7 @@ import {
 } from "react-icons/fi";
 import React from "react";
 import Chatbot from "../chatbot/Chatbot";
+import { useUser } from "@clerk/clerk-react";
 
 function Tab({
   to,
@@ -44,6 +45,7 @@ function Tab({
 export default function MobileTabBar() {
   const { pathname } = useLocation();
   const [isChatbotOpen, setIsChatbotOpen] = React.useState(false);
+  const { isSignedIn } = useUser();
   return (
     <>
       {/* Mobile Tab Bar */}
@@ -73,7 +75,7 @@ export default function MobileTabBar() {
             <FiBell className="h-5 w-5" />
           </Tab>
           <Tab
-            to="/profile"
+            to={isSignedIn ? "/profile" : "/sign-in"}
             label="Profile"
             selected={pathname.startsWith("/profile")}
           >

@@ -10,6 +10,7 @@ import ProfilePage from "../pages/Profile/ProfilePage";
 import MyReportsPage from "../pages/MyReports/MyReportsPage";
 import UpvotedIssuesPage from "../pages/UpvotedIssues/UpvotedIssuesPage";
 import AppointmentsPage from "../pages/Appointments/AppointmentsPage";
+import UserProfilePage from "@/pages/Profile/UserProfile";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
           { path: "/myreports", element: <MyReportsPage /> },
           { path: "/upvoted-issues", element: <UpvotedIssuesPage /> },
           { path: "/appointments", element: <AppointmentsPage /> },
+          { path: "/user-profile", element: <UserProfilePage /> },
         ],
       },
     ],

@@ -72,7 +72,7 @@ export default function UserDetails({
       </div>
       <div className="flex flex-col gap-3">
         <div>
-          <div className="flex justify-between gap-2">
+          <div className="flex flex-col md:flex-row justify-between gap-2">
             {/* First Name with icon */}
             <div className="relative flex-1">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
