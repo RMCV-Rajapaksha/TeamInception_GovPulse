@@ -10,6 +10,7 @@ require("dotenv").config();
 
 const app = express();
 const port = process.env.BACKEND_PORT || 4000;
+
 // v1 routers
 const issueRouterV1 = require("./routes/v1/IssueRouter");
 const userRouterV1 = require("./routes/v1/UserRouter");
@@ -37,12 +38,10 @@ const commentRouterV2 = require("./routes/v2/CommentRouter");
 const feedbackRouterV2 = require("./routes/v2/FeedbackRouter");
 
 // Load OpenAPI specification
-const swaggerDocumentV1 = YAML.parse(
+const swaggerDocument = YAML.parse(
   fs.readFileSync("./openapi-spec-v1.yaml", "utf8")
 );
-const swaggerDocumentV2 = YAML.parse(
-  fs.readFileSync("./openapi-spec-v2.yaml", "utf8")
-);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -79,22 +78,12 @@ app.use("/api/v2/feedback", feedbackRouterV2);
 
 // Swagger UI route
 app.use(
-  "/api-docs-v1",
+  "/api-docs",
   swaggerUi.serve,
-  swaggerUi.setup(swaggerDocumentV1, {
+  swaggerUi.setup(swaggerDocument, {
     explorer: true,
     customCss: ".swagger-ui .topbar { display: none }",
     customSiteTitle: "GovPulse API Documentation",
-  })
-);
-
-app.use(
-  "/api-docs-v2",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocumentV2, {
-    explorer: true,
-    customCss: ".swagger-ui .topbar { display: none }",
-    customSiteTitle: "GovPulse API Documentation v2",
   })
 );
 
@@ -114,9 +103,6 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
   console.log(
-    `API Documentation for v1 api available at http://localhost:${port}/api-docs-v1`
-  );
-  console.log(
-    `API Documentation for v2 api available at http://localhost:${port}/api-docs-v2`
+    `API Documentation available at http://localhost:${port}/api-docs`
   );
 });
