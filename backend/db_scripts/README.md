@@ -20,3 +20,20 @@ psql -h localhost -p 5432 -U postgres -f govpulse_db_create.sql
 psql -h localhost -p 5432 -U postgres -f sample_data_insert.sql
 ```
 
+# Sample data Includes
+
+| Table Name   | Number of Records |
+| ------------ | ----------------- |
+| USER         | 10                |
+| OFFICIAL     | 10                |
+| CATEGORIES   | 10                |
+| AUTHORITIES  | 10                |
+| ISSUE_STATUS | 10                |
+| ISSUE        | 22                |
+| APPOINTMENT  | 12                |
+| UPVOTE       | 14                |
+| ATTENDEES    | 10                |
+| FREE_TIMES   | 11                |
+| EMBEDDING    | 4                 |
+| ATTACHMENT   | 4                 |
+| FEEDBACK     | 4                 |
