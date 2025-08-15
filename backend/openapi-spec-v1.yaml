@@ -374,7 +374,7 @@
         deprecated: false
         security: 
           - BearerAuth: []
-    /api/v1/issues/issues:
+    /api/v1/issues:
       get:
         summary: Get all issues
         operationId: getIssues
@@ -399,7 +399,7 @@
                   example: Internal Server Error
         deprecated: false
         security: []
-    /api/v1/issues/issues/{issue_id}:
+    /api/v1/issues/{issue_id}:
       get:
         summary: Get issue by ID
         operationId: getIssueById

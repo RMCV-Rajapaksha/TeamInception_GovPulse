@@ -319,7 +319,7 @@ paths:
       deprecated: false
       security: 
         - BearerAuth: []
-  /api/v2/issues/issues:
+  /api/v2/issues:
     get:
       summary: Get all issues
       operationId: getIssues
@@ -344,7 +344,7 @@ paths:
                 example: Internal Server Error
       deprecated: false
       security: []
-  /api/v2/issues/issues/{issue_id}:
+  /api/v2/issues/{issue_id}:
     get:
       summary: Get issue by ID
       operationId: getIssueById
