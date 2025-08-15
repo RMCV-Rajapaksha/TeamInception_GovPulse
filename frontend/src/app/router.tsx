@@ -15,6 +15,10 @@ import AppointmentConfirmationPage from "../pages/Services/AppointmentConfirmati
 import QRVerificationPage from "../pages/QRVerificationPage";
 import ReceiptDemoPage from "../pages/ReceiptDemoPage";
 import FigmaPrintableDemoPage from "../pages/FigmaPrintableDemoPage";
+import ProfilePage from "../pages/Profile/ProfilePage";
+import MyReportsPage from "../pages/MyReports/MyReportsPage";
+import UpvotedIssuesPage from "../pages/UpvotedIssues/UpvotedIssuesPage";
+import AppointmentsPage from "../pages/Appointments/AppointmentsPage";
 
 export const router = createBrowserRouter([
   {
@@ -35,7 +39,13 @@ export const router = createBrowserRouter([
       { path: "/sign-up", element: <SignUpPage /> },
       {
         element: <ProtectedLayout />,
-        children: [{ path: "/dashboard", element: <DashboardPage /> }],
+        children: [
+          { path: "/dashboard", element: <DashboardPage /> },
+          { path: "/profile", element: <ProfilePage /> },
+          { path: "/myreports", element: <MyReportsPage /> },
+          { path: "/upvoted-issues", element: <UpvotedIssuesPage /> },
+          { path: "/appointments", element: <AppointmentsPage /> }
+        ],
       },
     ],
   },

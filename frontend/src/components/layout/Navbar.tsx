@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import React, { useId, useState } from "react";
+import React, { useId } from "react";
 import { FiSearch, FiBell, FiPlus, FiSettings, FiUser, FiCreditCard } from "react-icons/fi";
 import CreateIssue from "../create_issue/CreateIssue";
 import NotificationPopup from "../ui/NotificationPopup";
-import UserDetails from "../user_details/UserDetails";
 import { useAuthShim } from "../../app/providers";
 
 
@@ -14,9 +13,6 @@ export default function Navbar() {
   const [isReportedClicked, setIsReportedClicked] = React.useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = React.useState(false);
   const { user } = useUser();
-  const [userVerifiedStatus, setUserVerifiedStatus] = useState<
-    "Verified" | "Pending" | "Not Verified"
-  >("Not Verified");
 
   return (
     <>

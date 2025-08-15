@@ -39,7 +39,7 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
         
         // get backed address from .env file
         // Replace with your actual API endpoint
-        await axios.get(`${backendAddress}/api/authorities/get-authorities-by-user`, {
+        await axios.get(`${backendAddress}/api/v2/authorities/get-authorities-by-user`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -143,7 +143,7 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
     setImageUploadingInProgress(true);
     
     try {
-      const res = await axios.post(`${backendAddress}/api/upload-image`, formData, {
+      const res = await axios.post(`${backendAddress}/api/v2/upload-image`, formData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -179,7 +179,7 @@ export default function CreateIssue({ isReportedClicked, setIsReportedClicked }:
   };
 
   // submit for issue creation
-   await axios.post(`${backendAddress}/api/issues/v2/create`, dataToSubmit, {
+   await axios.post(`${backendAddress}/api/v2/issues/create`, dataToSubmit, {
     headers: {
       Authorization: `Bearer ${token}`, 
       "Content-Type": "application/json",
