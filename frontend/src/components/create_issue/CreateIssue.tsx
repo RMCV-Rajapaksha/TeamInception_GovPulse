@@ -157,7 +157,7 @@ export default function CreateIssue({
 
       try {
         const res = await axios.post(
-          `${backendAddress}/api/upload-image`,
+          `${backendAddress}/upload-image`,
           formData,
           {
             headers: {
@@ -200,7 +200,7 @@ export default function CreateIssue({
 
     // submit for issue creation
     await axios
-      .post(`${backendAddress}/api/issues/v2/create`, dataToSubmit, {
+      .post(`${backendAddress}/issues/create`, dataToSubmit, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
