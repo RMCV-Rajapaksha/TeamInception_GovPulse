@@ -8,7 +8,6 @@ import SignUpPage from "../pages/Auth/SignUpPage";
 import StatisticsPage from "../pages/Statistics/StatisticsPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
 import MyReportsPage from "@/pages/MyReports/MyReportsPage";
-import UpvotedIssuesPage from "@/pages/UpvotedIssues/UpvotedIssuesPage";
 import AppointmentsPage from "@/pages/Appointments/AppointmentsPage";
 import ServicesPage from "../pages/Services/ServicesPage";
 import RegistrationsPage from "../pages/Registrations/RegistrationsPage";
@@ -43,7 +42,6 @@ export const router = createBrowserRouter([
           { path: "/dashboard", element: <DashboardPage /> },
           { path: "/profile", element: <ProfilePage /> },
           { path: "/myreports", element: <MyReportsPage /> },
-          { path: "/upvoted-issues", element: <UpvotedIssuesPage /> },
           { path: "/appointments", element: <AppointmentsPage /> },
         ],
       },

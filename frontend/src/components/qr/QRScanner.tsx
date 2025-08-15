@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import  { useState, useRef, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { ScanQrCode } from "lucide-react";
 import jsQR from "jsqr";
@@ -306,12 +306,6 @@ export default function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
           </button>
         </div>
 
-        {/* Debug Info - Remove in production */}
-        {debugInfo && (
-          <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
-            Debug: {debugInfo}
-          </div>
-        )}
 
         {/* Debug Button - Remove in production */}
         {isScanning && (

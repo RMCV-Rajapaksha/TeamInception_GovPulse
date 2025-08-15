@@ -1,7 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { FiCompass, FiBarChart2, FiFolder, FiCalendar } from "react-icons/fi";
-import { BiUpvote } from "react-icons/bi";
-import { Compass, TrendUp, SquaresFour } from "@phosphor-icons/react";
+import {
+  Compass,
+  TrendUp,
+  SquaresFour,
+  Folder,
+  ThumbsUp,
+  Calendar,
+} from "@phosphor-icons/react";
 
 export default function DesktopSidebar() {
   // Replace this with your actual authentication logic
@@ -9,13 +14,13 @@ export default function DesktopSidebar() {
 
   return (
     <aside className="hidden md:block fixed left-0 top-[80px] h-screen px-8 py-12 z-50 pointer-events-auto">
-      <div className="w-[10rem] p-2 rounded-2xl ring-1 ring-gray-200 inline-flex flex-col justify-center items-start gap-2 bg-white/80 backdrop-blur-sm">
+      <div className="w-48 p-4 rounded-2xl border border-gray-200 inline-flex flex-col justify-center items-start gap-3 bg-white/80 backdrop-blur-sm">
         <NavLink
           to="/"
           end
           className={({ isActive }) =>
             [
-              "self-stretch p-2 rounded-[8px] inline-flex justify-start items-center gap-2 transition-colors",
+              "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
               isActive
                 ? "bg-gray-900 text-white"
                 : "text-gray-600 hover:bg-gray-100",
@@ -25,7 +30,7 @@ export default function DesktopSidebar() {
           {({ isActive }) => (
             <>
               <Compass
-                size={20}
+                size={24}
                 weight={isActive ? "fill" : "regular"}
                 className={isActive ? "text-white" : "text-gray-600"}
               />
@@ -44,7 +49,7 @@ export default function DesktopSidebar() {
           to="/stats"
           className={({ isActive }) =>
             [
-              "self-stretch p-2 rounded-[8px] inline-flex justify-start items-center gap-2 transition-colors",
+              "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
               isActive
                 ? "bg-gray-900 text-white"
                 : "text-gray-600 hover:bg-gray-100",
@@ -54,7 +59,7 @@ export default function DesktopSidebar() {
           {({ isActive }) => (
             <>
               <TrendUp
-                size={20}
+                size={24}
                 weight={isActive ? "fill" : "regular"}
                 className={isActive ? "text-white" : "text-gray-600"}
               />
@@ -73,7 +78,7 @@ export default function DesktopSidebar() {
           to="/services"
           className={({ isActive }) =>
             [
-              "self-stretch p-2 rounded-[8px] inline-flex justify-start items-center gap-2 transition-colors",
+              "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
               isActive
                 ? "bg-gray-900 text-white"
                 : "text-gray-600 hover:bg-gray-100",
@@ -83,7 +88,7 @@ export default function DesktopSidebar() {
           {({ isActive }) => (
             <>
               <SquaresFour
-                size={20}
+                size={24}
                 weight={isActive ? "fill" : "regular"}
                 className={isActive ? "text-white" : "text-gray-600"}
               />
@@ -105,51 +110,58 @@ export default function DesktopSidebar() {
               to="/myreports"
               className={({ isActive }) =>
                 [
-                  "self-stretch p-2 rounded-lg inline-flex justify-start items-center gap-2 transition-colors",
+                  "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
                   isActive
                     ? "bg-gray-900 text-gray-50"
                     : "text-gray-600 hover:bg-gray-100",
                 ].join(" ")
               }
             >
-              <FiFolder className="w-5 h-5" />
-              <span className="text-base leading-tight tracking-tight">
-                My Reports
-              </span>
-            </NavLink>
-
-            <NavLink
-              to="/upvoted-issues"
-              className={({ isActive }) =>
-                [
-                  "self-stretch p-2 rounded-lg inline-flex justify-start items-center gap-2 transition-colors",
-                  isActive
-                    ? "bg-gray-900 text-gray-50"
-                    : "text-gray-600 hover:bg-gray-100",
-                ].join(" ")
-              }
-            >
-              <BiUpvote className="w-5 h-5" />
-              <span className="text-base leading-tight tracking-tight">
-                Upvoted
-              </span>
+              {({ isActive }) => (
+                <>
+                  <Folder
+                    size={24}
+                    weight={isActive ? "fill" : "regular"}
+                    className={isActive ? "text-white" : "text-gray-600"}
+                  />
+                  <span
+                    className={`text-base leading-tight tracking-tight ${
+                      isActive ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    My Reports
+                  </span>
+                </>
+              )}
             </NavLink>
 
             <NavLink
               to="/appointments"
               className={({ isActive }) =>
                 [
-                  "self-stretch p-2 rounded-lg inline-flex justify-start items-center gap-2 transition-colors",
+                  "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
                   isActive
                     ? "bg-gray-900 text-gray-50"
                     : "text-gray-600 hover:bg-gray-100",
                 ].join(" ")
               }
             >
-              <FiCalendar className="w-5 h-5" />
-              <span className="text-base leading-tight tracking-tight">
-                Appointments
-              </span>
+              {({ isActive }) => (
+                <>
+                  <Calendar
+                    size={24}
+                    weight={isActive ? "fill" : "regular"}
+                    className={isActive ? "text-white" : "text-gray-600"}
+                  />
+                  <span
+                    className={`text-base leading-tight tracking-tight ${
+                      isActive ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    Appointments
+                  </span>
+                </>
+              )}
             </NavLink>
           </>
         )}
