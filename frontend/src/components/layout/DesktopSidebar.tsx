@@ -136,35 +136,6 @@ export default function DesktopSidebar() {
             </NavLink>
 
             <NavLink
-              to="/upvoted-issues"
-              className={({ isActive }) =>
-                [
-                  "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
-                  isActive
-                    ? "bg-gray-900 text-gray-50"
-                    : "text-gray-600 hover:bg-gray-100",
-                ].join(" ")
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <ThumbsUp
-                    size={24}
-                    weight={isActive ? "fill" : "regular"}
-                    className={isActive ? "text-white" : "text-gray-600"}
-                  />
-                  <span
-                    className={`text-base leading-tight tracking-tight ${
-                      isActive ? "text-white" : "text-gray-600"
-                    }`}
-                  >
-                    Upvoted
-                  </span>
-                </>
-              )}
-            </NavLink>
-
-            <NavLink
               to="/appointments"
               className={({ isActive }) =>
                 [
