@@ -134,87 +134,70 @@ export default function CreateIssue({
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
     // authorit_id in sectorOptions of object with name equal to sector
-    const selectedSector = sectorOptions.find(
-      (option) => option.name === sector
-    );
-    if (!selectedSector) {
-      setErrors((prev) => ({
-        ...prev,
-        sector: "Please select a valid government sector.",
-      }));
-      return;
-    }
-    const authority_id = selectedSector.authority_id;
-    const token = await getToken();
-    // if photos are present, upload them to backend and get their URLs
-    var image_urls: string[] = [];
-    if (photos.length > 0) {
-      const formData = new FormData();
-      photos.forEach((file) => {
-        formData.append("images", file);
-      });
-      setImageUploadingInProgress(true);
-
-      try {
-        const res = await axios.post(
-          `${backendAddress}/upload-image`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        // Check if upload was cancelled
-        if (uploadCancelled) {
-          setImageUploadingInProgress(false);
-          return;
+  const selectedSector = sectorOptions.find((option) => option.name === sector);
+  if (!selectedSector) {
+    setErrors((prev) => ({ ...prev, sector: "Please select a valid government sector." }));
+    return;
+  }
+  const authority_id = selectedSector.authority_id;
+  const token = await getToken();
+  // if photos are present, upload them to backend and get their URLs
+  var image_urls: string[] = [];
+  if (photos.length > 0) {
+    const formData = new FormData();
+    photos.forEach((file) => {
+      formData.append("images", file);
+    });
+    setImageUploadingInProgress(true);
+    
+    try {
+      const res = await axios.post(`${backendAddress}/api/v2/upload-image`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-
-        // response contains a an array property named images, in each element property called url is present
-        image_urls = res.data.images.map((image: { url: string }) => image.url);
-        console.log("Uploaded image URLs:", image_urls);
-      } catch (error) {
-        console.error("Error uploading photos:", error);
-        setErrors((prev) => ({
-          ...prev,
-          photos: "Failed to upload photos. Please try again.",
-        }));
+      });
+      
+      // Check if upload was cancelled
+      if (uploadCancelled) {
         setImageUploadingInProgress(false);
         return;
       }
-
+      
+      // response contains a an array property named images, in each element property called url is present
+      image_urls = res.data.images.map((image: { url: string }) => image.url);
+      console.log("Uploaded image URLs:", image_urls);
+    } catch (error) {
+      console.error("Error uploading photos:", error);
+      setErrors((prev) => ({ ...prev, photos: "Failed to upload photos. Please try again." }));
       setImageUploadingInProgress(false);
+      return;
     }
-    const dataToSubmit = {
-      title: title,
-      description: description,
-      gs_division: grama,
-      ds_division: district,
-      city: city,
-      status_id: 1,
-      authority_id: authority_id,
-      image_urls: image_urls,
-    };
+    
+    setImageUploadingInProgress(false);
+}
+  const dataToSubmit = {
+    title:title,
+    description: description,
+    gs_division: grama,
+    ds_division:district,
+    city: city,
+    status_id: 1,
+    authority_id: authority_id,
+    image_urls: image_urls,
+  };
 
-    // submit for issue creation
-    await axios
-      .post(`${backendAddress}/issues/create`, dataToSubmit, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .catch((error) => {
-        console.error("Error creating issue:", error);
-        setErrors((prev) => ({
-          ...prev,
-          submit: "Failed to create issue. Please try again.",
-        }));
-      });
-    // Simulate successful submit
-    setShowSuccess(true);
+  // submit for issue creation
+   await axios.post(`${backendAddress}/api/v2/issues/create`, dataToSubmit, {
+    headers: {
+      Authorization: `Bearer ${token}`, 
+      "Content-Type": "application/json",
+    },
+  }).catch((error) => {
+    console.error("Error creating issue:", error);
+    setErrors((prev) => ({ ...prev, submit: "Failed to create issue. Please try again." }));
+  });
+  // Simulate successful submit
+  setShowSuccess(true);
   };
 
   // Close dropdowns on outside click
