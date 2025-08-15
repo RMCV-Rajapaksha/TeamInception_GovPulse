@@ -1,6 +1,7 @@
 const { parse } = require("dotenv");
 const { PrismaClient } = require("../../generated/prisma");
 const { getUrgencyScore } = require("../../utils/GeminiFunctions");
+const { sendIssueStatusUpdateEmail } = require("../../utils/EmailFunctions");
 
 const prisma = new PrismaClient();
 
@@ -235,11 +236,14 @@ const updateIssueStatus = async (req, res) => {
       return res.status(400).json({ error: "Status ID is required" });
     }
 
-    // Check if the issue exists first
+    // Check if the issue exists first and get current status
     const existingIssue = await prisma.issue.findUnique({
       where: { issue_id: parseInt(issue_id) },
       include: {
         Authority: true,
+        User: true,
+        Issue_Status: true,
+        Category: true,
       },
     });
 
@@ -255,6 +259,18 @@ const updateIssueStatus = async (req, res) => {
       });
     }
 
+    // Get the new status information
+    const newStatusInfo = await prisma.issue_Status.findUnique({
+      where: { status_id: parseInt(status_id) },
+    });
+
+    if (!newStatusInfo) {
+      return res.status(404).json({ error: "Invalid status ID" });
+    }
+
+    // Store previous status for email
+    const previousStatus = existingIssue.Issue_Status?.status_name || "Unknown";
+
     // Update the issue status
     const updatedIssue = await prisma.issue.update({
       where: { issue_id: parseInt(issue_id) },
@@ -269,10 +285,37 @@ const updateIssueStatus = async (req, res) => {
       },
     });
 
+    // Send email notification to the user
+    try {
+      const emailData = {
+        userEmail: updatedIssue.User.email,
+        userName: updatedIssue.User.name,
+        userFirstName: updatedIssue.User.first_name,
+        userLastName: updatedIssue.User.last_name,
+        issueId: updatedIssue.issue_id,
+        issueTitle: updatedIssue.title,
+        issueDescription: updatedIssue.description,
+        previousStatus: previousStatus,
+        newStatus: updatedIssue.Issue_Status.status_name,
+        authorityName: updatedIssue.Authority.name,
+        categoryName: updatedIssue.Category.category_name,
+        urgencyScore: updatedIssue.urgency_score || 0,
+        updatedAt: new Date(),
+        issueCreatedAt: updatedIssue.created_at,
+      };
+
+      await sendIssueStatusUpdateEmail(emailData);
+      console.log(`Status update email sent for issue #${issue_id}`);
+    } catch (emailError) {
+      console.error("Failed to send status update email:", emailError);
+      // Don't fail the entire request if email fails
+    }
+
     // Send a 200 OK response with the updated issue
     res.status(200).json({
       message: "Issue status updated successfully",
       issue: updatedIssue,
+      email_sent: true, // Indicate that email was attempted
     });
   } catch (error) {
     // Log the error for debugging
@@ -334,6 +377,28 @@ const getAuthorityIssues = async (req, res) => {
   }
 };
 
+const getAvailableIssueStatuses = async (req, res) => {
+  try {
+    // Fetch all available issue statuses
+    const statuses = await prisma.issue_Status.findMany({
+      orderBy: {
+        status_id: 'asc',
+      },
+    });
+
+    // Send a 200 OK response with the available statuses
+    res.status(200).json(statuses);
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Failed to fetch available issue statuses:", error);
+
+    // Send a 500 Internal Server Error response
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching available issue statuses." });
+  }
+};
+
 module.exports = {
   test,
   createIssue,
@@ -343,4 +408,5 @@ module.exports = {
   getIssues,
   updateIssueStatus,
   getAuthorityIssues,
+  getAvailableIssueStatuses,
 };
