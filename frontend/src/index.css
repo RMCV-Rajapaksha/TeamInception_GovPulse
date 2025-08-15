@@ -3,6 +3,10 @@
 @import "./tokens.css";
 
 @custom-variant dark (&:is(.dark *));
+<<<<<<< HEAD
+@import "./tokens.css";
+=======
+>>>>>>> f027141fc2329653ea642a5d1696de634d286646
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
