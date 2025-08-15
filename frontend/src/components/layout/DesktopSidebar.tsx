@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
-import { Compass, TrendUp, SquaresFour, FiFolder, FiCalendar } from "@phosphor-icons/react";
+import { FiCompass, FiBarChart2, FiFolder, FiCalendar } from "react-icons/fi";
 import { BiUpvote } from "react-icons/bi";
+import { Compass, TrendUp, SquaresFour } from "@phosphor-icons/react";
 
 export default function DesktopSidebar() {
   // Replace this with your actual authentication logic

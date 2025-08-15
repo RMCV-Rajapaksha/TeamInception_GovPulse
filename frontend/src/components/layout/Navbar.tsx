@@ -105,7 +105,7 @@ export default function Navbar() {
               >
                 <FiPlus className="h-5 w-5" aria-hidden />
                 <span className="hidden sm:inline">Report</span>
-              </div>
+              </button>
             ) : (
               <Link
                 to="/sign-in"
