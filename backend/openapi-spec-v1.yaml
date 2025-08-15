@@ -9,6 +9,8 @@
       description: endpoints related to government officials
     - name: issues-related
       description: endpoints related to issues
+    - name: authority-related
+      description: endpoints related to government authorities
     - name: time-slot-related
       description: endpoints related to time slots for appointments
     - name: appointment-related
@@ -372,7 +374,7 @@
         deprecated: false
         security: 
           - BearerAuth: []
-    /api/v1/issues/issues:
+    /api/v1/issues:
       get:
         summary: Get all issues
         operationId: getIssues
@@ -397,7 +399,7 @@
                   example: Internal Server Error
         deprecated: false
         security: []
-    /api/v1/issues/issues/{issue_id}:
+    /api/v1/issues/{issue_id}:
       get:
         summary: Get issue by ID
         operationId: getIssueById
@@ -1991,6 +1993,59 @@
         deprecated: false
         security:
           - BearerAuth: []
+    /api/v1/authorities/get-available-issue-status-of-authority:
+      get:
+        summary: Get available issue statuses for authority
+        operationId: getAvailableIssueStatusOfAuthority
+        description: Retrieves all issue statuses that are available for the authenticated government official's authority
+        tags:
+          - authority-related
+        responses:
+          "200":
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/models.issueStatusData"
+          "400":
+            description: Bad Request - Authority ID not found in token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Authority ID not found in token."
+          "401":
+            description: Unauthorized - Invalid token
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Unauthorized - Invalid token
+          "404":
+            description: Not Found - No issue statuses found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "No issue statuses found for this authority."
+          "500":
+            description: Internal Server Error
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: Internal Server Error  
+        deprecated: false
+        security:
+          - BearerAuth: []
   components:
     securitySchemes:
       BearerAuth:
@@ -2510,6 +2565,25 @@
             format: int64
             nullable: true
             example: null
+
+      models.issueStatusData:
+        type: object
+        properties:
+          status_id:
+            type: integer
+            format: int64
+            example: 1
+          status_name:
+            type: string
+            example: "Pending"
+          authority_id:
+            type: integer
+            format: int64
+            nullable: true
+            example: 1
+        required:
+          - status_id
+          - status_name
 
       models.createFeedbackReqObj:
         type: object
