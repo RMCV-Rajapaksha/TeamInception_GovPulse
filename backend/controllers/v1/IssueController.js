@@ -382,7 +382,7 @@ const getAvailableIssueStatuses = async (req, res) => {
     // Fetch all available issue statuses
     const statuses = await prisma.issue_Status.findMany({
       orderBy: {
-        status_id: 'asc',
+        status_id: "asc",
       },
     });
 
@@ -395,7 +395,9 @@ const getAvailableIssueStatuses = async (req, res) => {
     // Send a 500 Internal Server Error response
     res
       .status(500)
-      .json({ message: "An error occurred while fetching available issue statuses." });
+      .json({
+        message: "An error occurred while fetching available issue statuses.",
+      });
   }
 };
 
