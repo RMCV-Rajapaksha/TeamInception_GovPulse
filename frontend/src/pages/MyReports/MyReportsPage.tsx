@@ -1,72 +1,54 @@
-import { useState } from "react";
-import ReportCard, { type Issue } from "@/components/reports/ReportCard";
+import { useEffect, useState } from "react";
+import ReportCard, { type Issue as ReportCardIssue } from "@/components/reports/ReportCard";
 import ReportBottomSheet from "@/components/reports/ReportBottomSheet";
+import { apiService, transformIssueToPost } from "@/utils/api"; 
 
 export default function MyReportsPage() {
-    const [selected, setSelected] = useState<Issue | null>(null);
-    const [open, setOpen] = useState(false);
-  
-    const handleInsights = (issue: Issue) => {
-      setSelected(issue);
-      setOpen(true);
+  const [selected, setSelected] = useState<ReportCardIssue | null>(null);
+  const [open, setOpen] = useState(false);
+  const [issues, setIssues] = useState<ReportCardIssue[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const handleInsights = (issue: ReportCardIssue) => {
+    setSelected(issue);
+    setOpen(true);
+  };
+  const handleClose = () => setOpen(false);
+
+  useEffect(() => {
+    const fetchUserIssues = async () => {
+      try {
+        setLoading(true);
+        const data = await apiService.getUserIssues(); 
+        const upvoteCounts = await apiService.getUpvoteCounts(data.map((i) => i.issue_id));
+
+        const transformed = data.map((issue) => {
+          const base = transformIssueToPost(issue, upvoteCounts[issue.issue_id] || 0);
+          return {
+            ...base,
+            sector: issue.Category?.category_name || "General",
+            views: upvoteCounts[issue.issue_id] || 0, // Map votes to views
+            id: `#SL-GOV-${issue.issue_id.toString().padStart(8, "0")}`, // custom ID format
+            statusHistory: [
+              {
+                title: issue.Issue_Status?.status_name || "Submitted",
+                date: base.date,
+              },
+            ],
+          } as ReportCardIssue;
+        });
+
+        setIssues(transformed);
+      } catch (err) {
+        console.error("Failed to fetch user issues", err);
+      } finally {
+        setLoading(false);
+      }
     };
-    const handleClose = () => setOpen(false);
 
-      const issues: Issue[] = [
-        {
-            imageUrl: "/post/post1.jpg",
-            date: "July 22, 2025",
-            location: "Matugama, Kalutara",
-            views: 386, // from posts.votes
-            title: "Severely Damaged Road Near Matugama Town",
-            description:
-            "The main access road leading into Matugama town from the southern expressway has been severely damaged for over six months. Multiple large potholes, broken tarmac, and poor drainage have made the road nearly unusable during heavy rains. Local residents and daily commuters report frequent accidents and vehicle breakdowns.",
-            sector: "Roads & Infrastructure",
-            id: "#SL-GOV-2025-00483",
-            statusHistory: [
-            { title: "Work Completed", date: "2 Aug 2025 — 10:15 AM" },
-            {
-                title: "Work in Progress",
-                date: "27 July 2025 — 3:40 PM",
-                details: "Repair crew assigned. Expected completion within 5 days.",
-            },
-            { title: "Verified", date: "24 July 2025 — 9:05 AM" },
-            { title: "Submitted", date: "22 July 2025 — 11:27 AM" },
-            ],
-        },
-        {
-            imageUrl: "/post/post2.jpg",
-            date: "July 30, 2025",
-            location: "Gampola, Kandy",
-            views: 237,
-            title: "Cracked Walls at Ranabima College",
-            description:
-            "Several buildings at Ranabima Royal College have fallen into a state of disrepair. Leaking roofs, exposed wiring, and visible cracks in classroom walls are affecting the safety of students.",
-            sector: "Education",
-            id: "#SL-GOV-2025-00484",
-            statusHistory: [
-            { title: "Verified", date: "31 July 2025 — 9:15 AM" },
-            { title: "Submitted", date: "30 July 2025 — 8:45 AM" },
-            ],
-        },
-        {
-            imageUrl: "/post/post2.jpg",
-            date: "July 30, 2025",
-            location: "Gampola, Kandy",
-            views: 237,
-            title: "Cracked Walls at Ranabima College",
-            description:
-            "Several buildings at Ranabima Royal College have fallen into a state of disrepair. Leaking roofs, exposed wiring, and visible cracks in classroom walls are affecting the safety of students.",
-            sector: "Education",
-            id: "#SL-GOV-2025-00485",
-            statusHistory: [
-            { title: "Verified", date: "31 July 2025 — 9:15 AM" },
-            { title: "Submitted", date: "30 July 2025 — 8:45 AM" },
-            ],
-        },
-        ];
+    fetchUserIssues();
+  }, []);
 
-    
   return (
     <div className="pb-24 md:ml-[14rem] px-10 md:px-0 md:pl-[5rem] md:pr-[15rem]">
       {/* Header */}
@@ -77,16 +59,22 @@ export default function MyReportsPage() {
         </p>
       </div>
 
-    {/* Reports List */}
-    <div className="mt-6 divide-y divide-gray-200">
-            {issues.map((issue) => (
-                <div key={issue.id} className="py-4">
-                <ReportCard issue={issue} onVote={handleInsights} />
-                </div>
-            ))}
+      {/* Reports List */}
+      <div className="mt-6 divide-y divide-gray-200">
+        {loading ? (
+          <p className="text-gray-500">Loading your reports...</p>
+        ) : issues.length === 0 ? (
+          <p className="text-gray-500">No reports found.</p>
+        ) : (
+          issues.map((issue) => (
+            <div key={issue.id} className="py-4">
+              <ReportCard issue={issue} onVote={handleInsights} />
             </div>
-    
-            <ReportBottomSheet issue={selected} isOpen={open} onClose={handleClose} />
+          ))
+        )}
+      </div>
+
+      <ReportBottomSheet issue={selected} isOpen={open} onClose={handleClose} />
     </div>
-  )
+  );
 }
