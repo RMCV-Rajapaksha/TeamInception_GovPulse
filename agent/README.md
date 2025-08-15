@@ -2,7 +2,7 @@
 
 **GovPulse** is an intelligent multi-agent system designed to streamline access to Sri Lankan government services through AI-powered digital assistants. Built using Google's Agent-to-Agent Protocol (A2A), this platform enables seamless communication between specialized government service agents.
 
-![Architecture Diagram](images/agent-arch.png)
+![Architecture Diagram](images/agent-arch.jpg)
 
 ## 🎯 Project Overview
 
