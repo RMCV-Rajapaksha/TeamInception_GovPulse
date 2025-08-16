@@ -36,7 +36,7 @@ export default function Navbar() {
   return (
     <>
       <div className="sticky top-0 z-50 w-full bg-white/80 border-b border-gray-200 backdrop-blur-sm flex justify-center py-3">
-        <div className="w-full px-4 md:px-8 py-2 flex items-center gap-4 md:gap-16 min-w-0">
+        <div className="w-full pl-4 md:pl-8 pr-6 md:pr-12 py-2 flex items-center gap-4 md:gap-16 min-w-0">
           {/* Logo */}
           <Link
             to="/"
@@ -51,13 +51,13 @@ export default function Navbar() {
           </Link>
 
           {/* Search Bar and QR Scanner Container */}
-          <div className="flex-1 max-w-3xl hidden sm:flex items-center gap-2 min-w-0">
+          <div className="flex-1 max-w-5xl hidden sm:flex items-center gap-2 min-w-0">
             {/* Search Bar */}
             <div className="flex-1 min-w-0">
               <label htmlFor={searchId} className="sr-only">
                 Search
               </label>
-              <div className="flex-1 h-10 px-3 md:px-4 rounded-2xl border border-gray-300 bg-white/70 flex items-center gap-2 min-w-0">
+              <div className="flex-1 h-10 pl-3 md:pl-4 pr-6 md:pr-8 rounded-2xl border border-gray-300 bg-white/70 flex items-center gap-2 min-w-0">
                 <input
                   id={searchId}
                   placeholder="Search"
@@ -122,20 +122,22 @@ export default function Navbar() {
               </Link>
             )}
 
-            <div className="relative">
-              <Link
-                to="/notifications"
-                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent transition-colors duration-200 flex items-center justify-center"
-                aria-label="Notifications"
-              >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </Link>
-            </div>
+            {hasClerk && user != null && (
+              <div className="relative">
+                <Link
+                  to="/notifications"
+                  className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent transition-colors duration-200 flex items-center justify-center"
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+            )}
 
             {/* Auth/Profile - hidden on mobile, visible from sm and up */}
             <div className="pl-2  hidden sm:block">
