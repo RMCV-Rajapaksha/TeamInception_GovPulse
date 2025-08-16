@@ -9,6 +9,7 @@ import StatisticsPage from "../pages/Statistics/StatisticsPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
 import MyReportsPage from "@/pages/MyReports/MyReportsPage";
 import AppointmentsPage from "@/pages/Appointments/AppointmentsPage";
+import MyAppointmentsPage from "@/pages/Services/MyAppointmentsPage";
 import RegistrationsPage from "../pages/Registrations/RegistrationsPage";
 import DrivingLicensePage from "../pages/Services/DrivingLicensePage";
 import AppointmentBookingPage from "../pages/Services/AppointmentBookingPage";
@@ -37,7 +38,7 @@ export const router = createBrowserRouter([
       { path: "/figma-printable", element: <FigmaPrintableDemoPage /> },
       { path: "/sign-in", element: <SignInPage /> },
       { path: "/sign-up", element: <SignUpPage /> },
-      { path: "/my-services", element: <MyServicesAppointmentPage /> },
+      { path: "/my-services", element: <MyAppointmentsPage /> },
       {
         element: <ProtectedLayout />,
         children: [
