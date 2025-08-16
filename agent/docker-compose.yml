@@ -1,35 +1,6 @@
 version: "3.8"
 
 services:
-  # Host Agent (Main Orchestrator)
-  host-agent:
-    build:
-      context: .
-      dockerfile: Dockerfile.host
-    container_name: govpulse-host
-    ports:
-      - "11000:11000"
-    environment:
-      - OPEN_API_KEY=${OPEN_API_KEY}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
-      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
-      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-GovPulse}
-      - CEB_AGENT_URL=http://ceb-agent:10010
-      - HEALTH_AGENT_URL=http://health-agent:10011
-    depends_on:
-      - ceb-agent
-      - health-agent
-    networks:
-      - govpulse-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
   # CEB Agent (Ceylon Electricity Board)
   ceb-agent:
     build:
@@ -74,6 +45,35 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:10011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Host Agent (Main Orchestrator)
+  host-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.host
+    container_name: govpulse-host
+    ports:
+      - "11000:11000"
+    environment:
+      - OPEN_API_KEY=${OPEN_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-GovPulse}
+      - CEB_AGENT_URL=http://ceb-agent:10010
+      - HEALTH_AGENT_URL=http://health-agent:10011
+    depends_on:
+      - ceb-agent
+      - health-agent
+    networks:
+      - govpulse-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
