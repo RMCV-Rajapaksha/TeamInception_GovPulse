@@ -1,6 +1,5 @@
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
-from langchain_deepseek import ChatDeepSeek
 from langgraph.prebuilt import create_react_agent
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import AIMessage, ToolMessage
