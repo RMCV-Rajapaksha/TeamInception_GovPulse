@@ -9,6 +9,7 @@ import {
 } from "react-icons/fi";
 import React from "react";
 import Chatbot from "../chatbot/Chatbot";
+import CreateIssue from "../create_issue/CreateIssue";
 import { useUser } from "@clerk/clerk-react";
 
 function Tab({
@@ -45,7 +46,18 @@ function Tab({
 export default function MobileTabBar() {
   const { pathname } = useLocation();
   const [isChatbotOpen, setIsChatbotOpen] = React.useState(false);
+  const [isReportedClicked, setIsReportedClicked] = React.useState(false);
   const { isSignedIn } = useUser();
+
+  const handleReportClick = () => {
+    if (isSignedIn) {
+      setIsReportedClicked(true);
+    } else {
+      // Redirect to sign-in page or show sign-in modal
+      window.location.href = "/sign-in";
+    }
+  };
+
   return (
     <>
       {/* Mobile Tab Bar */}
@@ -61,12 +73,13 @@ export default function MobileTabBar() {
           >
             <FiBarChart2 className="h-5 w-5" />
           </Tab>
-          <div
+          <button
+            onClick={handleReportClick}
             aria-label="Report"
-            className="w-14 h-14 bg-gray-900 rounded-[32px] inline-flex items-center justify-center text-white shadow-md opacity-60 pointer-events-none"
+            className="w-14 h-14 bg-gray-900 rounded-[32px] inline-flex items-center justify-center text-white shadow-md hover:bg-gray-800 transition-colors pointer-events-auto"
           >
             <FiPlus className="h-6 w-6 text-white" />
-          </div>
+          </button>
           <Tab
             to="/notifications"
             label="Notification"
@@ -97,6 +110,12 @@ export default function MobileTabBar() {
 
       {/* Chatbot panel (mobile: full, desktop: floating) */}
       <Chatbot open={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
+
+      {/* Create Issue Modal */}
+      <CreateIssue
+        isReportedClicked={isReportedClicked}
+        setIsReportedClicked={setIsReportedClicked}
+      />
     </>
   );
 }

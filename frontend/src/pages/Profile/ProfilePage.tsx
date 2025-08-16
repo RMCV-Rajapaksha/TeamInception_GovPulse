@@ -8,6 +8,7 @@ import { FiFolder, FiCalendar } from "react-icons/fi";
 import { BiUpvote } from "react-icons/bi";
 import { GoPulse } from "react-icons/go";
 import { BsSliders } from "react-icons/bs";
+import { SquaresFour, StackIcon } from "@phosphor-icons/react"; // Add these imports
 import ProfileListButton from "./ProfileListButton";
 import { SignedIn, SignOutButton, UserButton } from "@clerk/clerk-react";
 
@@ -46,17 +47,24 @@ export default function ProfilePage() {
             />
 
             <ProfileListButton
-              icon={BiUpvote}
-              title="Upvoted issues"
-              description="See issues you’ve supported"
-              route="/upvoted-issues"
-            />
-
-            <ProfileListButton
               icon={FiCalendar}
               title="Appointments"
               description="Manage your appointments"
               route="/appointments"
+            />
+
+            <ProfileListButton
+              icon={SquaresFour}
+              title="Services"
+              description="Browse and access government services"
+              route="/services"
+            />
+
+            <ProfileListButton
+              icon={StackIcon}
+              title="Service Appointments"
+              description="Manage your service appointments"
+              route="/my-services"
             />
           </TabsContent>
 

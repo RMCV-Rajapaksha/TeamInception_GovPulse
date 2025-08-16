@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import React, { useId, useState} from "react";
+import React, { useId, useState } from "react";
 import {
   Search,
   Bell,
@@ -40,7 +40,7 @@ export default function Navbar() {
   return (
     <>
       <div className="sticky top-0 z-50 w-full bg-white/80 border-b border-gray-200 backdrop-blur-sm flex justify-center py-3">
-        <div className="w-full px-4 md:px-8 py-2 flex items-center gap-4 md:gap-16 min-w-0">
+        <div className="w-full pl-4 md:pl-8 pr-6 md:pr-12 py-2 flex items-center gap-4 md:gap-16 min-w-0">
           {/* Logo */}
           <Link
             to="/"
@@ -55,13 +55,13 @@ export default function Navbar() {
           </Link>
 
           {/* Search Bar and QR Scanner Container */}
-          <div className="flex-1 max-w-3xl hidden sm:flex items-center gap-2 min-w-0">
+          <div className="flex-1 max-w-5xl hidden sm:flex items-center gap-2 min-w-0">
             {/* Search Bar */}
             <div className="flex-1 min-w-0">
               <label htmlFor={searchId} className="sr-only">
                 Search
               </label>
-              <div className="flex-1 h-10 px-3 md:px-4 rounded-2xl border border-gray-300 bg-white/70 flex items-center gap-2 min-w-0">
+              <div className="flex-1 h-10 pl-3 md:pl-4 pr-6 md:pr-8 rounded-2xl border border-gray-300 bg-white/70 flex items-center gap-2 min-w-0">
                 <input
                   id={searchId}
                   placeholder="Search"
@@ -140,24 +140,24 @@ export default function Navbar() {
                 <div className="absolute right-0 top-full mt-2 z-50 w-[90vw] max-w-xs sm:w-80">
                   <NotificationPopup
                     notifications={[
-  {
-    id: "1",
-    type: "appointment",
-    title: "Invite to Schedule Appointment",
-    description: "...",
-    date: "2 Aug 2025 — 9:45 AM",
-    onScheduleNow: () => {},
-    onNotNow: () => {},
-  },
-  {
-    id: "2",
-    type: "issue",
-    title: "Your issue is gaining traction!",
-    description: "...",
-    date: "2 Aug 2025 — 9:45 AM",
-    onViewIssue: () => {},
-  }
-]}
+                      {
+                        id: "1",
+                        type: "appointment",
+                        title: "Invite to Schedule Appointment",
+                        description: "...",
+                        date: "2 Aug 2025 — 9:45 AM",
+                        onScheduleNow: () => {},
+                        onNotNow: () => {},
+                      },
+                      {
+                        id: "2",
+                        type: "issue",
+                        title: "Your issue is gaining traction!",
+                        description: "...",
+                        date: "2 Aug 2025 — 9:45 AM",
+                        onViewIssue: () => {},
+                      },
+                    ]}
                     onClose={() => setIsNotificationOpen(false)}
                     onMarkAllRead={() => setIsNotificationOpen(false)}
                   />
