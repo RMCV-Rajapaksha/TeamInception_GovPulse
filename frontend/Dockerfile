@@ -16,8 +16,8 @@ COPY . .
 # Build the application for production with relaxed TypeScript checks
 RUN npm run build:prod
 
-# Expose the port the app runs on
-EXPOSE 5173
+# Expose the port the app runs on (Vite preview uses 4173 by default)
+EXPOSE 4173
 
-# Command to run the application
-CMD ["npm", "run", "preview"]
+# Command to run the application with host binding
+CMD ["npm", "run", "preview", "--", "--host"]
