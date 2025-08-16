@@ -4,7 +4,6 @@ import {
   TrendUp,
   SquaresFour,
   Folder,
-  ThumbsUp,
   Calendar,
   StackIcon
 } from "@phosphor-icons/react";

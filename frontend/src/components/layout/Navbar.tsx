@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import React, { useId, useState } from "react";
+import React, { useId, } from "react";
 import {
   Search,
   Bell,
