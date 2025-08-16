@@ -16,8 +16,21 @@ export default function HomePage() {
     setSelected(post);
     setOpen(true);
   };
-  const handleClose = () => setOpen(false);
 
+  const handleClose = () => {
+    setOpen(false);
+    setSelected(null);
+  };
+
+  // Handle vote updates from the modal
+  const handleVoteUpdate = (updatedPost: Post) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => (post.id === updatedPost.id ? updatedPost : post))
+    );
+    setSelected(updatedPost);
+  };
+
+  // ...existing code...
   // Fetch issues from the backend
   useEffect(() => {
     const fetchIssues = async () => {
@@ -52,6 +65,8 @@ export default function HomePage() {
 
     fetchIssues();
   }, []);
+
+  // ...existing trending items and loading/error states...
 
   const trendingItems = [
     {
@@ -181,7 +196,12 @@ export default function HomePage() {
         </div>
       )}
 
-      <PostDetailsModal post={selected} isOpen={open} onClose={handleClose} />
+      <PostDetailsModal
+        post={selected}
+        isOpen={open}
+        onClose={handleClose}
+        onVoteUpdate={handleVoteUpdate}
+      />
     </div>
   );
 }
