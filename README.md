@@ -228,7 +228,20 @@ ENVIRONMENT=development
 LOG_LEVEL=info
 ```
 
-#### Step 3: Service Installation & Startup
+### 🐳 Step 3 - Option 1 - Docker Compose
+
+For containerized deployment:
+
+```bash
+# Build and run all services
+docker-compose up --build
+
+# Or run specific services
+docker-compose up frontend backend
+```
+- **Frontend Exposed To**: `http://localhost:5174`
+
+#### Step 3 - Option 2 - Individual Installation & Startup
 
 **🌐 Frontend Service**
 
@@ -310,17 +323,6 @@ Verify all services are running:
 - ✅ CEB Agent: `http://localhost:10010`
 - ✅ Health Agent: `http://localhost:10011`
 
-### 🐳 Docker Setup (Alternative)
-
-For containerized deployment:
-
-```bash
-# Build and run all services
-docker-compose up --build
-
-# Or run specific services
-docker-compose up frontend backend
-```
 
 
 ## 💡 Usage Examples
