@@ -23,17 +23,20 @@ interface AuthenticationError {
 }
 
 class WebSocketService {
-  private socket: any | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private socket: any = null;
   private token: string | null = null;
   private reconnectAttempts: number = 0;
-  private maxReconnectAttempts: number = 5;
-  private reconnectInterval: number = 5000;
+  private readonly maxReconnectAttempts: number = 5;
+  private readonly reconnectInterval: number = 5000;
 
   connect(token: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.token = token;
       
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+      // Get the base backend URL (remove /api/v2 suffix if present)
+      const envBackendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+      const backendUrl = envBackendUrl.replace(/\/api\/v2$/, '');
       
       this.socket = io(backendUrl, {
         transports: ['websocket', 'polling'],
