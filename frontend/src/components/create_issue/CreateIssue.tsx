@@ -183,7 +183,7 @@ export default function CreateIssue({
     city: city,
     status_id: 1,
     authority_id: authority_id,
-    image_urls: image_urls[0], 
+    image_urls: image_urls[0] ? image_urls[0] : null,
   };
 
   // submit for issue creation
