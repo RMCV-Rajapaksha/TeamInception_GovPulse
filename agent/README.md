@@ -8,39 +8,6 @@
 
 GovPulse serves as a centralized platform that connects citizens with various government services through intelligent agents. Each agent specializes in specific government domains (CEB, Health, etc.) and can handle complex queries, provide real-time updates, and assist with service requests.
 
-## 🏗️ System Architecture
-
-```
-GovPulse/
-├── backend/
-│   ├── host/                    # Central Host Agent (GovPulse Core)
-│   │   ├── host_agent.py        # Main orchestration logic
-│   │   ├── remote_agent_connection.py  # Agent communication
-│   │   └── server.py           # FastAPI server (Port 11000)
-│   │
-│   ├── agents/                  # Specialized Government Service Agents
-│   │   ├── ceb/                # Ceylon Electricity Board Agent
-│   │   │   ├── agent.py        # CEB-specific logic & tools
-│   │   │   ├── server.py       # CEB agent server (Port 10010)
-│   │   │   └── task_manager.py # Task handling & streaming
-│   │   └── health/             # Health Ministry Agent
-│   │       ├── agent.py        # Health service logic
-│   │       ├── server.py       # Health agent server (Port 10011)
-│   │       └── task_manager.py # Health task management
-│   │
-│   ├── api/                    # External API integrations
-│   │   └── ceb_api.py         # Perplexity API for CEB updates
-│   │
-│   ├── common/                 # Shared infrastructure
-│   │   ├── types.py           # A2A protocol types & models
-│   │   ├── client/            # A2A client implementation
-│   │   ├── server/            # A2A server framework
-│   │   └── utils/             # Authentication & caching
-│   │
-└── images/
-    └── agent-arch.png         # System architecture diagram
-```
-
 ## � Agent Ecosystem
 
 ### � Host Agent (GovPulse Core)
@@ -128,18 +95,17 @@ cd GovPulse/agent
 Create a `.env` file in the `agent/` directory:
 ```env
 # AI/ML API Keys
-OPEN_API_KEY=your_openai_api_key
-GOOGLE_API_KEY=your_google_api_key
 
-# Optional: Advanced Features
-LANGSMITH_API_KEY=your_langsmith_key
+OPEN_API_KEY=
+GOOGLE_API_KEY=
 LANGCHAIN_TRACING_V2=false
-LANGSMITH_PROJECT=GovPulse
+LANGSMITH_PROJECT=A2A-v.1.0.0
+
 
 # Agent Configuration
 HOST_AGENT_PORT=11000
 CEB_AGENT_PORT=10010
-HEALTH_AGENT_PORT=10011
+HEALTH_AGENT_PORT=8080
 ```
 
 **3. Build Docker Images**
