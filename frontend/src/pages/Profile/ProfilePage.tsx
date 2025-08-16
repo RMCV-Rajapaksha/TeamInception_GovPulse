@@ -1,9 +1,15 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
-import { FiFolder, FiCalendar } from "react-icons/fi"
-import { BiUpvote } from "react-icons/bi"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
+import { FiFolder, FiCalendar } from "react-icons/fi";
+import { BiUpvote } from "react-icons/bi";
 import { GoPulse } from "react-icons/go";
 import { BsSliders } from "react-icons/bs";
 import ProfileListButton from "./ProfileListButton";
+import { SignedIn, SignOutButton, UserButton } from "@clerk/clerk-react";
 
 export default function ProfilePage() {
   return (
@@ -33,34 +39,41 @@ export default function ProfilePage() {
 
           <TabsContent value="activity" className="mt-6 space-y-3">
             <ProfileListButton
-                icon={FiFolder}
-                title="My reports"
-                description="View and track all your reported issues"
-                route="/myreports"
-            />
-            
-             <ProfileListButton
-                icon={BiUpvote}
-                title="Upvoted issues"
-                description="See issues you’ve supported"
-                route="/upvoted-issues"
+              icon={FiFolder}
+              title="My reports"
+              description="View and track all your reported issues"
+              route="/myreports"
             />
 
             <ProfileListButton
-                icon={FiCalendar}
-                title="Appointments"
-                description="Manage your appointments"
-                route="/appointments"
+              icon={BiUpvote}
+              title="Upvoted issues"
+              description="See issues you’ve supported"
+              route="/upvoted-issues"
             />
-            
+
+            <ProfileListButton
+              icon={FiCalendar}
+              title="Appointments"
+              description="Manage your appointments"
+              route="/appointments"
+            />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">
             {/* Add settings content here */}
-            Settings content goes here.
+            <SignedIn>
+              {/* <UserDetails userVerifiedStatus={userVerifiedStatus} /> */}
+              <UserButton
+                showName={true}
+                userProfileMode="navigation"
+                userProfileUrl="/user-profile"
+              />
+              <SignOutButton />
+            </SignedIn>
           </TabsContent>
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
