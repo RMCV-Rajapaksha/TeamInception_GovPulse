@@ -1,6 +1,17 @@
 # 🏛️ GovPulse - Intelligent Government Issue Management Platform
 
-**GovPulse** is a comprehensive solution designed to enhance government efficiency in Sri Lanka by providing transparency, accountability, and intelligent prioritization of public issues. The platform leverages advanced AI technology to create a fair and logical system for addressing long-standing government issues that have been overlooked or covered up.
+**GovPulse** is a comprehensive s└── main.py                     # Application Entry Point
+```
+
+## 🏗️ System Architecture Diagram
+
+The GovPulse platform follows a modular, microservices-based architecture that enables scalable and maintainable government issue management. The diagram below illustrates the overall system architecture and component interactions:
+
+![GovPulse Architecture](docs/GovPulse-architecture.drawio.png)
+
+*System architecture diagram showing the interaction between frontend, backend services, AI agents, and external integrations in the GovPulse ecosystem*
+
+## 📊 Database Schema & ER Diagramion designed to enhance government efficiency in Sri Lanka by providing transparency, accountability, and intelligent prioritization of public issues. The platform leverages advanced AI technology to create a fair and logical system for addressing long-standing government issues that have been overlooked or covered up.
 
 ![GovPulse Platform](https://img.shields.io/badge/Platform-Government_Service_Management-blue)
 ![License](https://img.shields.io/badge/License-Educational-green)
