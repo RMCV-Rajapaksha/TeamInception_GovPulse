@@ -37,6 +37,7 @@ export const router = createBrowserRouter([
       { path: "/figma-printable", element: <FigmaPrintableDemoPage /> },
       { path: "/sign-in", element: <SignInPage /> },
       { path: "/sign-up", element: <SignUpPage /> },
+      { path: "/my-services", element: <MyServicesAppointmentPage /> },
       {
         element: <ProtectedLayout />,
         children: [

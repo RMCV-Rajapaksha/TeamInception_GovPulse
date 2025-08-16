@@ -6,6 +6,7 @@ import {
   Folder,
   ThumbsUp,
   Calendar,
+  StackIcon
 } from "@phosphor-icons/react";
 
 export default function DesktopSidebar() {
@@ -103,6 +104,35 @@ export default function DesktopSidebar() {
           )}
         </NavLink>
 
+        <NavLink
+          to="/my-services"
+          className={({ isActive }) =>
+            [
+              "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
+              isActive
+                ? "bg-gray-900 text-white"
+                : "text-gray-600 hover:bg-gray-100",
+            ].join(" ")
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <StackIcon
+                size={24}
+                weight={isActive ? "fill" : "regular"}
+                className={isActive ? "text-white" : "text-gray-600"}
+              />
+              <span
+                className={`text-base leading-tight tracking-tight ${
+                  isActive ? "text-white" : "text-gray-600"
+                }`}
+              >
+                Service Appointments
+              </span>
+            </>
+          )}
+        </NavLink>
+
         {/* Show profile activity items when logged in */}
         {isLoggedIn && (
           <>
@@ -158,7 +188,7 @@ export default function DesktopSidebar() {
                       isActive ? "text-white" : "text-gray-600"
                     }`}
                   >
-                    Appointments
+                    Issue Appointments
                   </span>
                 </>
               )}
