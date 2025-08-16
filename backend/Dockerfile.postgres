@@ -1,0 +1,13 @@
+# Use the official Postgres image as the base
+FROM postgres:15-alpine
+
+# Set environment variables for Postgres
+ENV POSTGRES_USER=govpulse
+ENV POSTGRES_PASSWORD=govpulse123
+ENV POSTGRES_DB=govpulse_db
+
+# Copy initialization scripts
+COPY db_scripts/govpulse_db_create.sql /docker-entrypoint-initdb.d/01_govpulse_db_create.sql
+COPY db_scripts/sample_data_insert.sql /docker-entrypoint-initdb.d/02_sample_data_insert.sql
+
+# The default command will run postgres and execute scripts in /docker-entrypoint-initdb.d

@@ -1,0 +1,41 @@
+version: '3.9'
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: govpulse_postgres
+    environment:
+      POSTGRES_USER: govpulse
+      POSTGRES_PASSWORD: govpulse123
+      POSTGRES_DB: govpulse_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U govpulse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: govpulse_backend
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: govpulse
+      DB_PASSWORD: govpulse123
+      DB_NAME: govpulse_db
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
