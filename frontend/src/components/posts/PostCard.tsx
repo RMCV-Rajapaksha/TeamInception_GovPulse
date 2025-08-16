@@ -5,8 +5,10 @@ import {
   FiMessageCircle,
   FiArrowUp,
 } from "react-icons/fi";
-
 import { PiShareFatThin } from "react-icons/pi";
+import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import { upvoteService } from "@/utils/api";
 
 export type Post = {
   id: string;
@@ -26,7 +28,23 @@ export default function PostCard({
   post: Post;
   onVote?: (post: Post) => void;
 }) {
-  const { title, description, date, location, votes, status, imageUrl } = post;
+  const { title, description, date, location, status, imageUrl } = post;
+  const { isSignedIn } = useAuth();
+  const [votes, setVotes] = useState(post.votes);
+
+  // Update votes when post prop changes
+  useEffect(() => {
+    setVotes(post.votes);
+  }, [post.votes]);
+
+  const handleVoteClick = () => {
+    if (!isSignedIn) {
+      alert("Please sign in to vote");
+      return;
+    }
+    // Open the modal instead of voting directly
+    onVote?.(post);
+  };
 
   return (
     <article className="w-full">
@@ -70,15 +88,16 @@ export default function PostCard({
           {/* Actions */}
           <div className="flex">
             <button
-              onClick={() => onVote?.(post)}
-              className="flex items-center gap-3 h-12 lg:h-14 px-5 lg:px-6 rounded-2xl border border-gray-300 bg-gray-50 text-gray-900 font-bold hover:bg-gray-100 transition-colors duration-200"
+              onClick={handleVoteClick}
+              className="flex items-center gap-3 h-12 lg:h-14 px-5 lg:px-6 rounded-2xl border border-gray-300 bg-gray-50 text-gray-900 hover:bg-gray-100 font-bold transition-colors duration-200"
             >
-              <FiArrowUp className="h-5 w-5" /> Vote
+              <FiArrowUp className="h-5 w-5" />
+              Vote
             </button>
           </div>
         </div>
 
-        {/* Right image + status */}
+        {/* Image section */}
         <div className="flex-shrink-0 w-72 lg:w-80 relative rounded-2xl overflow-hidden">
           <img
             src={imageUrl}
@@ -149,10 +168,11 @@ export default function PostCard({
           {/* Actions */}
           <div className="py-3">
             <button
-              onClick={() => onVote?.(post)}
-              className="flex items-center gap-3 h-12 lg:h-14 px-5 rounded-2xl border border-gray-300 bg-gray-50 text-gray-900 font-bold w-full justify-center hover:bg-gray-100 transition-colors duration-200"
+              onClick={handleVoteClick}
+              className="flex items-center gap-3 h-12 lg:h-14 px-5 rounded-2xl border border-gray-300 bg-gray-50 text-gray-900 hover:bg-gray-100 font-bold w-full justify-center transition-colors duration-200"
             >
-              <FiArrowUp className="h-5 w-5" /> Vote
+              <FiArrowUp className="h-5 w-5" />
+              Vote
             </button>
           </div>
         </div>
