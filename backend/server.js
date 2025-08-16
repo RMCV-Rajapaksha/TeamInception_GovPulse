@@ -3,13 +3,26 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const fs = require("fs");
 const YAML = require("yaml");
+const { createServer } = require("http");
 require("dotenv").config();
 
 // Initialize notification service
 // const notificationService = require("./utils/NotificationService");
 
 const app = express();
+const server = createServer(app);
 const port = process.env.BACKEND_PORT || 4000;
+
+// Initialize WebSocket
+const { initializeWebSocket } = require("./websocket");
+const { activeConnections, notificationQueue } = initializeWebSocket(server);
+
+// Set WebSocket connections in LiveNotificationController
+const liveNotificationController = require("./controllers/v2/LiveNotificationController");
+liveNotificationController.setWebSocketConnections(
+  activeConnections,
+  notificationQueue
+);
 
 // v1 routers
 const issueRouterV1 = require("./routes/v1/IssueRouter");
@@ -36,6 +49,7 @@ const imageUploadRouterV2 = require("./routes/v2/ImageUploadRouter");
 const upvoteRouterV2 = require("./routes/v2/UpvoteRouter");
 const commentRouterV2 = require("./routes/v2/CommentRouter");
 const feedbackRouterV2 = require("./routes/v2/FeedbackRouter");
+const liveNotificationRouterV2 = require("./routes/v2/LiveNotificationRouter");
 
 // Load OpenAPI specification
 const swaggerDocument = YAML.parse(
@@ -75,6 +89,7 @@ app.use("/api/v2/upload-image", imageUploadRouterV2);
 app.use("/api/v2/upvotes", upvoteRouterV2);
 app.use("/api/v2/comments", commentRouterV2);
 app.use("/api/v2/feedback", feedbackRouterV2);
+app.use("/api/v2/live-notifications", liveNotificationRouterV2);
 
 // Swagger UI route
 app.use(
@@ -100,8 +115,8 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+server.listen(port, () => {
+  console.log(`Server with WebSocket is running on http://localhost:${port}`);
   console.log(
     `API Documentation available at http://localhost:${port}/api-docs`
   );

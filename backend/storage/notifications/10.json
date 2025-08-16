@@ -1,0 +1,13 @@
+[
+  {
+    "id": "notif_1755336782175_pmxl2ps9c",
+    "user_id": 10,
+    "notification_type": "approved_for_appointment_scheduling",
+    "notification_content": "Your issue with the title \"Damaged pedestrian bridge\" has been approved for the placing of an appointment. If you would like to book an appointment press the book now button.",
+    "issue_id": 21,
+    "authority_id": 1,
+    "appointment_id": null,
+    "timestamp": "2025-08-16T09:33:02.175Z",
+    "read": false
+  }
+]
