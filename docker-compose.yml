@@ -1,0 +1,183 @@
+version: "3.9"
+
+services:
+  # Database service (from backend)
+  govpulse-db:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.postgres
+    container_name: govpulse_postgres
+    environment:
+      POSTGRES_USER: govpulse
+      POSTGRES_PASSWORD: govpulse123
+      POSTGRES_DB: govpulse_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U govpulse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - govpulse-network
+    restart: unless-stopped
+
+  # Backend service
+  govpulse-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: govpulse_backend
+    environment:
+      NODE_ENV: production
+      DB_HOST: govpulse-db
+      DB_PORT: 5432
+      DB_USER: govpulse
+      DB_PASSWORD: govpulse123
+      DB_NAME: govpulse_db
+    ports:
+      - "3000:3000"
+    depends_on:
+      govpulse-db:
+        condition: service_healthy
+    networks:
+      - govpulse-network
+    restart: unless-stopped
+
+  # Frontend service
+  govpulse-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: govpulse_frontend
+    ports:
+      - "5174:4173"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - govpulse-network
+    restart: unless-stopped
+    depends_on:
+      - govpulse-backend
+
+  # Gov-Time-Sync Frontend service
+  govtimesync-frontend:
+    build:
+      context: ./gov-time-sync
+      dockerfile: Dockerfile
+    container_name: govtimesync_frontend
+    ports:
+      - "3001:8080" # Changed port to avoid conflict with backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - govpulse-network
+
+  # CEB Agent (Ceylon Electricity Board)
+  ceb-agent:
+    build:
+      context: ./agent
+      dockerfile: Dockerfile.ceb
+    container_name: govpulse_ceb_agent
+    ports:
+      - "10010:10010"
+    environment:
+      - OPEN_API_KEY=${OPEN_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY:-}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-GovPulse}
+    networks:
+      - govpulse-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Health Agent (Ministry of Health)
+  health-agent:
+    build:
+      context: ./agent
+      dockerfile: Dockerfile.health
+    container_name: govpulse_health_agent
+    ports:
+      - "10011:10011"
+    environment:
+      - OPEN_API_KEY=${OPEN_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-GovPulse}
+    networks:
+      - govpulse-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Host Agent (Main Orchestrator)
+  host-agent:
+    build:
+      context: ./agent
+      dockerfile: Dockerfile.host
+    container_name: govpulse_host_agent
+    ports:
+      - "11000:11000"
+    environment:
+      - OPEN_API_KEY=${OPEN_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-GovPulse}
+      - CEB_AGENT_URL=http://ceb-agent:10010
+      - HEALTH_AGENT_URL=http://health-agent:10011
+    depends_on:
+      - ceb-agent
+      - health-agent
+      - govpulse-backend
+    networks:
+      - govpulse-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  govpulse-network:
+    driver: bridge
+    name: govpulse-network
+
+volumes:
+  pgdata:
+    driver: local
+  agent-data:
+    driver: local
+
+
