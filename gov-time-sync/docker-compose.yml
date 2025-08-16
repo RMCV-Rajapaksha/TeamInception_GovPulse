@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: govtimesync-frontend
     ports:
-      - "8080:8080"
+      - "3000:8080"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
