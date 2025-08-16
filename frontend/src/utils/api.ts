@@ -19,8 +19,14 @@ export interface Issue {
   approved_for_appointment_placing: boolean | null;
   User?: {
     user_id: number;
-    name: string;
+    first_name: string;
+    last_name: string;
+    name: string | null;
     email: string;
+    password: string;
+    nic: string;
+    role: string;
+    profile_image_url: string | null;
   };
   Issue_Status?: {
     status_id: number;
@@ -92,12 +98,16 @@ export const apiService = {
   },
 
   // Fetch issues for the logged-in user
-  async getUserIssues(): Promise<Issue[]> {
+  async getUserIssues(token: string): Promise<Issue[]> {
     try {
-      const response = await axios.get(`${BACKEND_URL}/user-issues`, {
-        withCredentials: true, // in case cookies/session are used
+      const response = await axios.get(`${BACKEND_URL}/issues/user-issues`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      console.log(response.data)
       return response.data;
+     
     } catch (error) {
       console.error("Error fetching user issues:", error);
       throw error;
