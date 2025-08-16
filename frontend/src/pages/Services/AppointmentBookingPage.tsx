@@ -247,16 +247,7 @@ const AppointmentBookingPage = () => {
     ],
   };
 
-  // Common time slots (this would normally come from your backend)
-  const commonTimeSlots: TimeSlot[] = [
-    { id: "09:00-10:00", time: "09:00 - 10:00", available: true },
-    { id: "10:00-11:00", time: "10:00 - 11:00", available: true },
-    { id: "11:00-12:00", time: "11:00 - 12:00", available: false },
-    { id: "13:00-14:00", time: "13:00 - 14:00", available: true },
-    { id: "14:00-15:00", time: "14:00 - 15:00", available: true },
-    { id: "15:00-16:00", time: "15:00 - 16:00", available: false },
-    { id: "16:00-17:00", time: "16:00 - 17:00", available: true },
-  ];
+
 
   // Fetch authorities on component mount
   useEffect(() => {
@@ -423,7 +414,7 @@ const AppointmentBookingPage = () => {
       if (timeSlotsForDate && timeSlotsForDate.time_slots) {
         // Convert backend format to frontend format
         const formattedTimeSlots: TimeSlot[] = timeSlotsForDate.time_slots.map(
-          (slot: string, index: number) => ({
+          (slot: string) => ({
             id: slot, // Use the actual time slot string as ID
             time: slot, // Display the same format
             available: true,
@@ -758,6 +749,15 @@ const AppointmentBookingPage = () => {
             </div>
           </div>
 
+          {/* Time Slot Message - Show after calendar, before time slots */}
+          {selectedDate && message && (message.includes("No available time slots") || message.includes("Failed to load available time slots")) && (
+            <div className="mb-6">
+              <div className="bg-red-50 text-red-800 border border-red-200 p-4 rounded-lg text-center">
+                {message}
+              </div>
+            </div>
+          )}
+
           {/* Time Slot Selection - Button Grid */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -848,8 +848,8 @@ const AppointmentBookingPage = () => {
             {loading ? "Booking..." : "Book Appointment"}
           </button>
 
-          {/* Message */}
-          {message && (
+          {/* Message - Exclude time slot related messages as they're shown above */}
+          {message && !message.includes("No available time slots") && !message.includes("Failed to load available time slots") && (
             <div
               className={`mt-4 p-4 rounded-lg text-center ${
                 message.includes("successfully")
