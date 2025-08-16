@@ -179,11 +179,11 @@ export default function CreateIssue({
     title:title,
     description: description,
     gs_division: grama,
-    ds_division:district,
+    ds_division: district,
     city: city,
     status_id: 1,
     authority_id: authority_id,
-    image_urls: image_urls,
+    image_urls: image_urls[0], 
   };
 
   // submit for issue creation
