@@ -209,6 +209,8 @@ Create `agent/.env` file:
 # AI API Keys
 OPENAI_API_KEY=your_openai_api_key
 GOOGLE_API_KEY=your_google_api_key
+API_AUTHORIZATION_TOKEN=
+LANGSMITH_PROJECT=A2A-v.1.0.0
 
 
 # LangChain Configuration
