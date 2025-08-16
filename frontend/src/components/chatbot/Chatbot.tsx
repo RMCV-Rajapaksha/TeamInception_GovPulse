@@ -73,6 +73,8 @@ export default function Chatbot({
   const [isTyping, setIsTyping] = useState(false);
   const [currentAgentMessage, setCurrentAgentMessage] = useState<string>("");
   const [isReceivingMessage, setIsReceivingMessage] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
@@ -242,6 +244,21 @@ export default function Chatbot({
     setInput("");
   };
 
+  // Handle animation states
+  useEffect(() => {
+    if (open) {
+      setShouldRender(true);
+      // Small delay to ensure DOM is ready before starting animation
+      const timer = setTimeout(() => setIsVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+      // Wait for animation to complete before unmounting
+      const timer = setTimeout(() => setShouldRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
   // Initialize WebSocket when component opens
   useEffect(() => {
     if (open) {
@@ -262,7 +279,7 @@ export default function Chatbot({
     }
   }, [messages, currentAgentMessage, open]);
 
-  if (!open) return null;
+  if (!shouldRender) return null;
 
   const allMessages = [...messages];
   
@@ -277,10 +294,18 @@ export default function Chatbot({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/20 sm:bg-transparent"
-      style={{ pointerEvents: open ? "auto" : "none" }}
+      className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center transition-all duration-300 ease-in-out ${
+        isVisible 
+          ? "bg-black/20 sm:bg-transparent opacity-100" 
+          : "bg-black/0 sm:bg-transparent opacity-0"
+      }`}
+      style={{ pointerEvents: isVisible ? "auto" : "none" }}
     >
-      <div className="w-full sm:w-[370px] sm:bottom-6 sm:right-6 sm:fixed sm:rounded-2xl sm:shadow-xl bg-white border border-gray-200 flex flex-col max-h-[90vh] h-[70vh] sm:h-[600px]">
+      <div className={`w-full sm:w-[370px] sm:bottom-6 sm:right-6 sm:fixed sm:rounded-2xl sm:shadow-xl bg-white border border-gray-200 flex flex-col max-h-[90vh] h-[70vh] sm:h-[600px] transition-all duration-300 ease-in-out transform ${
+        isVisible 
+          ? "translate-y-0 sm:translate-y-0 scale-100 opacity-100" 
+          : "translate-y-full sm:translate-y-8 sm:translate-x-8 scale-95 opacity-0"
+      }`}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-yellow-100 border-b border-yellow-200 rounded-t-2xl">
           <div className="flex items-center gap-2">
@@ -309,7 +334,7 @@ export default function Chatbot({
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl font-bold"
+            className="text-gray-500 hover:text-gray-700 text-xl font-bold transition-all duration-200 hover:scale-110 hover:rotate-90 active:scale-95 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200"
           >
             ×
           </button>
