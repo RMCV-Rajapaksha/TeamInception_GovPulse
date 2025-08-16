@@ -42,6 +42,7 @@ const AppointmentBookingPage = () => {
   const [selectedService, setSelectedService] = useState<string>("");
   const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
   const [availableServices, setAvailableServices] = useState<Service[]>([]);
+  const [allTimeSlotsData, setAllTimeSlotsData] = useState<any[]>([]);
 
   // Dropdown states
   const [showAuthorityDropdown, setShowAuthorityDropdown] = useState(false);
@@ -341,6 +342,23 @@ const AppointmentBookingPage = () => {
     return date < today;
   };
 
+  const hasAvailableTimeSlots = (day: number) => {
+    const date = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      day
+    );
+    const dateString = date.toISOString().split("T")[0];
+    
+    // Check if there are time slots for this date
+    const timeSlotsForDate = allTimeSlotsData.find(
+      (record: any) =>
+        new Date(record.date).toISOString().split("T")[0] === dateString
+    );
+    
+    return timeSlotsForDate && timeSlotsForDate.time_slots && timeSlotsForDate.time_slots.length > 0;
+  };
+
   // ...existing code...
 
   const handleDateSelect = async (day: number) => {
@@ -368,7 +386,7 @@ const AppointmentBookingPage = () => {
     }
   };
 
-  const handleAuthoritySelect = (authority: Authority) => {
+  const handleAuthoritySelect = async (authority: Authority) => {
     setSelectedAuthority(authority.name);
     setFormData({
       ...formData,
@@ -386,12 +404,16 @@ const AppointmentBookingPage = () => {
     setSelectedTimeSlot("");
     setFormData((prev) => ({ ...prev, date: "", time_slot: "" }));
     setAvailableTimeSlots([]);
+    setAllTimeSlotsData([]);
     // Clear any previous messages when changing authority
     setMessage("");
+
+    // Fetch all time slots for calendar highlighting
+    await fetchAllTimeSlotsForAuthority(authority.authority_id.toString());
   };
 
-  // Add new function to fetch available time slots
-  const fetchAvailableTimeSlots = async (authorityId: string, date: string) => {
+  // Function to fetch all time slots for an authority (for calendar highlighting)
+  const fetchAllTimeSlotsForAuthority = async (authorityId: string) => {
     try {
       const token = await getToken();
       const response = await axios.get(
@@ -404,9 +426,37 @@ const AppointmentBookingPage = () => {
           },
         }
       );
+      setAllTimeSlotsData(response.data);
+    } catch (error) {
+      console.error("Error fetching all time slots for authority:", error);
+      setAllTimeSlotsData([]);
+    }
+  };
+
+  // Add new function to fetch available time slots
+  const fetchAvailableTimeSlots = async (authorityId: string, date: string) => {
+    try {
+      // Use already fetched data if available, otherwise fetch from API
+      let timeSlotsData = allTimeSlotsData;
+      
+      if (timeSlotsData.length === 0) {
+        const token = await getToken();
+        const response = await axios.get(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/time-slots/get-free-time-slots/${authorityId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        timeSlotsData = response.data;
+        setAllTimeSlotsData(timeSlotsData);
+      }
 
       // Filter time slots for the selected date
-      const timeSlotsForDate = response.data.find(
+      const timeSlotsForDate = timeSlotsData.find(
         (record: any) =>
           new Date(record.date).toISOString().split("T")[0] === date
       );
@@ -712,7 +762,7 @@ const AppointmentBookingPage = () => {
                         type="button"
                         onClick={() => handleDateSelect(day)}
                         disabled={isDateDisabled(day) || !selectedService}
-                        className={`w-full h-full flex items-center justify-center text-xs rounded font-medium transition-all
+                        className={`w-full h-full flex flex-col items-center justify-center text-xs rounded font-medium transition-all relative
                           ${
                             isDateDisabled(day) || !selectedService
                               ? "text-gray-300 cursor-not-allowed"
@@ -731,12 +781,28 @@ const AppointmentBookingPage = () => {
                               : ""
                           }`}
                       >
-                        {day}
+                        <span>{day}</span>
+                        {/* Show indicator dot for dates with available time slots */}
+                        {selectedService && !isDateDisabled(day) && hasAvailableTimeSlots(day) && (
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-0.5"></div>
+                        )}
                       </button>
                     )}
                   </div>
                 ))}
               </div>
+
+              {/* Legend for availability indicator */}
+              {selectedService && allTimeSlotsData.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      <span>Available slots</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Selected date display */}
               {selectedDate && (
