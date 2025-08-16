@@ -179,3 +179,85 @@ export const transformIssueToPost = (issue: Issue, upvoteCount: number = 0) => {
     imageUrl: getImageUrl(issue.image_urls),
   };
 };
+
+
+export interface UpvoteRequest {
+  issue_id: string;
+  comment?: string;
+}
+
+export interface UpvoteResponse {
+  message: string;
+  upvote?: any;
+}
+
+export const upvoteService = {
+  async addUpvote(data: UpvoteRequest, token: string): Promise<UpvoteResponse> {
+    const response = await fetch(`${BACKEND_URL}/upvotes/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to add upvote");
+    }
+
+    return response.json();
+  },
+
+  async removeUpvote(
+    issueId: string,
+    token: string
+  ): Promise<{ message: string }> {
+    const response = await fetch(`${BACKEND_URL}/upvotes/remove/${issueId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to remove upvote");
+    }
+
+    return response.json();
+  },
+
+  async getUpvoteCount(
+    issueId: string
+  ): Promise<{ issue_id: string; upvote_count: number }> {
+    const response = await fetch(`${BACKEND_URL}/upvotes/count/${issueId}`);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch upvote count");
+    }
+
+    return response.json();
+  },
+
+  async hasUserUpvoted(
+    issueId: string,
+    token: string
+  ): Promise<{ has_upvoted: boolean }> {
+    const response = await fetch(
+      `${BACKEND_URL}/upvotes/has-upvoted/${issueId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to check upvote status");
+    }
+
+    return response.json();
+  },
+};

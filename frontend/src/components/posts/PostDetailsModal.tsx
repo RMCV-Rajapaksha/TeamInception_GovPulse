@@ -1,21 +1,113 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ReactModal from "react-modal";
+import { useAuth } from "@clerk/clerk-react";
 import type { Post } from "./PostCard";
 import { FiClock, FiMapPin, FiArrowUp, FiX, FiShare2 } from "react-icons/fi";
+import { upvoteService } from "@/utils/api";
+import toast from "react-hot-toast";
 
 export default function PostDetailsModal({
   post,
   isOpen,
   onClose,
+  onVoteUpdate,
 }: {
   post: Post | null;
   isOpen: boolean;
   onClose: () => void;
+  onVoteUpdate?: (updatedPost: Post) => void;
 }) {
+  const { getToken, isSignedIn } = useAuth();
+  const [comment, setComment] = useState("");
+  const [hasUpvoted, setHasUpvoted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [votes, setVotes] = useState(post?.votes || 0);
+
   useEffect(() => {
     ReactModal.setAppElement("#root");
   }, []);
 
+  // Update votes when post changes
+  useEffect(() => {
+    if (post) {
+      setVotes(post.votes);
+    }
+  }, [post?.votes]);
+
+  // Check if user has already upvoted when modal opens
+  useEffect(() => {
+    const checkUpvoteStatus = async () => {
+      if (!post || !isSignedIn) {
+        setHasUpvoted(false);
+        return;
+      }
+
+      try {
+        const token = await getToken();
+        if (token) {
+          const result = await upvoteService.hasUserUpvoted(post.id, token);
+          setHasUpvoted(result.has_upvoted);
+        }
+      } catch (error) {
+        console.error("Error checking upvote status:", error);
+        setHasUpvoted(false);
+      }
+    };
+
+    if (isOpen) {
+      checkUpvoteStatus();
+    }
+  }, [post?.id, isSignedIn, getToken, isOpen]);
+
+  // Reset comment when modal closes or post changes
+  useEffect(() => {
+    if (!isOpen || !post) {
+      setComment("");
+    }
+  }, [isOpen, post?.id]);
+
+  const handleVote = async () => {
+    if (!post || !isSignedIn) {
+      toast.error("Please sign in to vote");
+      return;
+    }
+
+    // Prevent voting if user has already voted
+    if (hasUpvoted) {
+      toast.error("You have already voted on this issue");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      // Add upvote with optional comment
+      await upvoteService.addUpvote(
+        {
+          issue_id: post.id,
+          comment: comment.trim() || undefined,
+        },
+        token
+      );
+      const newVoteCount = votes + 1;
+      setVotes(newVoteCount);
+      setHasUpvoted(true);
+      setComment(""); // Clear comment after successful vote
+
+      // Update the post object and notify parent
+      const updatedPost = { ...post, votes: newVoteCount };
+      onVoteUpdate?.(updatedPost);
+
+      toast.success("Vote added successfully! 🎉");
+    } catch (error) {
+      console.error("Error voting:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to vote");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <ReactModal
       isOpen={isOpen}
@@ -49,7 +141,7 @@ export default function PostDetailsModal({
             <div className="absolute top-3 right-3">
               <span className="px-3 py-1.5 bg-yellow-200 rounded-lg inline-flex items-center gap-2 text-xs text-gray-900 shadow">
                 <span className="h-2 w-2 rounded-full bg-gray-900" />
-                Pending
+                {post.status}
               </span>
             </div>
           </div>
@@ -65,7 +157,7 @@ export default function PostDetailsModal({
                 <FiMapPin className="h-3.5 w-3.5" /> {post.location}
               </span>
               <span className="ml-auto px-3 py-1.5 rounded-2xl border border-gray-200 inline-flex items-center gap-1 text-xs text-gray-600">
-                <span className="h-4 w-4 rounded-sm bg-gray-400" /> {post.votes}
+                <span className="h-4 w-4 rounded-sm bg-gray-400" /> {votes}
               </span>
             </div>
 
@@ -119,23 +211,47 @@ export default function PostDetailsModal({
               </p>
             </div>
 
-            {/* Comment box */}
-            <div className="mt-6">
-              <div className="text-xs text-gray-600 mb-1">Add a comment</div>
-              <textarea
-                rows={5}
-                className="w-full resize-y min-h-[7rem] p-3 rounded-lg ring-1 ring-gray-200 bg-gray-50 text-sm text-gray-700 placeholder:text-gray-400"
-                placeholder="Provide as much detail as possible (what’s wrong, how long it's been happening, who is affected, etc.)"
-              />
-            </div>
+            {/* Comment box - only show if user hasn't voted yet */}
+            {!hasUpvoted && (
+              <div className="mt-6">
+                <div className="text-xs text-gray-600 mb-1">
+                  Add a comment (optional)
+                </div>
+                <textarea
+                  rows={5}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  className="w-full resize-y min-h-[7rem] p-3 rounded-lg ring-1 ring-gray-200 bg-gray-50 text-sm text-gray-700 placeholder:text-gray-400"
+                  placeholder="Provide as much detail as possible (what's wrong, how long it's been happening, who is affected, etc.)"
+                />
+              </div>
+            )}
+
+            {/* Already voted message */}
+            {hasUpvoted && (
+              <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                <p className="text-sm text-green-800">
+                  ✓ Thank you for voting on this issue! Your voice has been
+                  heard.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Sticky bottom actions */}
       <div className="sticky bottom-0 z-10 px-4 pb-4 pt-3 bg-white border-t border-gray-200 rounded-b-2xl md:rounded-b-2xl">
-        <button className="w-full inline-flex items-center justify-center gap-2 h-11 px-4 rounded-2xl bg-black text-white font-bold">
-          <FiArrowUp className="h-5 w-5" /> Vote
+        <button
+          onClick={handleVote}
+          disabled={isLoading || hasUpvoted}
+          className={`w-full inline-flex items-center justify-center gap-2 h-11 px-4 rounded-2xl font-bold transition-colors duration-200 ${
+            hasUpvoted
+              ? "bg-gray-600/80 text-white cursor-not-allowed"
+              : "bg-black hover:bg-gray-800 text-white"
+          } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          <FiArrowUp className="h-5 w-5" />
+          {isLoading ? "Loading..." : hasUpvoted ? "Voted ✓" : "Vote"}
         </button>
       </div>
     </ReactModal>
