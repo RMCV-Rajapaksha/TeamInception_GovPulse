@@ -1,17 +1,7 @@
-# 🏛️ GovPulse - Intelligent Government Issue Management Platform
 
-**GovPulse** is a comprehensive s└── main.py                     # Application Entry Point
-```
+# 🏛 GovPulse - Intelligent Government Issue Management Platform
 
-## 🏗️ System Architecture Diagram
-
-The GovPulse platform follows a modular, microservices-based architecture that enables scalable and maintainable government issue management. The diagram below illustrates the overall system architecture and component interactions:
-
-![GovPulse Architecture](docs/GovPulse-architecture.drawio.png)
-
-*System architecture diagram showing the interaction between frontend, backend services, AI agents, and external integrations in the GovPulse ecosystem*
-
-## 📊 Database Schema & ER Diagramion designed to enhance government efficiency in Sri Lanka by providing transparency, accountability, and intelligent prioritization of public issues. The platform leverages advanced AI technology to create a fair and logical system for addressing long-standing government issues that have been overlooked or covered up.
+**GovPulse** is a comprehensive solution designed to enhance government efficiency in Sri Lanka by providing transparency, accountability, and intelligent prioritization of public issues. The platform leverages advanced AI technology to create a fair and logical system for addressing long-standing government issues that have been overlooked or covered up.
 
 ![GovPulse Platform](https://img.shields.io/badge/Platform-Government_Service_Management-blue)
 ![License](https://img.shields.io/badge/License-Educational-green)
@@ -79,9 +69,12 @@ GovPulse addresses the critical problem of unresolved government issues in Sri L
 - Template-based document creation
 - Compliance with government formatting standards
 
-## 🏗️ System Architecture
+## 🏗 System Architecture
 
-```
+![GovPulse Architecture](docs/GovPulse-architecture.drawio.png)
+
+*System architecture diagram showing the multi-layered structure of GovPulse with React frontend, Node.js backend, and Python AI service components working together through A2A protocol*
+
 GovPulse/
 ├── frontend/                    # React TypeScript Frontend
 │   ├── src/
@@ -112,9 +105,9 @@ GovPulse/
 │   └── requirements.txt       # Python Dependencies
 │
 └── main.py                     # Application Entry Point
-```
 
-## � Database Schema & ER Diagram
+
+##   Database Schema & ER Diagram
 
 The GovPulse platform uses a comprehensive database schema designed to handle complex government issue management workflows. The Entity-Relationship diagram below illustrates the relationships between different entities in the system:
 
@@ -140,7 +133,7 @@ The following sequence diagrams illustrate the key workflows and interactions wi
 
 *Sequence diagrams showing the flow of operations including issue reporting, AI processing, appointment booking, and inter-service communication patterns in the GovPulse ecosystem*
 
-## �🛠️ Technology Stack
+##  🛠 Technology Stack
 
 ### **Frontend**
 
@@ -182,34 +175,34 @@ The following sequence diagrams illustrate the key workflows and interactions wi
 
 ### 1. Clone Repository
 
-```bash
+bash
 git clone https://github.com/RMCV-Rajapaksha/GovPulse.git
 cd GovPulse
-```
+
 
 ### 2. Frontend Setup
 
-```bash
+bash
 cd frontend
 npm install
 npm run dev
-```
+
 
 Frontend will be available at `http://localhost:5173`
 
 ### 3. Backend Setup
 
-```bash
+bash
 cd backend
 npm install
 npm run dev
-```
+
 
 Backend API will be available at `http://localhost:3000`
 
 ### 4. AI Service Setup
 
-```bash
+bash
 cd agent
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -224,7 +217,7 @@ PERPLEXITY_API_KEY=your_perplexity_api_key
 cd backend/agents/ceb && python server.py    # Port 10010
 cd backend/agents/health && python server.py # Port 10011
 cd backend/host && python server.py          # Port 11000
-```
+
 
 ### 5. Environment Configuration
 
@@ -232,20 +225,20 @@ Create environment files for each service:
 
 **Frontend (.env)**
 
-```env
+env
 VITE_API_URL=http://localhost:3000
 VITE_AI_SERVICE_URL=http://localhost:11000
-```
+
 
 **Backend (.env)**
 
-```env
+env
 NODE_ENV=development
 PORT=3000
 DATABASE_URL=your_database_connection_string
 JWT_SECRET=your_jwt_secret
 AI_SERVICE_URL=http://localhost:11000
-```
+
 
 ## 💡 Usage Examples
 
@@ -313,6 +306,6 @@ For questions, suggestions, or collaboration opportunities:
 
 ---
 
-**GovPulse** - _Empowering Citizens, Enabling Government, Ensuring Transparency_ 🏛️✨
+**GovPulse** - _Empowering Citizens, Enabling Government, Ensuring Transparency_ 🏛✨
 
 _Building a more efficient and transparent government through intelligent technology solutions._
