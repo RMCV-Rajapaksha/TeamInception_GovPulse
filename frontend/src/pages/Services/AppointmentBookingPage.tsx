@@ -1,385 +1,860 @@
-import { useState, useEffect, useRef } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
-import { Calendar, TimeSlots, BookingButton, type TimeSlot } from '../../components/services';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import {
+  FiChevronDown,
+  FiChevronLeft,
+  FiChevronRight,
+  FiSettings,
+} from "react-icons/fi";
+import { useAuth } from "@clerk/clerk-react";
 
-export default function AppointmentBookingPage() {
-  const [selectedDate, setSelectedDate] = useState<number | null>(null);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
-  const [selectedTab, setSelectedTab] = useState<'Month' | 'Week' | 'Day'>('Month');
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
-  const [locationSearchTerm, setLocationSearchTerm] = useState('');
-  const navigate = useNavigate();
-  const dropdownRef = useRef<HTMLDivElement>(null);
+interface Authority {
+  authority_id: number;
+  name: string;
+}
 
-  // Close dropdown when clicking outside
+interface TimeSlot {
+  id: string;
+  time: string;
+  available: boolean;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+}
+
+const AppointmentBookingPage = () => {
+  const { getToken } = useAuth();
+  const [formData, setFormData] = useState({
+    authority_id: "",
+    time_slot: "",
+    date: "",
+    issue_id: "",
+  });
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [selectedAuthority, setSelectedAuthority] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
+  const [selectedService, setSelectedService] = useState<string>("");
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
+  const [availableServices, setAvailableServices] = useState<Service[]>([]);
+
+  // Dropdown states
+  const [showAuthorityDropdown, setShowAuthorityDropdown] = useState(false);
+  const [showServiceDropdown, setShowServiceDropdown] = useState(false);
+
+  // Refs for dropdowns
+  const authorityDropdownRef = useRef<HTMLDivElement>(null);
+  const serviceDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Calendar state
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // Services mapping for each authority
+  const authorityServices: { [key: string]: Service[] } = {
+    "Road Development Authority": [
+      {
+        id: "road-permits",
+        name: "Road Construction Permits",
+        description: "Apply for road construction and maintenance permits",
+      },
+      {
+        id: "traffic-management",
+        name: "Traffic Management Consultation",
+        description: "Traffic flow and management planning",
+      },
+      {
+        id: "road-repairs",
+        name: "Road Repair Requests",
+        description: "Report and request road repairs",
+      },
+      {
+        id: "bridge-inspection",
+        name: "Bridge Inspection Services",
+        description: "Request bridge safety inspections",
+      },
+      {
+        id: "road-marking",
+        name: "Road Marking Services",
+        description: "Request road marking and signage installation",
+      },
+    ],
+    "National Water Supply & Drainage Board": [
+      {
+        id: "water-connection",
+        name: "New Water Connection",
+        description: "Apply for new water supply connection",
+      },
+      {
+        id: "drainage-issues",
+        name: "Drainage System Issues",
+        description: "Report drainage and sewerage problems",
+      },
+      {
+        id: "water-quality",
+        name: "Water Quality Testing",
+        description: "Request water quality assessment",
+      },
+      {
+        id: "bill-disputes",
+        name: "Billing Disputes",
+        description: "Resolve water bill disputes and queries",
+      },
+      {
+        id: "meter-installation",
+        name: "Water Meter Services",
+        description: "Installation and maintenance of water meters",
+      },
+    ],
+    "Department of Education": [
+      {
+        id: "school-admission",
+        name: "School Admission Queries",
+        description: "Assistance with school admission processes",
+      },
+      {
+        id: "curriculum-consultation",
+        name: "Curriculum Consultation",
+        description: "Educational curriculum and standards guidance",
+      },
+      {
+        id: "teacher-certification",
+        name: "Teacher Certification",
+        description: "Teacher qualification and certification services",
+      },
+      {
+        id: "school-infrastructure",
+        name: "School Infrastructure",
+        description: "School building and facility development",
+      },
+      {
+        id: "educational-programs",
+        name: "Educational Programs",
+        description: "Special educational programs and initiatives",
+      },
+    ],
+    "National Solid Waste Management Center": [
+      {
+        id: "waste-collection",
+        name: "Waste Collection Services",
+        description: "Schedule waste collection and pickup",
+      },
+      {
+        id: "recycling-programs",
+        name: "Recycling Programs",
+        description: "Community recycling initiatives",
+      },
+      {
+        id: "hazardous-waste",
+        name: "Hazardous Waste Disposal",
+        description: "Safe disposal of hazardous materials",
+      },
+      {
+        id: "composting",
+        name: "Composting Services",
+        description: "Organic waste composting programs",
+      },
+      {
+        id: "waste-management-consultation",
+        name: "Waste Management Consultation",
+        description: "Business waste management solutions",
+      },
+    ],
+    "Sri Lanka Police": [
+      {
+        id: "crime-reporting",
+        name: "Crime Reporting",
+        description: "Report crimes and incidents",
+      },
+      {
+        id: "police-clearance",
+        name: "Police Clearance Certificate",
+        description: "Obtain police clearance certificates",
+      },
+      {
+        id: "traffic-violations",
+        name: "Traffic Violations",
+        description: "Traffic violation inquiries and payments",
+      },
+      {
+        id: "community-safety",
+        name: "Community Safety Programs",
+        description: "Community policing and safety initiatives",
+      },
+      {
+        id: "lost-found",
+        name: "Lost & Found Items",
+        description: "Report or claim lost and found items",
+      },
+    ],
+    "Ministry of Health": [
+      {
+        id: "health-services",
+        name: "Public Health Services",
+        description: "General public health service inquiries",
+      },
+      {
+        id: "vaccination",
+        name: "Vaccination Programs",
+        description: "Public vaccination schedules and information",
+      },
+      {
+        id: "health-inspection",
+        name: "Health Inspection Services",
+        description: "Food and establishment health inspections",
+      },
+      {
+        id: "medical-licensing",
+        name: "Medical Licensing",
+        description: "Medical practitioner licensing and registration",
+      },
+      {
+        id: "health-education",
+        name: "Health Education Programs",
+        description: "Community health education initiatives",
+      },
+    ],
+    "Ministry of Agriculture": [
+      {
+        id: "farming-subsidies",
+        name: "Farming Subsidies",
+        description: "Agricultural subsidy applications and guidance",
+      },
+      {
+        id: "crop-consultation",
+        name: "Crop Consultation",
+        description: "Crop selection and farming technique guidance",
+      },
+      {
+        id: "pesticide-registration",
+        name: "Pesticide Registration",
+        description: "Register and approve agricultural pesticides",
+      },
+      {
+        id: "land-development",
+        name: "Agricultural Land Development",
+        description: "Land development for agricultural purposes",
+      },
+      {
+        id: "farmer-training",
+        name: "Farmer Training Programs",
+        description: "Educational programs for farmers",
+      },
+    ],
+  };
+
+  // Common time slots (this would normally come from your backend)
+  const commonTimeSlots: TimeSlot[] = [
+    { id: "09:00-10:00", time: "09:00 - 10:00", available: true },
+    { id: "10:00-11:00", time: "10:00 - 11:00", available: true },
+    { id: "11:00-12:00", time: "11:00 - 12:00", available: false },
+    { id: "13:00-14:00", time: "13:00 - 14:00", available: true },
+    { id: "14:00-15:00", time: "14:00 - 15:00", available: true },
+    { id: "15:00-16:00", time: "15:00 - 16:00", available: false },
+    { id: "16:00-17:00", time: "16:00 - 17:00", available: true },
+  ];
+
+  // Fetch authorities on component mount
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsLocationDropdownOpen(false);
+    const fetchAuthorities = async () => {
+      try {
+        const token = await getToken();
+        const response = await axios.get(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/authorities/get-authorities-by-user`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setAuthorities(response.data);
+      } catch (error) {
+        console.error("Error fetching authorities:", error);
+        setMessage("Failed to load authorities");
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    fetchAuthorities();
+  }, [getToken]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        authorityDropdownRef.current &&
+        !authorityDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowAuthorityDropdown(false);
+      }
+      if (
+        serviceDropdownRef.current &&
+        !serviceDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowServiceDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  // Location data
-  const locations = [
-    { id: 'colombo', name: 'Colombo', district: 'Colombo', province: 'Western' },
-    { id: 'moratuwa', name: 'Moratuwa', district: 'Colombo', province: 'Western' },
-    { id: 'gampaha', name: 'Gampaha', district: 'Gampaha', province: 'Western' },
-    { id: 'kalutara', name: 'Kalutara', district: 'Kalutara', province: 'Western' },
-    { id: 'kandy', name: 'Kandy', district: 'Kandy', province: 'Central' },
-    { id: 'matale', name: 'Matale', district: 'Matale', province: 'Central' },
-    { id: 'nuwara-eliya', name: 'Nuwara Eliya', district: 'Nuwara Eliya', province: 'Central' },
-    { id: 'galle', name: 'Galle', district: 'Galle', province: 'Southern' },
-    { id: 'matara', name: 'Matara', district: 'Matara', province: 'Southern' },
-    { id: 'hambantota', name: 'Hambantota', district: 'Hambantota', province: 'Southern' },
-    { id: 'jaffna', name: 'Jaffna', district: 'Jaffna', province: 'Northern' },
-    { id: 'batticaloa', name: 'Batticaloa', district: 'Batticaloa', province: 'Eastern' },
-    { id: 'trincomalee', name: 'Trincomalee', district: 'Trincomalee', province: 'Eastern' },
-    { id: 'ampara', name: 'Ampara', district: 'Ampara', province: 'Eastern' },
-    { id: 'anuradhapura', name: 'Anuradhapura', district: 'Anuradhapura', province: 'North Central' },
-    { id: 'polonnaruwa', name: 'Polonnaruwa', district: 'Polonnaruwa', province: 'North Central' },
-    { id: 'kurunegala', name: 'Kurunegala', district: 'Kurunegala', province: 'North Western' },
-    { id: 'puttalam', name: 'Puttalam', district: 'Puttalam', province: 'North Western' },
-    { id: 'ratnapura', name: 'Ratnapura', district: 'Ratnapura', province: 'Sabaragamuwa' },
-    { id: 'kegalle', name: 'Kegalle', district: 'Kegalle', province: 'Sabaragamuwa' },
-    { id: 'badulla', name: 'Badulla', district: 'Badulla', province: 'Uva' },
-    { id: 'monaragala', name: 'Monaragala', district: 'Monaragala', province: 'Uva' }
-  ];
+  // Calendar helper functions
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
 
-  // Filter locations based on search term
-  const filteredLocations = locations.filter(location =>
-    location.name.toLowerCase().includes(locationSearchTerm.toLowerCase()) ||
-    location.district.toLowerCase().includes(locationSearchTerm.toLowerCase()) ||
-    location.province.toLowerCase().includes(locationSearchTerm.toLowerCase())
-  );
+    const days = [];
 
-  // Mock data: Different time slots for different dates
-  const dateTimeSlots: Record<number, TimeSlot[]> = {
-    12: [
-      { id: '12-08:00-08:30', time: '08:00-08:30', available: false },
-      { id: '12-08:30-09:00', time: '08:30-09:00', available: true },
-      { id: '12-09:30-10:00', time: '09:30-10:00', available: true },
-      { id: '12-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '12-13:00-13:30', time: '13:00-13:30', available: false },
-      { id: '12-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
-    16: [
-      { id: '16-08:00-08:30', time: '08:00-08:30', available: true },
-      { id: '16-08:30-09:00', time: '08:30-09:00', available: true },
-      { id: '16-09:30-10:00', time: '09:30-10:00', available: false },
-      { id: '16-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '16-13:00-13:30', time: '13:00-13:30', available: true },
-      { id: '16-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
-    19: [
-      { id: '19-08:00-08:30', time: '08:00-08:30', available: false },
-      { id: '19-08:30-09:00', time: '08:30-09:00', available: false },
-      { id: '19-09:30-10:00', time: '09:30-10:00', available: true },
-      { id: '19-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '19-13:00-13:30', time: '13:00-13:30', available: false },
-      { id: '19-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
-    22: [
-      { id: '22-08:00-08:30', time: '08:00-08:30', available: true },
-      { id: '22-08:30-09:00', time: '08:30-09:00', available: true },
-      { id: '22-09:30-10:00', time: '09:30-10:00', available: true },
-      { id: '22-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '22-13:00-13:30', time: '13:00-13:30', available: true },
-      { id: '22-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
-    23: [
-      { id: '23-08:00-08:30', time: '08:00-08:30', available: true },
-      { id: '23-08:30-09:00', time: '08:30-09:00', available: true },
-      { id: '23-09:30-10:00', time: '09:30-10:00', available: true },
-      { id: '23-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '23-13:00-13:30', time: '13:00-13:30', available: true },
-      { id: '23-13:30-14:00', time: '13:30-14:00', available: true },
-    ],
-    24: [
-      { id: '24-08:00-08:30', time: '08:00-08:30', available: false },
-      { id: '24-08:30-09:00', time: '08:30-09:00', available: true },
-      { id: '24-09:30-10:00', time: '09:30-10:00', available: true },
-      { id: '24-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '24-13:00-13:30', time: '13:00-13:30', available: false },
-      { id: '24-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
-    25: [
-      { id: '25-08:00-08:30', time: '08:00-08:30', available: false },
-      { id: '25-08:30-09:00', time: '08:30-09:00', available: false },
-      { id: '25-09:30-10:00', time: '09:30-10:00', available: false },
-      { id: '25-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '25-13:00-13:30', time: '13:00-13:30', available: false },
-      { id: '25-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
-    26: [
-      { id: '26-08:00-08:30', time: '08:00-08:30', available: true },
-      { id: '26-08:30-09:00', time: '08:30-09:00', available: true },
-      { id: '26-09:30-10:00', time: '09:30-10:00', available: false },
-      { id: '26-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '26-13:00-13:30', time: '13:00-13:30', available: true },
-      { id: '26-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
-    29: [
-      { id: '29-08:00-08:30', time: '08:00-08:30', available: false },
-      { id: '29-08:30-09:00', time: '08:30-09:00', available: true },
-      { id: '29-09:30-10:00', time: '09:30-10:00', available: true },
-      { id: '29-11:00-11:30', time: '11:00-11:30', available: false },
-      { id: '29-13:00-13:30', time: '13:00-13:30', available: false },
-      { id: '29-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
-    30: [
-      { id: '30-08:00-08:30', time: '08:00-08:30', available: true },
-      { id: '30-08:30-09:00', time: '08:30-09:00', available: false },
-      { id: '30-09:30-10:00', time: '09:30-10:00', available: true },
-      { id: '30-11:00-11:30', time: '11:00-11:30', available: true },
-      { id: '30-13:00-13:30', time: '13:00-13:30', available: false },
-      { id: '30-13:30-14:00', time: '13:30-14:00', available: false },
-    ],
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
+
+    return days;
   };
 
-  // Get time slots for a specific date
-  const getTimeSlotsForDate = (date: number) => {
-    return dateTimeSlots[date] || [];
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
 
-  // Get current time slots based on selected date
-  const currentTimeSlots = selectedDate ? getTimeSlotsForDate(selectedDate) : [];
-
-  const handleDateClick = (date: number) => {
-    setSelectedDate(date);
-    setSelectedTimeSlot(null); // Reset time slot when date changes
+  const isDateDisabled = (day: number) => {
+    const date = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      day
+    );
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
   };
 
-  const handleTimeSlotClick = (slotId: string) => {
-    const slot = currentTimeSlots.find(s => s.id === slotId);
-    if (slot?.available) {
-      setSelectedTimeSlot(slotId);
+  // ...existing code...
+
+  const handleDateSelect = async (day: number) => {
+    const date = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      day
+    );
+    const dateString = date.toISOString().split("T")[0];
+    setSelectedDate(dateString);
+    setFormData({ ...formData, date: dateString });
+
+    // Reset time slot when date changes
+    setSelectedTimeSlot("");
+    setFormData((prev) => ({ ...prev, time_slot: "" }));
+
+    // Fetch available time slots from backend instead of using hardcoded ones
+    if (formData.authority_id) {
+      await fetchAvailableTimeSlots(formData.authority_id, dateString);
+    } else {
+      setAvailableTimeSlots([]);
     }
   };
 
-  const handleLocationSelect = (location: string) => {
-    setSelectedLocation(location);
-    setIsLocationDropdownOpen(false);
-    setLocationSearchTerm('');
+  const handleAuthoritySelect = (authority: Authority) => {
+    setSelectedAuthority(authority.name);
+    setFormData({
+      ...formData,
+      authority_id: authority.authority_id.toString(),
+    });
+    setShowAuthorityDropdown(false);
+
+    // Set available services for the selected authority
+    const services = authorityServices[authority.name] || [];
+    setAvailableServices(services);
+
+    // Reset all dependent fields when authority changes
+    setSelectedService("");
+    setSelectedDate("");
+    setSelectedTimeSlot("");
+    setFormData((prev) => ({ ...prev, date: "", time_slot: "" }));
+    setAvailableTimeSlots([]);
   };
 
-  const toggleLocationDropdown = () => {
-    setIsLocationDropdownOpen(!isLocationDropdownOpen);
-  };
-
-  const handleBookAppointment = () => {
-    if (selectedDate && selectedTimeSlot) {
-      const selectedTimeLabel = currentTimeSlots.find(s => s.id === selectedTimeSlot)?.time || '';
-      const dateTimeLabel = `${new Date(2025, 7, selectedDate).toLocaleDateString('en-US', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })} · ${selectedTimeLabel}`;
-      navigate('/services/driving-license/confirm', {
-        state: {
-          serviceLabel: 'Applying for Light Vehicles (B/B1) driving license',
-          selectedLocation,
-          dateTimeLabel,
+  // Add new function to fetch available time slots
+  const fetchAvailableTimeSlots = async (authorityId: string, date: string) => {
+    try {
+      const token = await getToken();
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/time-slots/get-free-time-slots/${authorityId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+
+      // Filter time slots for the selected date
+      const timeSlotsForDate = response.data.find(
+        (record: any) =>
+          new Date(record.date).toISOString().split("T")[0] === date
+      );
+
+      if (timeSlotsForDate && timeSlotsForDate.time_slots) {
+        // Convert backend format to frontend format
+        const formattedTimeSlots: TimeSlot[] = timeSlotsForDate.time_slots.map(
+          (slot: string, index: number) => ({
+            id: slot, // Use the actual time slot string as ID
+            time: slot, // Display the same format
+            available: true,
+          })
+        );
+        setAvailableTimeSlots(formattedTimeSlots);
+      } else {
+        setAvailableTimeSlots([]);
+        setMessage("No available time slots for the selected date");
+      }
+    } catch (error) {
+      console.error("Error fetching time slots:", error);
+      setAvailableTimeSlots([]);
+      setMessage("Failed to load available time slots");
+    }
+  };
+
+
+  const handleServiceSelect = (service: Service) => {
+    setSelectedService(service.name);
+    setShowServiceDropdown(false);
+  };
+
+  const handleTimeSlotSelect = (timeSlot: TimeSlot) => {
+    if (timeSlot.available) {
+      setSelectedTimeSlot(timeSlot.id);
+      setFormData({ ...formData, time_slot: timeSlot.id });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (
+      !formData.authority_id ||
+      !formData.date ||
+      !formData.time_slot ||
+      !selectedService
+    ) {
+      setMessage(
+        "Please fill in all required fields including service selection"
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = await getToken();
+
+      // Prepare the request data, only include issue_id if it has a value
+      const requestData: any = {
+        authority_id: parseInt(formData.authority_id),
+        time_slot: formData.time_slot,
+        date: formData.date,
+      };
+
+      // Only add issue_id if it's not empty
+      if (formData.issue_id && formData.issue_id.trim() !== "") {
+        requestData.issue_id = parseInt(formData.issue_id);
+      }
+
+      console.log("Submitting appointment data:", requestData);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/appointments/book-appointment`,
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Appointment response:", response.data);
+      setMessage("Appointment booked successfully!");
+
+      // Reset form
+      setFormData({
+        authority_id: "",
+        time_slot: "",
+        date: "",
+        issue_id: "",
       });
+      setSelectedAuthority("");
+      setSelectedService("");
+      setSelectedDate("");
+      setSelectedTimeSlot("");
+      setAvailableTimeSlots([]);
+      setAvailableServices([]);
+    } catch (error: unknown) {
+      console.error("Error booking appointment:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Response data:", error.response?.data);
+        setMessage(
+          error.response?.data?.error ||
+            "Failed to book appointment. Try again."
+        );
+      } else {
+        setMessage("Failed to book appointment. Try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="relative w-full min-h-full overflow-x-hidden">
-      <div className="w-full pb-24 md:ml-[14rem] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 flex flex-col min-h-full">
-        <div className="w-full max-w-none md:max-w-[calc(100vw-14rem-4rem)] lg:max-w-[1000px] flex flex-col gap-2 pb-2 pt-0 relative z-10">
-          
-          {/* Header */}
-          <div className="flex flex-col gap-12 px-4 py-4 w-full">
-            <div className="flex flex-col gap-4 p-0 w-full">
-              <h1 
-                className="font-bold text-[#000000] text-2xl text-left w-full leading-normal"
-                style={{ fontFamily: 'var(--font-family-title)' }}
-              >
-                Appointment booking
-              </h1>
+    <div className="pb-24 md:ml-72 px-10 md:px-0 md:pl-20 md:pr-60">
+      <div className="w-full max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Book an Appointment
+          </h1>
+          <p className="text-gray-600">
+            Schedule a service with government authorities
+          </p>
+        </div>
+
+        {/* Separator */}
+        <div className="w-full h-px bg-gray-200 mb-8" />
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Authority Selection */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Select Authority
+            </h3>
+            <div ref={authorityDropdownRef} className="relative">
+              <div className="flex w-full gap-2">
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-l-lg p-3 flex-1 bg-gray-50 text-black focus:outline-none focus:ring-2 focus:ring-yellow-400/80"
+                  value={selectedAuthority}
+                  placeholder="Choose an authority"
+                  readOnly
+                  tabIndex={-1}
+                />
+                <button
+                  type="button"
+                  className="border-t border-b border-r border-gray-300 rounded-r-lg px-3 flex items-center bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-400/80"
+                  onClick={() =>
+                    setShowAuthorityDropdown(!showAuthorityDropdown)
+                  }
+                >
+                  <FiChevronDown
+                    className={`text-gray-400 transition-transform ${
+                      showAuthorityDropdown ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {showAuthorityDropdown && (
+                <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-48 overflow-auto">
+                  {authorities.length > 0 ? (
+                    authorities.map((authority) => (
+                      <li
+                        key={authority.authority_id}
+                        className={`px-4 py-3 cursor-pointer hover:bg-yellow-50/80 text-black ${
+                          authority.name === selectedAuthority
+                            ? "bg-yellow-100/80 font-semibold"
+                            : ""
+                        }`}
+                        onClick={() => handleAuthoritySelect(authority)}
+                      >
+                        {authority.name}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="px-4 py-3 text-gray-500">
+                      No authorities found
+                    </li>
+                  )}
+                </ul>
+              )}
             </div>
           </div>
 
-          {/* Separator */}
-          <div className="w-full box-border flex flex-row gap-2 items-center justify-start overflow-hidden px-0 py-2 relative">
-            <div className="flex-1 bg-[#d7d7d7] h-px min-h-px" />
+          {/* Service Selection */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Select Service
+            </h3>
+            <div ref={serviceDropdownRef} className="relative">
+              <button
+                type="button"
+                className="w-full border border-gray-300 rounded-lg p-3 bg-gray-50 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-yellow-400/80"
+                onClick={() => setShowServiceDropdown(!showServiceDropdown)}
+                disabled={!selectedAuthority}
+              >
+                <span
+                  className={selectedService ? "text-black" : "text-gray-400"}
+                >
+                  {selectedService || "Choose a service"}
+                </span>
+                <FiSettings className="text-gray-400" />
+              </button>
+
+              {showServiceDropdown && availableServices.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-60 overflow-auto">
+                  {availableServices.map((service) => (
+                    <button
+                      key={service.id}
+                      type="button"
+                      onClick={() => handleServiceSelect(service)}
+                      className={`w-full px-4 py-3 text-left transition-colors hover:bg-yellow-50/80 cursor-pointer ${
+                        service.name === selectedService
+                          ? "bg-yellow-100/80 font-semibold"
+                          : ""
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-black font-medium">
+                          {service.name}
+                        </span>
+                        <span className="text-sm text-gray-500 mt-1">
+                          {service.description}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Main Content */}
-          <div className="flex flex-col lg:flex-row gap-8 items-start justify-start p-0 w-full">
-            {/* Left Panel */}
-            <div className="flex-1 flex flex-col gap-8 items-start justify-start max-w-[500px] p-0">
-              
-              {/* License Info */}
-              <div className="flex flex-row gap-2 items-center justify-start px-4 py-0 w-full">
-                <div 
-                  className="font-bold text-[#4b4b4b] text-[18px] leading-[22px]"
-                  style={{ fontFamily: 'var(--font-family-body)' }}
+          {/* Date Selection - Inline Calendar */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Select Date
+            </h3>
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm max-w-sm mx-auto">
+              {/* Calendar Header */}
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCurrentMonth(
+                      new Date(
+                        currentMonth.setMonth(currentMonth.getMonth() - 1)
+                      )
+                    )
+                  }
+                  className="p-2 hover:bg-yellow-50/80 rounded-lg transition-colors"
+                  disabled={!selectedService}
                 >
-                  License type:
-                </div>
-                <div 
-                  className="text-[#000000] text-[16px] leading-[20px] tracking-[0.16px]"
-                  style={{ fontFamily: 'var(--font-family-body)' }}
+                  <FiChevronLeft className="text-gray-600" size={16} />
+                </button>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {currentMonth.toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCurrentMonth(
+                      new Date(
+                        currentMonth.setMonth(currentMonth.getMonth() + 1)
+                      )
+                    )
+                  }
+                  className="p-2 hover:bg-yellow-50/80 rounded-lg transition-colors"
+                  disabled={!selectedService}
                 >
-                  Light Vehicles (B/B1)
-                </div>
+                  <FiChevronRight className="text-gray-600" size={16} />
+                </button>
               </div>
 
-              {/* Office Location */}
-              <div className="flex flex-col items-start justify-start px-4 py-0 w-full">
-                <div 
-                  className="font-bold text-[#4b4b4b] text-[18px] text-left w-full leading-[22px] mb-8"
-                  style={{ fontFamily: 'var(--font-family-body)' }}
-                >
-                  Select office location
-                </div>
-                
-                <div className="flex flex-row gap-2 items-center justify-start w-full">
-                  <div ref={dropdownRef} className="flex-1 flex flex-col gap-2 items-start justify-start min-w-0 relative">
-                    <div className="flex flex-row gap-2 items-center justify-start px-0 py-0 w-full">
-                      <div 
-                        className="flex-1 text-[#000000] text-[14px] text-left leading-normal"
-                        style={{ fontFamily: 'var(--font-family-body)' }}
-                      >
-                        Choose a location
-                      </div>
+              {/* Calendar Grid */}
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                  (day) => (
+                    <div
+                      key={day}
+                      className="text-center text-xs font-medium text-gray-500 py-2"
+                    >
+                      {day}
                     </div>
-                    
-                    <div className="bg-[#ebebeb] flex flex-row items-center justify-start min-h-11 p-2 rounded-[8px] w-full relative">
-                      <input
-                        type="text"
-                        placeholder={selectedLocation || "Search for a location..."}
-                        value={locationSearchTerm}
-                        onChange={(e) => setLocationSearchTerm(e.target.value)}
-                        onFocus={() => setIsLocationDropdownOpen(true)}
-                        className="flex-1 bg-transparent text-[#000000] text-[16px] tracking-[0.16px] leading-[20px] placeholder-black outline-none"
-                        style={{ fontFamily: 'var(--font-family-body)' }}
-                      />
-                    </div>
+                  )
+                )}
+              </div>
 
-                    {/* Dropdown Menu */}
-                    {isLocationDropdownOpen && (
-                      <div className="absolute top-full left-0 w-full bg-white border border-[#ebebeb] rounded-[16px] shadow-lg z-50 max-h-60 overflow-y-auto">
-                        {filteredLocations.length > 0 ? (
-                          filteredLocations.map((location) => (
-                            <button
-                              key={location.id}
-                              onClick={() => handleLocationSelect(location.name)}
-                              className="w-full px-4 py-3 text-left hover:bg-[#f5f5f5] transition-colors border-b border-[#f0f0f0] last:border-b-0"
-                            >
-                              <div 
-                                className="text-[#000000] text-[14px] leading-normal font-medium"
-                                style={{ fontFamily: 'var(--font-family-body)' }}
-                              >
-                                {location.name}
-                              </div>
-                              <div 
-                                className="text-[#888888] text-[14px] leading-normal"
-                                style={{ fontFamily: 'var(--font-family-body)' }}
-                              >
-                                {location.district} District, {location.province} Province
-                              </div>
-                            </button>
-                          ))
-                        ) : (
-                          <div className="px-4 py-3 text-[#bbbbbb] text-[14px]" style={{ fontFamily: 'var(--font-family-body)' }}>
-                            No locations found
-                          </div>
+              <div className="grid grid-cols-7 gap-1">
+                {getDaysInMonth(currentMonth).map((day, index) => (
+                  <div key={index} className="aspect-square">
+                    {day && (
+                      <button
+                        type="button"
+                        onClick={() => handleDateSelect(day)}
+                        disabled={isDateDisabled(day) || !selectedService}
+                        className={`w-full h-full flex items-center justify-center text-xs rounded font-medium transition-all
+                          ${
+                            isDateDisabled(day) || !selectedService
+                              ? "text-gray-300 cursor-not-allowed"
+                              : "text-gray-700 hover:bg-yellow-100/80 cursor-pointer"
+                          }
+                          ${
+                            selectedDate ===
+                            new Date(
+                              currentMonth.getFullYear(),
+                              currentMonth.getMonth(),
+                              day
+                            )
+                              .toISOString()
+                              .split("T")[0]
+                              ? "bg-yellow-200/80 text-black hover:bg-yellow-300/80"
+                              : ""
+                          }`}
+                      >
+                        {day}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Selected date display */}
+              {selectedDate && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-600 text-center">
+                    Selected: {formatDate(new Date(selectedDate))}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Time Slot Selection - Button Grid */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Select Time Slot
+            </h3>
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              {selectedDate ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {availableTimeSlots.map((timeSlot) => (
+                    <button
+                      key={timeSlot.id}
+                      type="button"
+                      onClick={() => handleTimeSlotSelect(timeSlot)}
+                      disabled={!timeSlot.available}
+                      className={`p-3 rounded-lg border font-medium text-sm transition-all
+                        ${
+                          !timeSlot.available
+                            ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                            : selectedTimeSlot === timeSlot.id
+                            ? "bg-yellow-200/80 text-black border-yellow-200 hover:bg-yellow-300"
+                            : "bg-white border-gray-300 text-gray-700 hover:border-yellow-400/80 hover:bg-yellow-50/80 cursor-pointer"
+                        }
+                      `}
+                    >
+                      <div className="flex flex-col items-center">
+                        <span>{timeSlot.time}</span>
+                        {!timeSlot.available && (
+                          <span className="text-xs text-red-400 mt-1">
+                            Unavailable
+                          </span>
                         )}
                       </div>
-                    )}
-                    
-                    <div className="flex flex-row gap-2 items-center justify-start py-0 w-full">
-                      <div 
-                        className="flex-1 text-[#4b4b4b] text-[14px] text-left leading-normal"
-                        style={{ fontFamily: 'var(--font-family-body)' }}
-                      >
-                        Pick the most convenient government office to complete your appointment.
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-row items-center self-stretch">
-                    <button 
-                      onClick={toggleLocationDropdown}
-                      className="border border-[#000000] bg-black flex items-center justify-center w-11 h-11 p-4 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <FiChevronDown className={`w-6 h-6 text-[#4b4b4b] transition-transform ${isLocationDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
-                  </div>
+                  ))}
                 </div>
-              </div>
-
-              {/* Requirements */}
-              <div className="flex flex-col gap-2 items-start justify-start px-4 py-0 w-full">
-                <div 
-                  className="font-bold text-[#4b4b4b] text-[18px] w-full leading-[22px]"
-                  style={{ fontFamily: 'var(--font-family-body)' }}
-                >
-                  Common requirements
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">
+                    Please select a date to see available time slots
+                  </p>
                 </div>
-                <div 
-                  className="text-[#000000] text-[14px] w-full leading-normal"
-                  style={{ fontFamily: 'var(--font-family-body)' }}
-                >
-                  <ul className="list-disc ml-[18px] space-y-0">
-                    <li>Applicant should be present in person.</li>
-                    <li>Should bring the national identity card or the valid passport with the national identity card number.</li>
-                    <li className="whitespace-pre-wrap">In obtaining the service from offices where online method is available producing photographs is not required and the relevant photographs are taken during the computer process. For offices where offline method is used two passport size black and white photographs with white background are required.</li>
-                    <li>In obtaining a driving license for the first time, original of the birth certificate should be produced.</li>
-                  </ul>
+              )}
+
+              {/* Selected time display */}
+              {selectedTimeSlot && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    Selected time:{" "}
+                    {
+                      availableTimeSlots.find(
+                        (slot) => slot.id === selectedTimeSlot
+                      )?.time
+                    }
+                  </p>
                 </div>
-              </div>
-            </div>
-
-            {/* Right Panel - Calendar and Booking */}
-            <div className="flex-1 flex flex-col gap-8 items-start justify-start min-w-0 px-0 py-0">
-              
-              {/* Calendar Container */}
-              <div className="flex flex-col items-start justify-start w-full">
-                <div className="flex flex-row gap-2 items-center justify-start pb-4 pt-0 w-full">
-                  <div 
-                    className="flex-1 font-bold text-[#4b4b4b] text-[18px] text-left leading-[22px]"
-                    style={{ fontFamily: 'var(--font-family-body)' }}
-                  >
-                    Select your appointment date & time
-                  </div>
-                </div>
-
-                {/* Calendar Component */}
-                <Calendar
-                  selectedDate={selectedDate}
-                  onDateSelect={handleDateClick}
-                  selectedTab={selectedTab}
-                  onTabChange={setSelectedTab}
-                />
-              </div>
-
-              {/* Time Slots */}
-              <div className="flex flex-col gap-8 items-start justify-start self-stretch">
-                <TimeSlots
-                  timeSlots={currentTimeSlots}
-                  selectedTimeSlot={selectedTimeSlot}
-                  onTimeSlotSelect={handleTimeSlotClick}
-                  selectedDate={selectedDate}
-                />
-
-                {/* Book Button */}
-                <BookingButton
-                  onClick={handleBookAppointment}
-                  disabled={!selectedDate || !selectedTimeSlot}
-                />
-              </div>
+              )}
             </div>
           </div>
-        </div>
+
+          {/* Issue ID (Optional) */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Related Issue (Optional)
+            </h3>
+            <input
+              type="text"
+              placeholder="Enter issue ID if this appointment is related to a specific issue"
+              value={formData.issue_id}
+              onChange={(e) =>
+                setFormData({ ...formData, issue_id: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-lg p-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/80"
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={
+              loading ||
+              !formData.authority_id ||
+              !selectedService ||
+              !formData.date ||
+              !formData.time_slot
+            }
+            className="w-full py-3 rounded-full bg-yellow-200 text-black text-lg font-semibold shadow-md hover:bg-yellow-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Booking..." : "Book Appointment"}
+          </button>
+
+          {/* Message */}
+          {message && (
+            <div
+              className={`mt-4 p-4 rounded-lg text-center ${
+                message.includes("successfully")
+                  ? "bg-green-50 text-green-800 border border-green-200"
+                  : "bg-red-50 text-red-800 border border-red-200"
+              }`}
+            >
+              {message}
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );
-}
+};
+
+export default AppointmentBookingPage;
