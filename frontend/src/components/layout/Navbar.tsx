@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import React, { useId, } from "react";
+import React, { useId } from "react";
 import {
   Search,
   Bell,
@@ -122,20 +122,22 @@ export default function Navbar() {
               </Link>
             )}
 
-            <div className="relative">
-              <Link
-                to="/notifications"
-                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent transition-colors duration-200 flex items-center justify-center"
-                aria-label="Notifications"
-              >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </Link>
-            </div>
+            {hasClerk && user != null && (
+              <div className="relative">
+                <Link
+                  to="/notifications"
+                  className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent transition-colors duration-200 flex items-center justify-center"
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+            )}
 
             {/* Auth/Profile - hidden on mobile, visible from sm and up */}
             <div className="pl-2  hidden sm:block">

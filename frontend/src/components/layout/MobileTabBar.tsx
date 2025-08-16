@@ -80,13 +80,15 @@ export default function MobileTabBar() {
           >
             <FiPlus className="h-6 w-6 text-white" />
           </button>
-          <Tab
-            to="/notifications"
-            label="Notification"
-            selected={pathname.startsWith("/notifications")}
-          >
-            <FiBell className="h-5 w-5" />
-          </Tab>
+          {isSignedIn && (
+            <Tab
+              to="/notifications"
+              label="Notification"
+              selected={pathname.startsWith("/notifications")}
+            >
+              <FiBell className="h-5 w-5" />
+            </Tab>
+          )}
           <Tab
             to={isSignedIn ? "/profile" : "/sign-in"}
             label="Profile"
