@@ -33,6 +33,9 @@ export default function Navbar() {
     alert(`QR Code Scanned: ${result}`);
   };
 
+  const [userVerifiedStatus] = useState<
+    "Verified" | "Pending" | "Not Verified"
+  >("Not Verified");
 
   return (
     <>

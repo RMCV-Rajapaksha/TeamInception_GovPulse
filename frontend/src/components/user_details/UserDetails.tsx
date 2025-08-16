@@ -15,13 +15,13 @@ export default function UserDetails({
 }: {
   userVerifiedStatus: "Verified" | "Pending" | "Not Verified";
 }) {
-  const [userVerifiedStatus, setUserVerifiedStatus] = useState<
+  const [userVerifiedStatus] = useState<
     "Verified" | "Pending" | "Not Verified"
   >(initialStatus);
 
   const [photos, setPhotos] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isSignedIn, isLoaded, user } = useUser();
+  const { user } = useUser();
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
 
@@ -72,7 +72,7 @@ export default function UserDetails({
       </div>
       <div className="flex flex-col gap-3">
         <div>
-          <div className="flex justify-between gap-2">
+          <div className="flex flex-col md:flex-row justify-between gap-2">
             {/* First Name with icon */}
             <div className="relative flex-1">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
