@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import React, { useId, useState} from "react";
+import React, { useId } from "react";
 import {
   Search,
   Bell,
@@ -13,17 +13,17 @@ import {
 } from "lucide-react";
 import CreateIssue from "../create_issue/CreateIssue";
 import QRScanner from "../qr/QRScanner";
-import NotificationPopup from "../ui/NotificationPopup";
 import { useAuthShim } from "../../app/providers";
+import { useNotifications } from "../../contexts/NotificationContext";
 
 export default function Navbar() {
   const { hasClerk } = useAuthShim();
+  const { unreadCount } = useNotifications();
   const searchId = useId();
   const mobileSearchId = useId();
   const [isReportedClicked, setIsReportedClicked] = React.useState(false);
   const [isQrScanOpen, setIsQrScanOpen] = React.useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = React.useState(false);
   const { user } = useUser();
 
   const handleQRScan = (result: string) => {
@@ -32,10 +32,6 @@ export default function Navbar() {
     // You can navigate to a URL, process the data, etc.
     alert(`QR Code Scanned: ${result}`);
   };
-
-  const [userVerifiedStatus] = useState<
-    "Verified" | "Pending" | "Not Verified"
-  >("Not Verified");
 
   return (
     <>
@@ -127,42 +123,18 @@ export default function Navbar() {
             )}
 
             <div className="relative">
-              <button
-                type="button"
-                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent transition-colors duration-200"
+              <Link
+                to="/notifications"
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 bg-transparent transition-colors duration-200 flex items-center justify-center"
                 aria-label="Notifications"
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
               >
                 <Bell className="w-5 h-5" />
-              </button>
-
-              {isNotificationOpen && (
-                <div className="absolute right-0 top-full mt-2 z-50 w-[90vw] max-w-xs sm:w-80">
-                  <NotificationPopup
-                    notifications={[
-  {
-    id: "1",
-    type: "appointment",
-    title: "Invite to Schedule Appointment",
-    description: "...",
-    date: "2 Aug 2025 — 9:45 AM",
-    onScheduleNow: () => {},
-    onNotNow: () => {},
-  },
-  {
-    id: "2",
-    type: "issue",
-    title: "Your issue is gaining traction!",
-    description: "...",
-    date: "2 Aug 2025 — 9:45 AM",
-    onViewIssue: () => {},
-  }
-]}
-                    onClose={() => setIsNotificationOpen(false)}
-                    onMarkAllRead={() => setIsNotificationOpen(false)}
-                  />
-                </div>
-              )}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
             </div>
 
             {/* Auth/Profile - hidden on mobile, visible from sm and up */}
