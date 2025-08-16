@@ -195,7 +195,7 @@ If there’s already an active agent, send the update using update_task.
     logger.info("Issue data to be created:\n%s", json.dumps(issue_data, indent=2))
     
     # API endpoint configuration
-    api_url = "http://localhost:4000/api/issues/create"
+    api_url = "http://localhost:4000/api/v1/issues/create"
     headers = {
         "Content-Type": "application/json",
         "Authorization": os.getenv("API_AUTHORIZATION_TOKEN", "")  # Get from environment variable
