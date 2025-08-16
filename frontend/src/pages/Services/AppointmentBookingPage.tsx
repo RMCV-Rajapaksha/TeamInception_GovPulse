@@ -366,6 +366,9 @@ const AppointmentBookingPage = () => {
     setSelectedTimeSlot("");
     setFormData((prev) => ({ ...prev, time_slot: "" }));
 
+    // Clear any previous messages when selecting a new date
+    setMessage("");
+
     // Fetch available time slots from backend instead of using hardcoded ones
     if (formData.authority_id) {
       await fetchAvailableTimeSlots(formData.authority_id, dateString);
@@ -392,6 +395,8 @@ const AppointmentBookingPage = () => {
     setSelectedTimeSlot("");
     setFormData((prev) => ({ ...prev, date: "", time_slot: "" }));
     setAvailableTimeSlots([]);
+    // Clear any previous messages when changing authority
+    setMessage("");
   };
 
   // Add new function to fetch available time slots
@@ -425,6 +430,8 @@ const AppointmentBookingPage = () => {
           })
         );
         setAvailableTimeSlots(formattedTimeSlots);
+        // Clear any previous error messages when time slots are successfully found
+        setMessage("");
       } else {
         setAvailableTimeSlots([]);
         setMessage("No available time slots for the selected date");
@@ -440,6 +447,8 @@ const AppointmentBookingPage = () => {
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service.name);
     setShowServiceDropdown(false);
+    // Clear any previous messages when changing service
+    setMessage("");
   };
 
   const handleTimeSlotSelect = (timeSlot: TimeSlot) => {

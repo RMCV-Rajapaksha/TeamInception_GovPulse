@@ -914,7 +914,7 @@ paths:
       deprecated: false
       security:
         - BearerAuth: []
-  /api/v2/time-slots/get-free-time-slots-of-authority/{authority_id}:
+  /api/v2/time-slots/get-free-time-slots/{authority_id}:
     get:
       summary: Get free time slots of an authority
       operationId: getFreeTimeSlotsOfAnAuthority
