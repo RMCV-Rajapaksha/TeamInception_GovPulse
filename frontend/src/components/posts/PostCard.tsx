@@ -8,7 +8,6 @@ import {
 import { PiShareFatThin } from "react-icons/pi";
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { upvoteService } from "@/utils/api";
 
 export type Post = {
   id: string;
@@ -49,66 +48,68 @@ export default function PostCard({
   return (
     <article className="w-full">
       {/* Desktop layout */}
-      <div className="hidden md:flex md:flex-wrap w-full py-8 lg:py-10 gap-8 lg:gap-10">
-        {/* Left content */}
-        <div className="flex-grow flex flex-col gap-4 lg:gap-6 min-w-0">
-          {/* Meta row */}
-          <div className="flex items-center gap-4 lg:gap-6">
-            <div className="flex-1 flex items-center gap-3 text-sm text-gray-500">
-              <span className="inline-flex items-center gap-2 whitespace-nowrap">
-                <FiClock className="h-4 w-4" /> {date}
-              </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
-              <span className="inline-flex items-center gap-2 whitespace-nowrap">
-                <FiMapPin className="h-4 w-4" /> {location}
-              </span>
+      <div className="hidden md:block w-full py-8 lg:py-10">
+        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 xl:gap-10">
+          {/* Left content */}
+          <div className="flex-1 flex flex-col gap-4 lg:gap-6 min-w-0">
+            {/* Meta row */}
+            <div className="flex items-center gap-4 lg:gap-6">
+              <div className="flex-1 flex items-center gap-3 text-sm text-gray-500">
+                <span className="inline-flex items-center gap-2 whitespace-nowrap">
+                  <FiClock className="h-4 w-4" /> {date}
+                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                <span className="inline-flex items-center gap-2 whitespace-nowrap">
+                  <FiMapPin className="h-4 w-4" /> {location}
+                </span>
+              </div>
+              <div className="px-4 lg:px-5 py-2.5 rounded-2xl border border-gray-200 inline-flex items-center gap-2 text-sm text-gray-600">
+                <FiMessageCircle className="h-4 w-4" />
+                <span>{votes}</span>
+              </div>
+              <button
+                className="rounded-2xl hover:bg-gray-100 p-3 transition-colors duration-200"
+                aria-label="More"
+              >
+                <PiShareFatThin className="h-6 w-6 text-gray-500" />
+              </button>
             </div>
-            <div className="px-4 lg:px-5 py-2.5 rounded-2xl border border-gray-200 inline-flex items-center gap-2 text-sm text-gray-600">
-              <FiMessageCircle className="h-4 w-4" />
-              <span>{votes}</span>
+
+            {/* Title */}
+            <h3 className="text-lg lg:text-xl font-bold leading-snug text-gray-900">
+              {title}
+            </h3>
+
+            {/* Description */}
+            <p className="text-gray-600 text-base lg:text-lg leading-relaxed">
+              {description}
+            </p>
+
+            {/* Actions */}
+            <div className="flex">
+              <button
+                onClick={handleVoteClick}
+                className="flex items-center gap-3 h-12 lg:h-14 px-5 lg:px-6 rounded-2xl border border-gray-300 bg-gray-50 text-gray-900 hover:bg-gray-100 font-bold transition-colors duration-200"
+              >
+                <FiArrowUp className="h-5 w-5" />
+                Vote
+              </button>
             </div>
-            <button
-              className="rounded-2xl hover:bg-gray-100 p-3 transition-colors duration-200"
-              aria-label="More"
-            >
-              <PiShareFatThin className="h-6 w-6 text-gray-500" />
-            </button>
           </div>
 
-          {/* Title */}
-          <h3 className="text-lg lg:text-xl font-bold leading-snug text-gray-900">
-            {title}
-          </h3>
-
-          {/* Description */}
-          <p className="text-gray-600 text-base lg:text-lg leading-relaxed">
-            {description}
-          </p>
-
-          {/* Actions */}
-          <div className="flex">
-            <button
-              onClick={handleVoteClick}
-              className="flex items-center gap-3 h-12 lg:h-14 px-5 lg:px-6 rounded-2xl border border-gray-300 bg-gray-50 text-gray-900 hover:bg-gray-100 font-bold transition-colors duration-200"
-            >
-              <FiArrowUp className="h-5 w-5" />
-              Vote
-            </button>
-          </div>
-        </div>
-
-        {/* Image section */}
-        <div className="flex-shrink-0 w-72 lg:w-80 relative rounded-2xl overflow-hidden">
-          <img
-            src={imageUrl}
-            alt="Post media"
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-          />
-          <div className="absolute top-3 right-3">
-            <span className="px-4 lg:px-5 py-2 lg:py-2.5 bg-yellow-200 rounded-lg inline-flex items-center gap-2 text-sm text-gray-900">
-              <span className="h-2.5 w-2.5 rounded-full bg-gray-900" />
-              {status}
-            </span>
+          {/* Image section */}
+          <div className="flex-shrink-0 w-full xl:w-72 2xl:w-80 h-48 lg:h-56 xl:h-48 2xl:h-56 relative rounded-2xl overflow-hidden">
+            <img
+              src={imageUrl}
+              alt="Post media"
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute top-3 right-3">
+              <span className="px-4 lg:px-5 py-2 lg:py-2.5 bg-yellow-200 rounded-lg inline-flex items-center gap-2 text-sm text-gray-900">
+                <span className="h-2.5 w-2.5 rounded-full bg-gray-900" />
+                {status}
+              </span>
+            </div>
           </div>
         </div>
       </div>
