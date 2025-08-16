@@ -138,75 +138,187 @@ The following sequence diagrams illustrate the key workflows and interactions wi
 
 ### Prerequisites
 
+Ensure you have the following installed on your system:
+
 - **Node.js** 18+ and npm/yarn
 - **Python** 3.10+
 - **Git** for version control
+- **Database** (PostgreSQL/MongoDB - optional for development)
 
-### 1. Clone Repository
+### Project Setup Process
 
-bash
+#### Step 1: Repository Setup
+
+```bash
+# Clone the repository
 git clone https://github.com/RMCV-Rajapaksha/GovPulse.git
 cd GovPulse
+```
 
+#### Step 2: Environment Configuration
 
-### 2. Frontend Setup
+Create the required environment files before starting the services:
 
-bash
-cd frontend
-npm install
-npm run dev
+**🔧 Frontend Environment (.env)**
 
+Create `frontend/.env` file:
 
-Frontend will be available at `http://localhost:5173`
-
-### 3. Backend Setup
-
-bash
-cd backend
-npm install
-npm run dev
-
-
-Backend API will be available at `http://localhost:3000`
-
-### 4. AI Service Setup
-
-bash
-cd agent
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-# Create .env file with your API keys
-OPEN_API_KEY=your_openai_api_key
-GOOGLE_API_KEY=your_google_api_key
-PERPLEXITY_API_KEY=your_perplexity_api_key
-
-# Start AI agents
-cd backend/agents/ceb && python server.py    # Port 10010
-cd backend/agents/health && python server.py # Port 10011
-cd backend/host && python server.py          # Port 11000
-
-
-### 5. Environment Configuration
-
-Create environment files for each service:
-
-**Frontend (.env)**
-
-env
+```env
+# API Configuration
 VITE_API_URL=http://localhost:3000
 VITE_AI_SERVICE_URL=http://localhost:11000
 
+# Development Settings
+VITE_NODE_ENV=development
+```
 
-**Backend (.env)**
+**🔧 Backend Environment (.env)**
 
-env
+Create `backend/.env` file:
+
+```env
+# Server Configuration
 NODE_ENV=development
 PORT=3000
+
+# Database Configuration
 DATABASE_URL=your_database_connection_string
-JWT_SECRET=your_jwt_secret
+
+# Authentication
+JWT_SECRET=your_jwt_secret_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+
+# AI Service Integration
 AI_SERVICE_URL=http://localhost:11000
+
+# Email Configuration (Optional)
+EMAIL_SERVICE_API_KEY=your_email_service_key
+EMAIL_FROM=noreply@govpulse.lk
+
+# File Upload (Optional)
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_key
+CLOUDINARY_API_SECRET=your_cloudinary_secret
+```
+
+**🔧 AI Service Environment (.env)**
+
+Create `agent/.env` file:
+
+```env
+# AI API Keys
+OPENAI_API_KEY=your_openai_api_key
+GOOGLE_API_KEY=your_google_api_key
+
+
+# LangChain Configuration
+LANGCHAIN_API_KEY=your_langchain_api_key
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_PROJECT=govpulse-agents
+
+# Service Configuration
+HOST_PORT=8080
+CEB_AGENT_PORT=10010
+HEALTH_AGENT_PORT=10011
+
+# Development Settings
+ENVIRONMENT=development
+LOG_LEVEL=info
+```
+
+#### Step 3: Service Installation & Startup
+
+**🌐 Frontend Service**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+- **Access URL**: `http://localhost:5173`
+- **Hot Reload**: Enabled for development
+
+**⚙️ Backend Service**
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+- **API URL**: `http://localhost:3000`
+- **Auto-restart**: Enabled with nodemon
+
+**🤖 AI Service (Python Agents)**
+
+```bash
+cd agent
+
+# Create and activate virtual environment
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start AI agents (run in separate terminals)
+# Terminal 1: Host Agent
+cd backend/host && python server.py
+
+# Terminal 2: CEB Agent  
+cd backend/agents/ceb && python server.py
+
+# Terminal 3: Health Agent
+cd backend/agents/health && python server.py
+```
+
+**Service Ports:**
+- Host Agent: `http://localhost:8080`
+- CEB Agent: `http://localhost:10010`  
+- Health Agent: `http://localhost:10011`
+
+#### Step 4: Database Setup (Optional)
+
+If you're using a local database:
+
+```bash
+cd backend
+
+# Initialize Prisma (if using Prisma ORM)
+npx prisma generate
+npx prisma db push
+
+# Or run database scripts
+# For PostgreSQL:
+psql -U your_username -d your_database -f db_scripts/govpulse_db_create.sql
+psql -U your_username -d your_database -f db_scripts/sample_data_insert.sql
+```
+
+#### Step 5: Verification
+
+Verify all services are running:
+
+- ✅ Frontend: `http://localhost:5173`
+- ✅ Backend API: `http://localhost:3000`
+- ✅ AI Host Service: `http://localhost:8080`
+- ✅ CEB Agent: `http://localhost:10010`
+- ✅ Health Agent: `http://localhost:10011`
+
+### 🐳 Docker Setup (Alternative)
+
+For containerized deployment:
+
+```bash
+# Build and run all services
+docker-compose up --build
+
+# Or run specific services
+docker-compose up frontend backend
+```
 
 
 ## 💡 Usage Examples
