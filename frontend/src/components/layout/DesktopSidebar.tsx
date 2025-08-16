@@ -4,14 +4,18 @@ import {
   TrendUp,
   SquaresFour,
   Folder,
-  ThumbsUp,
   Calendar,
-  StackIcon
+  StackIcon,
 } from "@phosphor-icons/react";
+import { useUser } from "@clerk/clerk-react";
+import { useAuthShim } from "../../app/providers";
 
 export default function DesktopSidebar() {
-  // Replace this with your actual authentication logic
-  const isLoggedIn = true; // This should come from your auth context/state
+  const { hasClerk } = useAuthShim();
+  const { user } = useUser();
+
+  // User is logged in if Clerk is available and user exists
+  const isLoggedIn = hasClerk && user != null;
 
   return (
     <aside className="hidden md:block fixed left-0 top-[80px] h-screen px-8 py-12 z-50 pointer-events-auto">
@@ -75,67 +79,67 @@ export default function DesktopSidebar() {
           )}
         </NavLink>
 
-        <NavLink
-          to="/services"
-          className={({ isActive }) =>
-            [
-              "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
-              isActive
-                ? "bg-gray-900 text-white"
-                : "text-gray-600 hover:bg-gray-100",
-            ].join(" ")
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <SquaresFour
-                size={24}
-                weight={isActive ? "fill" : "regular"}
-                className={isActive ? "text-white" : "text-gray-600"}
-              />
-              <span
-                className={`text-base leading-tight tracking-tight ${
-                  isActive ? "text-white" : "text-gray-600"
-                }`}
-              >
-                Services
-              </span>
-            </>
-          )}
-        </NavLink>
-
-        <NavLink
-          to="/my-services"
-          className={({ isActive }) =>
-            [
-              "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
-              isActive
-                ? "bg-gray-900 text-white"
-                : "text-gray-600 hover:bg-gray-100",
-            ].join(" ")
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <StackIcon
-                size={24}
-                weight={isActive ? "fill" : "regular"}
-                className={isActive ? "text-white" : "text-gray-600"}
-              />
-              <span
-                className={`text-base leading-tight tracking-tight ${
-                  isActive ? "text-white" : "text-gray-600"
-                }`}
-              >
-                Service Appointments
-              </span>
-            </>
-          )}
-        </NavLink>
-
-        {/* Show profile activity items when logged in */}
+        {/* Show additional navigation items when logged in */}
         {isLoggedIn && (
           <>
+            <NavLink
+              to="/services"
+              className={({ isActive }) =>
+                [
+                  "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
+                  isActive
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-600 hover:bg-gray-100",
+                ].join(" ")
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <SquaresFour
+                    size={24}
+                    weight={isActive ? "fill" : "regular"}
+                    className={isActive ? "text-white" : "text-gray-600"}
+                  />
+                  <span
+                    className={`text-base leading-tight tracking-tight ${
+                      isActive ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    Services
+                  </span>
+                </>
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/my-services"
+              className={({ isActive }) =>
+                [
+                  "self-stretch p-3 rounded-lg inline-flex justify-start items-center gap-3 transition-colors",
+                  isActive
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-600 hover:bg-gray-100",
+                ].join(" ")
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <StackIcon
+                    size={24}
+                    weight={isActive ? "fill" : "regular"}
+                    className={isActive ? "text-white" : "text-gray-600"}
+                  />
+                  <span
+                    className={`text-base leading-tight tracking-tight ${
+                      isActive ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    Service Appointments
+                  </span>
+                </>
+              )}
+            </NavLink>
+
             <NavLink
               to="/myreports"
               className={({ isActive }) =>
