@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import React, { useId} from "react";
+import React, { useId, useState} from "react";
 import {
   Search,
   Bell,
@@ -33,6 +33,9 @@ export default function Navbar() {
     alert(`QR Code Scanned: ${result}`);
   };
 
+  const [userVerifiedStatus] = useState<
+    "Verified" | "Pending" | "Not Verified"
+  >("Not Verified");
 
   return (
     <>

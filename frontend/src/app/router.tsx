@@ -18,6 +18,7 @@ import AppointmentConfirmationPage from "../pages/Services/AppointmentConfirmati
 import QRVerificationPage from "../pages/QRVerificationPage";
 import ReceiptDemoPage from "../pages/ReceiptDemoPage";
 import FigmaPrintableDemoPage from "../pages/FigmaPrintableDemoPage";
+import UserProfilePage from "@/pages/Profile/UserProfile";
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
           { path: "/profile", element: <ProfilePage /> },
           { path: "/myreports", element: <MyReportsPage /> },
           { path: "/appointments", element: <AppointmentsPage /> },
+          { path: "/user-profile", element: <UserProfilePage /> },
         ],
       },
     ],
