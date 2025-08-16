@@ -19,8 +19,15 @@ const router = express.Router();
 
 router.get("/", getIssues);
 router.get("/authority-issues", verifyOfficialToken, getAuthorityIssues);
-router.get("/:issue_id", getIssueById);
 router.get("/test", test);
+router.get(
+  "/user-issues",
+  clerkMiddleware(),
+  addUserIdFromClerk,
+  addRelatedUserFromDatabase,
+  getUserIssues
+);
+router.get("/:issue_id", getIssueById);
 router.post(
   "/create",
   clerkMiddleware(),
@@ -35,12 +42,5 @@ router.delete(
   addUserIdFromClerk,
   addRelatedUserFromDatabase,
   deleteIssue
-);
-router.get(
-  "/user-issues",
-  clerkMiddleware(),
-  addUserIdFromClerk,
-  addRelatedUserFromDatabase,
-  getUserIssues
 );
 module.exports = router;

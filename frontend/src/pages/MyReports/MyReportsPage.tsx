@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import ReportCard, { type Issue as ReportCardIssue } from "@/components/reports/ReportCard";
 import ReportBottomSheet from "@/components/reports/ReportBottomSheet";
 import { apiService, transformIssueToPost } from "@/utils/api"; 
 
 export default function MyReportsPage() {
+  const { getToken } = useAuth();
   const [selected, setSelected] = useState<ReportCardIssue | null>(null);
   const [open, setOpen] = useState(false);
   const [issues, setIssues] = useState<ReportCardIssue[]>([]);
@@ -19,7 +21,13 @@ export default function MyReportsPage() {
     const fetchUserIssues = async () => {
       try {
         setLoading(true);
-        const data = await apiService.getUserIssues(); 
+        const token = await getToken();
+        if (!token) {
+          console.error("No authentication token available");
+          return;
+        }
+        const data = await apiService.getUserIssues(token); 
+        console.log("Fetched user issues:", data);
         const upvoteCounts = await apiService.getUpvoteCounts(data.map((i) => i.issue_id));
 
         const transformed = data.map((issue) => {
