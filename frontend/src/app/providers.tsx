@@ -2,6 +2,7 @@ import type { PropsWithChildren } from "react";
 import { createContext, useContext, useMemo } from "react";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { useAutoUserCreation } from "../hooks/useAutoUserCreation";
+import { NotificationProvider } from "../contexts/NotificationContext";
 
 // Simple shim to allow the app to run without a Clerk key in local/dev
 type AuthShim = { hasClerk: boolean };
@@ -25,7 +26,11 @@ export function AppProviders({ children }: PropsWithChildren) {
     return (
       <AuthShimContext.Provider value={valueTrue}>
         <ClerkProvider publishableKey={PUBLISHABLE_KEY!}>
-          <AutoUserCreationProvider>{children}</AutoUserCreationProvider>
+          <AutoUserCreationProvider>
+            <NotificationProvider>
+              {children}
+            </NotificationProvider>
+          </AutoUserCreationProvider>
         </ClerkProvider>
       </AuthShimContext.Provider>
     );

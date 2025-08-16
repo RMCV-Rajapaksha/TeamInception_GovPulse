@@ -43,6 +43,8 @@ const AuthorityIssues = () => {
   const [newStatus, setNewStatus] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [availableStatuses, setAvailableStatuses] = useState<IssueStatus[]>([]);
+  const [showApprovalDialog, setShowApprovalDialog] = useState<boolean>(false);
+  const [issueToApprove, setIssueToApprove] = useState<Issue | null>(null);
   const { toast } = useToast();
 
   // Data processing functions for charts
@@ -62,8 +64,8 @@ const AuthorityIssues = () => {
 
   const getStatusDistribution = () => {
     const statusCounts = issues.reduce((acc, issue) => {
-      const statusId = issue.Issue_Status.status_id;
-      const statusName = getStatusLabel(statusId, availableStatuses);
+      const statusId = issue.Issue_Status?.status_id;
+      const statusName = statusId ? getStatusLabel(statusId, availableStatuses) : "Unknown Status";
       acc[statusName] = (acc[statusName] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -79,7 +81,8 @@ const AuthorityIssues = () => {
 
   const getCategoryDistribution = () => {
     const categoryCounts = issues.reduce((acc, issue) => {
-      const categoryName = issue.Category.category_name;
+      // Check if Category exists and has category_name
+      const categoryName = issue.Category?.category_name || "Uncategorized";
       acc[categoryName] = (acc[categoryName] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -119,10 +122,10 @@ const AuthorityIssues = () => {
     );
     
     const completed = issues.filter(issue => 
-      completedStatuses.some(s => s.status_id === issue.Issue_Status.status_id)
+      issue.Issue_Status && completedStatuses.some(s => s.status_id === issue.Issue_Status.status_id)
     ).length;
     const assigned = issues.filter(issue => 
-      assignedStatuses.some(s => s.status_id === issue.Issue_Status.status_id)
+      issue.Issue_Status && assignedStatuses.some(s => s.status_id === issue.Issue_Status.status_id)
     ).length;
     const critical = issues.filter(issue => issue.urgency_score >= 8).length;
     
@@ -200,6 +203,55 @@ const AuthorityIssues = () => {
     }
   };
 
+  const handleApproveForAppointment = (issue: Issue) => {
+    setIssueToApprove(issue);
+    setShowApprovalDialog(true);
+  };
+
+  const confirmApproveForAppointment = async () => {
+    if (!issueToApprove) return;
+
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+      
+      const notificationData = {
+        user_id: issueToApprove.User?.user_id,
+        notification_type: "approved_for_appointment_scheduling",
+        notification_content: `Your issue with the title "${issueToApprove.title}" has been approved for the placing of an appointment. If you would like to book an appointment press the book now button.`,
+        issue_id: issueToApprove.issue_id,
+        authority_id: issueToApprove.authority_id,
+        appointment_id: null
+      };
+
+      const response = await fetch(`${backendUrl}/api/v2/live-notifications/submit-notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notificationData),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Appointment approval notification sent successfully",
+        });
+      } else {
+        throw new Error('Failed to send notification');
+      }
+    } catch (error) {
+      console.error("Failed to send approval notification:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send approval notification. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setShowApprovalDialog(false);
+      setIssueToApprove(null);
+    }
+  };
+
   useEffect(() => {
     const initializeData = async () => {
       await fetchAvailableStatuses();
@@ -217,14 +269,14 @@ const AuthorityIssues = () => {
         (issue) =>
           issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           issue.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          issue.User.email.toLowerCase().includes(searchTerm.toLowerCase())
+          (issue.User?.email && issue.User.email.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
     // Status filter
     if (statusFilter !== "all") {
       filtered = filtered.filter(
-        (issue) => issue.Issue_Status.status_id.toString() === statusFilter
+        (issue) => issue.Issue_Status?.status_id.toString() === statusFilter
       );
     }
 
@@ -621,7 +673,7 @@ const AuthorityIssues = () => {
                             {getUrgencyLabel(issue.urgency_score)} ({issue.urgency_score.toFixed(1)})
                           </Badge>
                           <Badge variant="outline">
-                            {getStatusLabel(issue.Issue_Status.status_id, availableStatuses)}
+                            {issue.Issue_Status ? getStatusLabel(issue.Issue_Status.status_id, availableStatuses) : "Unknown Status"}
                           </Badge>
                         </div>
                       </div>
@@ -632,15 +684,15 @@ const AuthorityIssues = () => {
                           <div className="flex items-center text-sm text-muted-foreground">
                             <User className="h-4 w-4 mr-2" />
                             <span>
-                              {issue.User.first_name && issue.User.last_name 
+                              {issue.User?.first_name && issue.User?.last_name 
                                 ? `${issue.User.first_name} ${issue.User.last_name}` 
-                                : issue.User.email
+                                : issue.User?.email || "Unknown User"
                               }
                             </span>
                           </div>
                           <div className="flex items-center text-sm text-muted-foreground">
                             <Tag className="h-4 w-4 mr-2" />
-                            <span>{issue.Category.category_name}</span>
+                            <span>{issue.Category?.category_name || "Uncategorized"}</span>
                           </div>
                           {(issue.gs_division || issue.ds_division) && (
                             <div className="flex items-center text-sm text-muted-foreground">
@@ -739,16 +791,26 @@ const AuthorityIssues = () => {
                             ) : null;
                           })()}
                         </div>
-                        <Button
-                          onClick={() => {
-                            setSelectedIssue(issue);
-                            setNewStatus(issue.Issue_Status.status_id.toString());
-                          }}
-                          size="sm"
-                          className="hover:bg-primary/90"
-                        >
-                          Update Status
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => {
+                              setSelectedIssue(issue);
+                              setNewStatus(issue.Issue_Status?.status_id.toString() || "");
+                            }}
+                            size="sm"
+                            variant="outline"
+                            className="hover:bg-primary/90"
+                          >
+                            Update Status
+                          </Button>
+                          <Button
+                            onClick={() => handleApproveForAppointment(issue)}
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            Approve for Appointment
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -773,7 +835,7 @@ const AuthorityIssues = () => {
                   <div>
                     <div className="text-sm font-medium">Current Status</div>
                     <p className="text-sm text-muted-foreground">
-                      {getStatusLabel(selectedIssue.Issue_Status.status_id, availableStatuses)}
+                      {selectedIssue.Issue_Status ? getStatusLabel(selectedIssue.Issue_Status.status_id, availableStatuses) : "Unknown Status"}
                     </p>
                   </div>
                   <div>
@@ -805,9 +867,58 @@ const AuthorityIssues = () => {
                 </Button>
                 <Button
                   onClick={() => updateIssueStatus(selectedIssue.issue_id, newStatus)}
-                  disabled={!newStatus || newStatus === selectedIssue.Issue_Status.status_id.toString()}
+                  disabled={!newStatus || newStatus === selectedIssue.Issue_Status?.status_id.toString()}
                 >
                   Update Status
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Approve for Appointment Confirmation Dialog */}
+        {showApprovalDialog && issueToApprove && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-md">
+              <CardHeader>
+                <CardTitle>Approve for Appointment</CardTitle>
+                <CardDescription>
+                  {issueToApprove.title}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Continuing this action will allow the issue submitter to book an appointment with your government authority. 
+                    They will receive a notification with instructions to book their appointment.
+                  </p>
+                  <div className="p-3 bg-blue-50 rounded-lg border">
+                    <p className="text-sm">
+                      <strong>Issue:</strong> {issueToApprove.title}
+                    </p>
+                    <p className="text-sm mt-1">
+                      <strong>Submitted by:</strong> {issueToApprove.User?.first_name && issueToApprove.User?.last_name 
+                        ? `${issueToApprove.User.first_name} ${issueToApprove.User.last_name}` 
+                        : issueToApprove.User?.email || "Unknown User"}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="flex justify-end gap-2 p-6 pt-0">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowApprovalDialog(false);
+                    setIssueToApprove(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmApproveForAppointment}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Confirm Approval
                 </Button>
               </div>
             </Card>

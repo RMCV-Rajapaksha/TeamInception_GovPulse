@@ -9,7 +9,6 @@ import StatisticsPage from "../pages/Statistics/StatisticsPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
 import MyReportsPage from "@/pages/MyReports/MyReportsPage";
 import AppointmentsPage from "@/pages/Appointments/AppointmentsPage";
-import ServicesPage from "../pages/Services/ServicesPage";
 import RegistrationsPage from "../pages/Registrations/RegistrationsPage";
 import DrivingLicensePage from "../pages/Services/DrivingLicensePage";
 import AppointmentBookingPage from "../pages/Services/AppointmentBookingPage";
@@ -19,6 +18,7 @@ import QRVerificationPage from "../pages/QRVerificationPage";
 import ReceiptDemoPage from "../pages/ReceiptDemoPage";
 import FigmaPrintableDemoPage from "../pages/FigmaPrintableDemoPage";
 import UserProfilePage from "@/pages/Profile/UserProfile";
+import NotificationsPage from "@/pages/Notifications/NotificationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +45,7 @@ export const router = createBrowserRouter([
           { path: "/myreports", element: <MyReportsPage /> },
           { path: "/appointments", element: <AppointmentsPage /> },
           { path: "/user-profile", element: <UserProfilePage /> },
+          { path: "/notifications", element: <NotificationsPage /> },
         ],
       },
     ],
