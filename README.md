@@ -75,37 +75,6 @@ GovPulse addresses the critical problem of unresolved government issues in Sri L
 
 *System architecture diagram showing the multi-layered structure of GovPulse with React frontend, Node.js backend, and Python AI service components working together through A2A protocol*
 
-GovPulse/
-├── frontend/                    # React TypeScript Frontend
-│   ├── src/
-│   │   ├── components/         # UI Components
-│   │   ├── pages/             # Application Pages
-│   │   ├── services/          # API Services
-│   │   └── utils/             # Utility Functions
-│   ├── public/                # Static Assets
-│   └── package.json           # Frontend Dependencies
-│
-├── backend/                    # Node.js Backend API
-│   ├── src/
-│   │   ├── routes/            # API Routes
-│   │   ├── controllers/       # Business Logic
-│   │   ├── models/            # Data Models
-│   │   ├── middleware/        # Authentication & Validation
-│   │   └── services/          # External Service Integrations
-│   └── package.json           # Backend Dependencies
-│
-├── agent/                      # Python AI Service (A2A Protocol)
-│   ├── backend/
-│   │   ├── host/              # Central Host Agent
-│   │   ├── agents/            # Specialized AI Agents
-│   │   │   ├── ceb/           # Electricity Board Agent
-│   │   │   └── health/        # Health Ministry Agent
-│   │   ├── api/               # External API Integrations
-│   │   └── common/            # Shared Infrastructure
-│   └── requirements.txt       # Python Dependencies
-│
-└── main.py                     # Application Entry Point
-
 
 ##   Database Schema & ER Diagram
 
